@@ -1,0 +1,4 @@
+name,damage,speed
+flame_bolt,3,3
+heal_wounds,-1,4
+acid_burst,2,2

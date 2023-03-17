@@ -1,0 +1,122 @@
+import pygame as pg
+import sys
+from sstates import States
+from sobjects import Hero, Monster, Spellhand
+from sstab import Stab, Slash
+from spath import Path
+
+class Combat(States):
+    def __init__(self):
+        States.__init__(self)
+        self.next = 'path' #backto map, if map not cleared. if map cleared, end screen
+        self.actions_unordered = []
+        self.combat_hero_sprites = pg.sprite.Group()
+        self.combat_mob_sprites = pg.sprite.Group()
+        self.animation_sprites = pg.sprite.Group()
+ 
+    def cleanup(self):
+        self.animation_sprites.empty()
+        self.combat_hero_sprites.empty()
+        self.combat_mob_sprites.empty()
+        self.actions_unordered = []
+    def startup(self):
+        self.screen.fill((255,255,255))
+        self.ground = pg.image.load('auto_battle/ab_kuvat/game_bg.png')
+        self.screen.blit(self.ground, (0,0))
+
+        if len(States.room_monsters) == 1:
+            self.monster1 = Monster(((self.width * 0.5), self.height * 0.2), self.monster_sprites, States.room_monsters[0]) 
+            States.room_monsters = []
+            States.room_monsters.append(self.monster1)
+        
+        elif len(States.room_monsters) == 2:
+            self.monster1 = Monster(((self.width / 2), self.height / 5), self.monster_sprites, States.room_monsters[0]) 
+            self.monster2 = Monster(((self.width / 3), self.height / 5), self.monster_sprites, States.room_monsters[1])
+            States.room_monsters = []
+            States.room_monsters.append(self.monster1)
+            States.room_monsters.append(self.monster2)
+        
+        elif len(States.room_monsters) == 3:
+            self.monster1 = Monster(((self.width * 0.25), self.height / 5), self.monster_sprites, States.room_monsters[0]) 
+            self.monster2 = Monster(((self.width * 0.50), self.height / 5), self.monster_sprites, States.room_monsters[1])
+            self.monster3 = Monster(((self.width * 0.75), self.height / 5), self.monster_sprites, States.room_monsters[2])
+            States.room_monsters = []
+            States.room_monsters.append(self.monster1)
+            States.room_monsters.append(self.monster2)
+            States.room_monsters.append(self.monster3)
+
+        x_hero = 0.3
+        for phero in States.party_heroes:
+           phero.rect = phero.image.get_rect(topleft = ((self.width * x_hero), (self.height * 0.6))) 
+           phero.xpos = (self.width * x_hero)
+           phero.ypos = (self.height * 0.6)
+           x_hero += 0.2
+
+        for room_monster in States.room_monsters:
+            self.combat_mob_sprites.add(room_monster)
+            self.actions_unordered.append(room_monster)
+        for party_hero in States.party_heroes:
+            self.combat_hero_sprites.add(party_hero)
+            self.actions_unordered.append(party_hero)
+
+        #tie breaker for speed ties? first in hero/mob list > lower, hero > mob, class prios
+        def order_sort(incombat: list):
+            def speed_order(par: object):
+                return par.data["speed"]
+            return sorted(incombat, key=speed_order, reverse=True)
+        self.actions_ordered = order_sort(self.actions_unordered)
+        
+    def get_event(self, event):
+        if event.type == pg.KEYDOWN:
+            pass
+            #do pause button
+        elif event.type == pg.MOUSEBUTTONDOWN:
+            self.done = True
+    
+    #hero target is always mob[0] and mob target is hero[0]
+    def update(self, screen, dt):
+        
+        States.acting = self.actions_ordered[0]
+        if States.acting.animation == False: #animation hasn't started yet
+            if States.acting.player == True:
+            #do target function
+               self.combat_animation = Stab(States.acting.xpos, States.acting.ypos)
+            elif States.acting.player == False:
+                self.combat_animation = Slash((States.acting.xpos + self.width * 0.1), (States.acting.ypos + self.height * 0.1))
+            else:
+                print("line102")
+            self.animation_sprites.add(self.combat_animation)
+            States.acting.animation = True
+            self.combat_animation.animation_start()
+
+        self.draw(screen)
+    def draw(self, screen):
+        self.screen.fill((255,255,255))
+        self.screen.blit(self.ground, (0,0))
+        self.combat_hero_sprites.draw(self.screen)
+        self.combat_mob_sprites.draw(self.screen)
+
+          
+        if States.acting.animation == True: 
+            self.animation_sprites.draw(screen)
+
+        if self.combat_animation.animate(1) == True:
+            self.animation_sprites.remove(self.combat_animation)
+            self.actions_ordered.append(self.actions_ordered.pop(0))
+            
+            if States.acting.player == True:
+                if States.room_monsters[0].data["health"] <=0:#target instead of [0]
+                    self.combat_mob_sprites.remove(States.room_monsters[0])
+                    self.actions_ordered.remove(States.room_monsters[0])
+                    States.room_monsters.remove(States.room_monsters[0])
+                    if States.room_monsters == []: #do victory screen
+                        self.done = True
+
+            elif States.acting.player == False:    
+                if States.party_heroes[0].data["health"] <=0:
+                    self.combat_hero_sprites.remove(States.party_heroes[0])
+                    self.actions_ordered.remove(States.party_heroes[0])
+                    States.party_heroes.remove(States.party_heroes[0])
+                    if States.party_heroes == []: #do loss screen
+                        self.next = 'menu'
+                        self.done = True

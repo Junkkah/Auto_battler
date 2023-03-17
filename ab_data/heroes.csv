@@ -1,0 +1,9 @@
+class,health,max_health,damage,speed
+cleric,12,12,2,3
+thief,8,8,2,5
+warrior,15,15,2,3
+wizard,6,6,2,2
+bard,7,7,2,3
+ranger,13,13,2,3
+paladin,15,15,2,3
+barbarian,17,17,2,3
