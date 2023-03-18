@@ -1,10 +1,11 @@
 import pygame as pg, sys
-from sstates import States
-from sobjects import Hero, Monster
+from states import States
+from objects import Hero, Monster
 
 def melee_attack(attacker, target):
 	States.acting.animation = False
 	target.data["health"] -= attacker.data["damage"]
+	target.health -= attacker.damage
     
 
 class Stab(pg.sprite.Sprite):

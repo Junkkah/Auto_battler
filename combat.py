@@ -1,9 +1,9 @@
 import pygame as pg
 import sys
-from sstates import States
-from sobjects import Hero, Monster, Spellhand
-from sstab import Stab, Slash
-from spath import Path
+from states import States
+from objects import Hero, Monster, Spellhand
+from animation import Stab, Slash
+from path import Path
 
 class Combat(States):
     def __init__(self):

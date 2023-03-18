@@ -1,11 +1,11 @@
 import pygame as pg
 import sys
-from smenu import Menu
-from sgame import Game
-from smap import Map
-from spath import Path
-from scombat import Combat
-from sstates import States
+from menu import Menu
+from game import Game
+from map import Map
+from path import Path
+from combat import Combat
+from states import States
 
 class Control:
     def __init__(self, **settings):

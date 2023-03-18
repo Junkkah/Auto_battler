@@ -1,6 +1,6 @@
 import pygame as pg
 import sys
-from sstates import States
+from states import States
 
 #choose location at map screen
 #load path for that location

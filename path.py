@@ -1,7 +1,7 @@
 import pygame as pg
 import sys
-from sstates import States
-from sobjects import Loc, Arrow
+from states import States
+from objects import Loc, Arrow
 
 class Path(States):
     def __init__(self):

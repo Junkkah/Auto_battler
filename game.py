@@ -2,9 +2,9 @@ import pygame as pg
 import sys
 import csv
 import random
-from sstates import States
-from sobjects import Hero
-from sdata import Data
+from states import States
+from objects import Hero
+from data import Data
  
 class Game(States):
     def __init__(self):

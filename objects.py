@@ -1,5 +1,5 @@
 import pygame
-from sdata import Data
+from data import Data
 
 #put all stats from dict into self.stats
 
@@ -29,6 +29,7 @@ class Hero(pygame.sprite.Sprite):
             if self.data[i] == type:
                 continue
             self.data[i] = int(self.data[i])
+        self.damage = self.data["damage"]
         
         self.health = self.data["health"]
         self.max_health = self.data["max_health"]
@@ -57,6 +58,8 @@ class Monster(pygame.sprite.Sprite):
             if self.data[i] == type:
                 continue
             self.data[i] = int(self.data[i])
+        self.damage = self.data["damage"]
+        
         self.health = self.data["health"]
         self.max_health = self.data["max_health"]
         self.health = min(self.health, self.max_health)
