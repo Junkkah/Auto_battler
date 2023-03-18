@@ -1,18 +1,18 @@
-import pygame
+import pygame as pg
 from data import Data
 
 #put all stats from dict into self.stats
 
-class Hero(pygame.sprite.Sprite):
+class Hero(pg.sprite.Sprite):
     def __init__(self, pos, groups, name: str, type: str):
         super().__init__(groups)
         self.xpos = pos[0]
         self.ypos = pos[1]
         path = 'auto_battle/ab_kuvat/' + name + '.png'
-        naama = pygame.image.load(path) 
+        naama = pg.image.load(path) 
         width = naama.get_width()
         height = naama.get_height()             
-        self.image = pygame.transform.scale(naama, ((width / (height / 150)), 150))
+        self.image = pg.transform.scale(naama, ((width / (height / 150)), 150))
         self.rect = self.image.get_rect(topleft = (self.xpos, self.ypos))
         self.width = self.image.get_width()
         self.height = self.image.get_height()
@@ -30,7 +30,9 @@ class Hero(pygame.sprite.Sprite):
                 continue
             self.data[i] = int(self.data[i])
         self.damage = self.data["damage"]
-        
+        self.exp = self.data["exp"]
+        self.level = 1
+        self.next_level = 10
         self.health = self.data["health"]
         self.max_health = self.data["max_health"]
         self.health = min(self.health, self.max_health)
@@ -38,16 +40,16 @@ class Hero(pygame.sprite.Sprite):
         self.animation = False
         self.attacked = False
                
-class Monster(pygame.sprite.Sprite):
+class Monster(pg.sprite.Sprite):
     def __init__(self, pos, groups, type: str):
         super().__init__(groups)
         path = 'auto_battle/ab_kuvat/' + type + '.png'
-        mob = pygame.image.load(path)
+        mob = pg.image.load(path)
         height = mob.get_height()
         width = mob.get_width()
         self.xpos = pos[0]
         self.ypos = pos[1]
-        self.image = pygame.transform.scale(mob, ((width / 10), (height / 10)))
+        self.image = pg.transform.scale(mob, ((width / 10), (height / 10)))
         self.rect = self.image.get_rect(topleft = (self.xpos, self.ypos))
         self.type = type
         self.player = False
@@ -59,18 +61,18 @@ class Monster(pygame.sprite.Sprite):
                 continue
             self.data[i] = int(self.data[i])
         self.damage = self.data["damage"]
-        
+        self.exp = self.data["exp"]
         self.health = self.data["health"]
         self.max_health = self.data["max_health"]
         self.health = min(self.health, self.max_health)
         self.animation = False
         self.attacked = False
         
-class Loc(pygame.sprite.Sprite):
+class Loc(pg.sprite.Sprite):
     def __init__(self, pos, groups, location, name: str):
         super().__init__(groups)
         path = 'auto_battle/ab_kuvat/' + name + '.png'
-        scenery = pygame.image.load(path)
+        scenery = pg.image.load(path)
         self.height = scenery.get_height()
         self.width = scenery.get_width()
         self.xpos = pos[0]
@@ -84,11 +86,11 @@ class Loc(pygame.sprite.Sprite):
         self.rrarrow = None
 
         if self.height + self.width > 4000:
-            self.image = pygame.transform.scale(scenery, ((self.width / 17), (self.height / 17)))
+            self.image = pg.transform.scale(scenery, ((self.width / 17), (self.height / 17)))
         elif self.height + self.width > 3000:
-            self.image = pygame.transform.scale(scenery, ((self.width / 13), (self.height / 13)))
+            self.image = pg.transform.scale(scenery, ((self.width / 13), (self.height / 13)))
         else:
-            self.image = pygame.transform.scale(scenery, ((self.width / 8), (self.height / 8)))
+            self.image = pg.transform.scale(scenery, ((self.width / 8), (self.height / 8)))
         self.rect = self.image.get_rect(center = pos)
         self.name = name
         self.content = []
@@ -96,25 +98,25 @@ class Loc(pygame.sprite.Sprite):
         #self.terrain
         #self.modifier
 
-class Arrow(pygame.sprite.Sprite):
+class Arrow(pg.sprite.Sprite):
     def __init__(self, pos, angle: int, groups, destination: object, name: str):
         super().__init__(groups)
         path = 'auto_battle/ab_kuvat/' + name + '.png'
-        picture = pygame.image.load(path)
+        picture = pg.image.load(path)
         self.height = picture.get_height()
         self.width = picture.get_width()
-        arrow = pygame.transform.scale(picture, ((self.width / 12), (self.height / 12)))
-        self.image = pygame.transform.rotozoom(arrow, angle, 1) #lock in 50 and -50
+        arrow = pg.transform.scale(picture, ((self.width / 12), (self.height / 12)))
+        self.image = pg.transform.rotozoom(arrow, angle, 1) #lock in 50 and -50
         self.rect = self.image.get_rect(center = pos)
         self.destination = destination
         self.content = [] #not needed anymore
         self.visible = False
 
-class Spellhand(pygame.sprite.Sprite):
+class Spellhand(pg.sprite.Sprite):
     def __init__(self, pos, groups):
         super().__init__(groups)
-        kasi = pygame.image.load('auto_battle/ab_kuvat/rhand.png')
+        kasi = pg.image.load('auto_battle/ab_kuvat/rhand.png')
         height = kasi.get_height()
         width = kasi.get_width()
-        self.image = pygame.transform.scale(kasi, ((width / 15), (height / 15)))
+        self.image = pg.transform.scale(kasi, ((width / 15), (height / 15)))
         self.rect = self.image.get_rect(topleft = pos)

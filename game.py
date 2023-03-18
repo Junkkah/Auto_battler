@@ -57,11 +57,6 @@ class Game(States):
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_ESCAPE:
                 exit()
-     
-        #for tapahtuma in pygame.event.get():
-        #        if tapahtuma.type == pygame.KEYDOWN:
-        #            if tapahtuma.key == pygame.K_SPACE:
-
 
         elif event.type == pg.MOUSEBUTTONDOWN:
             if self.continue_rect.collidepoint(pg.mouse.get_pos()) and len(States.party_heroes) == 3:
@@ -95,6 +90,7 @@ class Game(States):
         
         for shero in self.selection:
             if shero.rect.collidepoint(pg.mouse.get_pos()):
-                info_text = self.info_font.render(shero.name.capitalize(), True, (0, 0, 0))
-                info_text_rect = info_text.get_rect(topleft=((shero.xpos + 20), (shero.ypos + 151)))
+                info = shero.name.capitalize() + ", " + shero.type.capitalize()
+                info_text = self.info_font.render(info, True, (0, 0, 0))
+                info_text_rect = info_text.get_rect(topleft=((shero.xpos), (shero.ypos + 151)))
                 self.screen.blit(info_text, info_text_rect)

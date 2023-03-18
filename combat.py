@@ -4,6 +4,7 @@ from states import States
 from objects import Hero, Monster, Spellhand
 from animation import Stab, Slash
 from path import Path
+from stats import Stats
 
 class Combat(States):
     def __init__(self):
@@ -13,12 +14,19 @@ class Combat(States):
         self.combat_hero_sprites = pg.sprite.Group()
         self.combat_mob_sprites = pg.sprite.Group()
         self.animation_sprites = pg.sprite.Group()
+        self.exp_reward = 0
  
     def cleanup(self):
         self.animation_sprites.empty()
         self.combat_hero_sprites.empty()
         self.combat_mob_sprites.empty()
         self.actions_unordered = []
+        #loot here
+        for ehero in States.party_heroes:
+            ehero.exp += self.exp_reward
+            #if ehero.exp => ehero.next_level:
+                #Stats.levelup(ehero)
+        self.exp_reward = 0
     def startup(self):
         self.screen.fill((255,255,255))
         self.ground = pg.image.load('auto_battle/ab_kuvat/game_bg.png')
@@ -75,7 +83,6 @@ class Combat(States):
     
     #hero target is always mob[0] and mob target is hero[0]
     def update(self, screen, dt):
-        
         States.acting = self.actions_ordered[0]
         if States.acting.animation == False: #animation hasn't started yet
             if States.acting.player == True:
@@ -108,6 +115,7 @@ class Combat(States):
                 if States.room_monsters[0].data["health"] <=0:#target instead of [0]
                     self.combat_mob_sprites.remove(States.room_monsters[0])
                     self.actions_ordered.remove(States.room_monsters[0])
+                    self.exp_reward += States.room_monsters[0].exp
                     States.room_monsters.remove(States.room_monsters[0])
                     if States.room_monsters == []: #do victory screen
                         self.done = True
