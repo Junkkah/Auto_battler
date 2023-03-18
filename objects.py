@@ -16,7 +16,9 @@ class Hero(pg.sprite.Sprite):
         self.rect = self.image.get_rect(topleft = (self.xpos, self.ypos))
         self.width = self.image.get_width()
         self.height = self.image.get_height()
-        
+        self.animation = False
+        self.attacked = False
+
         self.name = name
         self.player = True
         self.type = type
@@ -29,17 +31,18 @@ class Hero(pg.sprite.Sprite):
             if self.data[i] == type:
                 continue
             self.data[i] = int(self.data[i])
-        self.damage = self.data["damage"]
-        self.exp = self.data["exp"]
+        
         self.level = 1
         self.next_level = 10
+        self.damage = self.data["damage"]
+        self.exp = self.data["exp"]
         self.health = self.data["health"]
         self.max_health = self.data["max_health"]
         self.health = min(self.health, self.max_health)
+        self.speed = self.data["speed"]
+        self.menace = self.data["menace"]
         #from data self.attack_type for animation
-        self.animation = False
-        self.attacked = False
-               
+              
 class Monster(pg.sprite.Sprite):
     def __init__(self, pos, groups, type: str):
         super().__init__(groups)
@@ -53,6 +56,8 @@ class Monster(pg.sprite.Sprite):
         self.rect = self.image.get_rect(topleft = (self.xpos, self.ypos))
         self.type = type
         self.player = False
+        self.animation = False
+        self.attacked = False
 
         monsters = Data.monster_data()
         self.data = monsters[type]
@@ -60,13 +65,14 @@ class Monster(pg.sprite.Sprite):
             if self.data[i] == type:
                 continue
             self.data[i] = int(self.data[i])
+        
+        self.speed = self.data["speed"]
         self.damage = self.data["damage"]
         self.exp = self.data["exp"]
         self.health = self.data["health"]
         self.max_health = self.data["max_health"]
         self.health = min(self.health, self.max_health)
-        self.animation = False
-        self.attacked = False
+        self.menace = self.data["menace"]
         
 class Loc(pg.sprite.Sprite):
     def __init__(self, pos, groups, location, name: str):
