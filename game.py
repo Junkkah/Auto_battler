@@ -55,8 +55,14 @@ class Game(States):
         
     def get_event(self, event):
         if event.type == pg.KEYDOWN:
-            self.done = True
+            if event.key == pg.K_ESCAPE:
+                exit()
      
+        #for tapahtuma in pygame.event.get():
+        #        if tapahtuma.type == pygame.KEYDOWN:
+        #            if tapahtuma.key == pygame.K_SPACE:
+
+
         elif event.type == pg.MOUSEBUTTONDOWN:
             if self.continue_rect.collidepoint(pg.mouse.get_pos()) and len(States.party_heroes) == 3:
                 self.done = True

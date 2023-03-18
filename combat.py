@@ -71,7 +71,7 @@ class Combat(States):
             pass
             #do pause button
         elif event.type == pg.MOUSEBUTTONDOWN:
-            self.done = True
+            pass
     
     #hero target is always mob[0] and mob target is hero[0]
     def update(self, screen, dt):

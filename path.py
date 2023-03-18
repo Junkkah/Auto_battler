@@ -125,7 +125,8 @@ class Path(States):
 
     def get_event(self, event):
         if event.type == pg.KEYDOWN:
-            exit()
+            if event.key == pg.K_ESCAPE:
+                exit()
    
         elif event.type == pg.MOUSEBUTTONDOWN:
             if self.current_location.left.rect.collidepoint(pg.mouse.get_pos()):

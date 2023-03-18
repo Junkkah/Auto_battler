@@ -41,9 +41,11 @@ class Menu(States):
 
     def get_event(self, event):
         if event.type == pg.KEYDOWN:
-            print('Menu State keydown')
+            pass
         elif event.type == pg.MOUSEBUTTONDOWN:
             if self.quit_rect.collidepoint(self.menu_mouse):
                 exit()
-            else:
+            elif self.play_rect.collidepoint(self.menu_mouse):
                 self.done = True
+            else:
+                pass
