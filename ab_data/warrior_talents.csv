@@ -1,0 +1,6 @@
+name,desc,effect,type
+Damage reduction,Take less damage,armor 1,stat
+Menacing1,Get attacked more often,menace 2,stat
+Damage,Deal more damage,damage 1,stat
+Menacing2,Get attacked more often,menace 2,stat
+Well rounded,Faster and deadlier,speed 1 damage 1,m_stat

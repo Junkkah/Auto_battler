@@ -6,6 +6,10 @@ from map import Map
 from path import Path
 from combat import Combat
 from states import States
+from inv import Inv
+
+#Control and States class state machine code from
+#https://python-forum.io/thread-336.html 
 
 class Control:
     def __init__(self, **settings):
@@ -54,7 +58,8 @@ state_dict = {
     'game': Game(),
     'map': Map(),
     'path': Path(),
-    'combat': Combat()
+    'combat': Combat(),
+    'inv': Inv()
 }
 app.setup_states(state_dict, 'menu') 
 app.main_game_loop()

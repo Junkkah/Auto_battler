@@ -1,4 +1,5 @@
-name,damage,speed
-flame_bolt,3,3
-heal_wounds,-1,4
-acid_burst,2,2
+name,damage,speed,type,area
+flame_bolt,3,3,fire,0
+heal_wounds,-2,5,holy,0
+acid_burst,3,4,acid,0
+acid_splash,2,2,acid,0smite,2,1,holy,0healing_hands,-1,3,holy,0thorn_strike,2,1,nature,0fire_gush,2,6,fire,1lightning_zap,2,1,lightning,0freezing_wind,3,8,cold,1burn,4,5,fire,0icicle,3,3,cold,0

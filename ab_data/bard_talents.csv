@@ -1,0 +1,6 @@
+name,desc,effect,type
+Helpful tune,Allies deal more damage,tune,song
+Speedy,Act earlier,speed 2,stat
+Acid Splash,Damaging spell,acid_splash,spell
+Icicle,Damaging spell,icicle,spell
+Rapid Tune,Allies act earlier,tune,song

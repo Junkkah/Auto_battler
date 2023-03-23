@@ -1,7 +1,5 @@
 import pygame as pg
-from data import Data
-
-#put all stats from dict into self.stats
+from stats import Data
 
 class Hero(pg.sprite.Sprite):
     def __init__(self, pos, groups, name: str, type: str):
@@ -18,22 +16,21 @@ class Hero(pg.sprite.Sprite):
         self.height = self.image.get_height()
         self.animation = False
         self.attacked = False
-
         self.name = name
         self.player = True
         self.type = type
         self.abilities = []
         self.spot_frame = False
         #gold cost, random starting talent
+        #Create data dicts at startup only
         heroes = Data.hero_data()
         self.data = heroes[type]
         for i in self.data:
             if self.data[i] == type:
                 continue
             self.data[i] = int(self.data[i])
-        
         self.level = 1
-        self.next_level = 10
+        self.next_level = 2
         self.damage = self.data["damage"]
         self.exp = self.data["exp"]
         self.health = self.data["health"]
@@ -42,6 +39,8 @@ class Hero(pg.sprite.Sprite):
         self.speed = self.data["speed"]
         self.menace = self.data["menace"]
         #from data self.attack_type for animation
+        self.spells = []
+        self.armor = 0
               
 class Monster(pg.sprite.Sprite):
     def __init__(self, pos, groups, type: str):
@@ -58,14 +57,12 @@ class Monster(pg.sprite.Sprite):
         self.player = False
         self.animation = False
         self.attacked = False
-
         monsters = Data.monster_data()
         self.data = monsters[type]
         for i in self.data:
             if self.data[i] == type:
                 continue
             self.data[i] = int(self.data[i])
-        
         self.speed = self.data["speed"]
         self.damage = self.data["damage"]
         self.exp = self.data["exp"]
@@ -73,6 +70,8 @@ class Monster(pg.sprite.Sprite):
         self.max_health = self.data["max_health"]
         self.health = min(self.health, self.max_health)
         self.menace = self.data["menace"]
+        self.armor = 0
+        #self.abilities = ["regenerating": True/False]
         
 class Loc(pg.sprite.Sprite):
     def __init__(self, pos, groups, location, name: str):
@@ -90,7 +89,6 @@ class Loc(pg.sprite.Sprite):
         self.rrarrow = None
         self.lwarrow = None
         self.rrarrow = None
-
         if self.height + self.width > 4000:
             self.image = pg.transform.scale(scenery, ((self.width / 17), (self.height / 17)))
         elif self.height + self.width > 3000:
@@ -100,7 +98,7 @@ class Loc(pg.sprite.Sprite):
         self.rect = self.image.get_rect(center = pos)
         self.name = name
         self.content = []
-        self.treasure = [] #money, stuff and magic items
+        self.treasure = []
         #self.terrain
         #self.modifier
 
@@ -115,8 +113,41 @@ class Arrow(pg.sprite.Sprite):
         self.image = pg.transform.rotozoom(arrow, angle, 1) #lock in 50 and -50
         self.rect = self.image.get_rect(center = pos)
         self.destination = destination
-        self.content = [] #not needed anymore
         self.visible = False
+
+class TalentName():
+    def __init__(self, sample, xpos, ypos1, ypos2, font, hero: int):
+        self.font = font 
+        self.a_name = sample[0][1]['name']
+        self.a_text = self.font.render(self.a_name + ":", True, (0,0,0))
+        self.b_name = sample[1][1]['name']
+        self.b_text = self.font.render(self.b_name + ":", True, (0,0,0))
+        self.a_rect = self.a_text.get_rect(topleft=(xpos, ypos1))
+        self.b_rect = self.b_text.get_rect(topleft=(xpos, ypos2))
+        self.a_selected = False
+        self.b_selected = False
+        self.hero = hero
+        self.pos = xpos
+        self.a_type = sample[0][1]['type']
+        self.b_type = sample[1][1]['type']
+
+class TalentInfo():
+    def __init__(self, sample, xpos, ypos1, ypos2, font):
+        self.font = font  
+        self.a_info = sample[0][1]['desc']
+        self.a_text = self.font.render(self.a_info, True, (0,0,0))
+        self.b_info = sample[1][1]['desc']
+        self.b_text = self.font.render(self.b_info, True, (0,0,0))
+        self.a_rect = self.a_text.get_rect(topleft=(xpos, ypos1))
+        self.b_rect = self.b_text.get_rect(topleft=(xpos, ypos2))
+        self.a_selected = False
+        self.b_selected = False
+
+class Talent(): 
+    def __init__(self, name: str, desc: str, effect: str):
+        self.name_text = name
+        self.desc_text = desc
+        self.effect = effect
 
 class Spellhand(pg.sprite.Sprite):
     def __init__(self, pos, groups):

@@ -6,7 +6,9 @@ def melee_attack(attacker, target):
 	States.acting.animation = False
 	target.data["health"] -= attacker.data["damage"]
 	target.health -= attacker.damage
-    
+
+#Stab and Slash class code adapted from
+#https://github.com/clear-code-projects/animation
 
 class Stab(pg.sprite.Sprite):
 	def __init__(self, xpos, ypos):

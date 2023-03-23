@@ -4,8 +4,7 @@ import csv
 import random
 from states import States
 from objects import Hero
-from data import Data
- 
+
 class Game(States):
     def __init__(self):
         States.__init__(self)

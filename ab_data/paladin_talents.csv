@@ -1,0 +1,6 @@
+name,desc,effect,type
+Smite,Damaging spell,smite,spell
+Healing hands,Healing spell,healing_hands,spell
+Damage,Deal more damage,damage 2,stat
+Protective Presence,Others take less damage,damage- all,special
+Menacing,Get attacked more often,menace 2,stat

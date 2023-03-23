@@ -1,0 +1,6 @@
+name,desc,effect,type
+Fire Gush,Damaging area spell,fire_gush,spell
+Lightning Zap,damagging spell,lightning_zap,spell
+Freezing Wind,Damaging area spell,freezing_wind,spell
+Burn,Damaging area spell,burn,spell
+Icicle,damaging spell,icicle,spell

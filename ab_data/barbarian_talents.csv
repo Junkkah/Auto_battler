@@ -1,0 +1,6 @@
+name,desc,effect,type
+Damage Reduction,Take less damage,armor 1,stat
+Menacing,Get attacked more often,menace 2,stat
+Damage,Deal more damage,damage 2,stat
+Toughness,Gain more health,health+ per level,special
+Rage,Dangerous when damaged,if self.health <= self.max_health speed damage menace,special
