@@ -51,8 +51,10 @@ class Stats():
         talents = Data.talent_data(hero.type)
         spells = Data.spell_data()
         if type == "spell":
+            hero.talents.append(name) #effect in talent data
             hero.spells.append(spells[(talents[name]["effect"])]) #appending dict {'name': 'lightning_zap', 'damage': '2', 'speed': '1', 'type': 'lightning', 'area': '0'}
         elif type == "stat":
+            hero.talents.append(name)
             stat_bonus = talents[name]["effect"]
             stat_name, stat_val_str = stat_bonus.split()
             stat_val = int(stat_val_str)
@@ -61,11 +63,14 @@ class Stats():
                 new_val = old_val + stat_val
                 setattr(hero, stat_name, new_val)
         elif type == "m_stat":
-            pass #speed 1 damage 1
+            hero.talents.append(name)
+            #speed 1 damage 1
         elif type == "song":
-            pass
+            hero.talents.append(name)
+        elif type == "domain":
+            hero.talents.append(name)
         elif type == "special":
-            pass
+            hero.talents.append(name)
         #need special, song
         
     def levelup(self, hero):

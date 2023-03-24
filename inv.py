@@ -16,6 +16,7 @@ class Inv(States):
         self.talent_lists = []
         self.name_text = []
         self.stats = Stats()
+
     def cleanup(self):
         for s_talent in self.talents_selected:
             if s_talent.a_selected == True:
@@ -35,8 +36,20 @@ class Inv(States):
 
         for thero in States.party_heroes:
             self.talent_lists.append(Data.talent_data(thero.type))
-        
+            #if thero.type == "cleric": which sample
+                #sample = domain1 and domain2
+            #filter lists if hero does not meet requirements
+            #fireball requires wizard to learn burn and fire gush first
+            
+            #for i in range(0,3):
+                #for talent in self.talent_lists[i]:
+                    #if talent in States.party_heroes[0].talents:
+                        #continue #skip for req
+                    #for req in talent["reqs"]:
+                        #if req not in States.party_heroes[0].talents:
+                            #self.talent_lists[0].remove(talent)
         #breaks if less than 3 heroes
+        #1 fixed to pos 1 hero, check pos of surviving heroes
         sample_1 = random.sample(self.talent_lists[0].items(), 2)
         sample_2 = random.sample(self.talent_lists[1].items(), 2)
         sample_3 = random.sample(self.talent_lists[2].items(), 2)

@@ -1,6 +1,6 @@
 name,desc,effect,type
-Domain,What type of cleric,domain,special
-domain spell1,healing spell,heal_wounds,spell
-domain spell2,damage spell,flame_bolt,spell
-domain power1,defence,armor 1,stat
-domain power2,offence,damage 2,stat
+Domain Earth,Protective cleric,fire,domainDomain Fire,Aggressive cleric,earth,domain
+Heal Wounds,Healing spell,heal_wounds,spell
+Flame Bolt,Damage spell,flame_bolt,spell
+Earth Power1,Defence,armor 1,stat
+Fire Power1,Fire spells deal more damage,damage 2,special

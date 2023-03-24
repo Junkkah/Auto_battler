@@ -20,7 +20,7 @@ class Hero(pg.sprite.Sprite):
         self.name = name
         self.player = True
         self.type = type
-        self.abilities = []
+        self.talents = []
         self.spot_frame = False
         #gold cost, random starting talent
         #Create data dicts at startup only
