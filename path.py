@@ -16,7 +16,7 @@ class Path(States):
     def cleanup(self):
         pass 
     def startup(self):
-        self.ground = pg.image.load('auto_battle/ab_kuvat/game_bg.png')
+        self.ground = pg.image.load('./ab_kuvat/game_bg.png')
         self.screen.blit(self.ground, (0,0))
 
         #these as data files
