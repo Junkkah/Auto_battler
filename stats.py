@@ -5,7 +5,7 @@ class Data:
     def __init__(self):
         pass
     def monster_data():
-        with open('auto_battle/ab_data/monsters.csv', "r") as mobs:
+        with open('./ab_data/monsters.csv', "r") as mobs:
             mob_reader = DictReader(mobs)
             monster_stats = list(mob_reader)
             mdata = {}
@@ -14,7 +14,7 @@ class Data:
             return mdata       
         
     def hero_data():
-        with open('auto_battle/ab_data/heroes.csv', "r") as hero:
+        with open('./ab_data/heroes.csv', "r") as hero:
             hero_reader = DictReader(hero)
             hero_stats = list(hero_reader)
             hdata = {}
@@ -23,7 +23,7 @@ class Data:
             return hdata
 
     def talent_data(type):
-        with open('auto_battle/ab_data/' + type + '_talents.csv', "r") as talent:
+        with open('./ab_data/' + type + '_talents.csv', "r") as talent:
             talent_reader = DictReader(talent)
             talent_stats = list(talent_reader)
             tdata = {}
@@ -32,7 +32,7 @@ class Data:
             return tdata
 
     def spell_data():
-        with open('auto_battle/ab_data/spells.csv', "r") as spell:
+        with open('./ab_data/spells.csv', "r") as spell:
             spell_reader = DictReader(spell)
             spell_stats = list(spell_reader)
             sdata = {}

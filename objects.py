@@ -6,7 +6,7 @@ class Hero(pg.sprite.Sprite):
         super().__init__(groups)
         self.xpos = pos[0]
         self.ypos = pos[1]
-        path = 'auto_battle/ab_kuvat/' + name + '.png'
+        path = './ab_kuvat/' + name + '.png'
         naama = pg.image.load(path) 
         width = naama.get_width()
         height = naama.get_height()             
@@ -45,7 +45,7 @@ class Hero(pg.sprite.Sprite):
 class Monster(pg.sprite.Sprite):
     def __init__(self, pos, groups, type: str):
         super().__init__(groups)
-        path = 'auto_battle/ab_kuvat/' + type + '.png'
+        path = './ab_kuvat/' + type + '.png'
         mob = pg.image.load(path)
         height = mob.get_height()
         width = mob.get_width()
@@ -76,7 +76,7 @@ class Monster(pg.sprite.Sprite):
 class Loc(pg.sprite.Sprite):
     def __init__(self, pos, groups, location, name: str):
         super().__init__(groups)
-        path = 'auto_battle/ab_kuvat/' + name + '.png'
+        path = './ab_kuvat/' + name + '.png'
         scenery = pg.image.load(path)
         self.height = scenery.get_height()
         self.width = scenery.get_width()
@@ -105,7 +105,7 @@ class Loc(pg.sprite.Sprite):
 class Arrow(pg.sprite.Sprite):
     def __init__(self, pos, angle: int, groups, destination: object, name: str):
         super().__init__(groups)
-        path = 'auto_battle/ab_kuvat/' + name + '.png'
+        path = './ab_kuvat/' + name + '.png'
         picture = pg.image.load(path)
         self.height = picture.get_height()
         self.width = picture.get_width()
@@ -152,7 +152,7 @@ class Talent():
 class Spellhand(pg.sprite.Sprite):
     def __init__(self, pos, groups):
         super().__init__(groups)
-        kasi = pg.image.load('auto_battle/ab_kuvat/rhand.png')
+        kasi = pg.image.load('./ab_kuvat/rhand.png')
         height = kasi.get_height()
         width = kasi.get_width()
         self.image = pg.transform.scale(kasi, ((width / 15), (height / 15)))

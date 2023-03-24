@@ -15,12 +15,12 @@ class Stab(pg.sprite.Sprite):
 		super().__init__()
 		self.attack_animation = False
 		self.sword_sprites = [] 
-		sword_image = pg.image.load('auto_battle/ab_kuvat/stab/sword1.png')
+		sword_image = pg.image.load('./ab_kuvat/stab/sword1.png')
 		height = sword_image.get_height()
 		width = sword_image.get_width()
 		
 		for i in range(1, 11):
-			sword = pg.image.load('auto_battle/ab_kuvat/stab/sword' + str(i) + '.png')
+			sword = pg.image.load('./ab_kuvat/stab/sword' + str(i) + '.png')
 			self.sword_sprites.append(pg.transform.scale(sword, ((width / 10), (height / 10))))
         
 		self.current_sprite = 0
@@ -49,12 +49,12 @@ class Slash(pg.sprite.Sprite):
 		super().__init__()
 		self.attack_animation = False
 		self.claw_sprites = []
-		claw1 = pg.image.load('auto_battle/ab_kuvat/claw/claw1.png')
+		claw1 = pg.image.load('./ab_kuvat/claw/claw1.png')
 		height = claw1.get_height()
 		width = claw1.get_width()
 
 		for i in range(10):
-			claw = pg.image.load('auto_battle/ab_kuvat/claw/claw1.png')
+			claw = pg.image.load('./ab_kuvat/claw/claw1.png')
 			clawr = pg.transform.rotozoom(claw, ((i * -9) + 45), 1)
 			self.claw_sprites.append(pg.transform.scale(clawr, ((width / 10), (height / 10))))
         
