@@ -96,7 +96,7 @@ class Combat(States):
                 if States.acting.attack_type == "weapon" or States.acting.spells == []:
                     self.combat_animation = Stab(States.acting.xpos, States.acting.ypos)
                 else:
-                    self.combat_animation = Blast(States.acting.xpos, States.acting.ypos)
+                    self.combat_animation = Blast(States.acting.xpos, States.acting.ypos, States.acting.spells[0])#passing 1st spell
             elif States.acting.player == False:
                 self.combat_animation = Slash((States.acting.xpos + self.width * 0.1), (States.acting.ypos + self.height * 0.1))
             else:
@@ -121,20 +121,22 @@ class Combat(States):
             self.actions_ordered.append(self.actions_ordered.pop(0))
             
             if States.acting.player == True:
-                if States.room_monsters[0].data["health"] <=0:#get target instead of [0]
-                    self.combat_mob_sprites.remove(States.room_monsters[0])
-                    self.actions_ordered.remove(States.room_monsters[0])
-                    self.exp_reward += States.room_monsters[0].exp
-                    if self.exp_reward + States.party_heroes[0].exp >= States.party_heroes[0].next_level:
-                        self.next = 'inv'
-                    else:
-                        self.next = 'path'
-                    States.room_monsters.remove(States.room_monsters[0])
-                    if States.room_monsters == []:
-                        self.done = True
+                for health_check in States.room_monsters:
+                    if health_check.health <=0:#get target instead of [0] #data["health"]
+                        self.combat_mob_sprites.remove(health_check)
+                        self.actions_ordered.remove(health_check)
+                        self.exp_reward += health_check.exp
+                        
+                        if self.exp_reward + States.party_heroes[0].exp >= States.party_heroes[0].next_level:
+                            self.next = 'inv'
+                        else:
+                            self.next = 'path'
+                        States.room_monsters.remove(health_check)
+                        if States.room_monsters == []:
+                            self.done = True
 
             elif States.acting.player == False:    
-                if States.party_heroes[0].data["health"] <=0:
+                if States.party_heroes[0].health <=0: #data["health"]
                     self.combat_hero_sprites.remove(States.party_heroes[0])
                     self.actions_ordered.remove(States.party_heroes[0])
                     States.party_heroes.remove(States.party_heroes[0])

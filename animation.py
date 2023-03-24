@@ -4,7 +4,13 @@ from objects import Hero, Monster
 
 def melee_attack(attacker, target):
 	States.acting.animation = False
-	target.data["health"] -= attacker.data["damage"]
+	target.health -= attacker.damage
+
+def spell_attack(attacker, target, spell):
+	States.acting.animation = False
+	if spell["area"] == 1:
+		for target_mob in States.room_monsters:
+			target_mob.health -= spell["damage"]
 	target.health -= attacker.damage
 
 #Stab, Slash and Blast class code adapted from
@@ -46,34 +52,29 @@ class Stab(pg.sprite.Sprite):
 		self.image = self.sword_sprites[int(self.current_sprite)]
 
 class Blast(pg.sprite.Sprite):
-	def __init__(self, xpos, ypos):
+	def __init__(self, xpos, ypos, spell):
 		super().__init__()
 		self.attack_animation = False
 		self.spell_sprites = [] 
-		spell_image = pg.image.load('./ab_kuvat/blast/spell1.png')
-		#effect_image = pg.image.load('./ab_kuvat/blast/spell_fire.png')
-		height = spell_image.get_height()
-		width = spell_image.get_width()
-		#e_height = effect_image.get_height()
-		#e_width = effect_image.get_width()
-		
-		#for i in range(1, 11):
-		#	spell = pg.image.load('./ab_kuvat/blast/spell' + str(i) + '.png')
-		#	self.spell_sprites.append(pg.transform.scale(spell, ((width / 15), (height / 15))))
-		
+		self.attack_spell = spell
+		cast_image = pg.image.load('./ab_kuvat/blast/spell.png')
+		height = cast_image.get_height()
+		width = cast_image.get_width()
+		spell_type = spell["type"]
+
 		for i in range(1, 6):
-			spell = pg.image.load('./ab_kuvat/blast/spell1.png')
+			spell = pg.image.load('./ab_kuvat/blast/spell.png')
 			self.spell_sprites.append(pg.transform.scale(spell, ((width / 15), (height / 15))))
 		
 		for i in range(6, 11):
-			spell = pg.image.load('./ab_kuvat/blast/spell2.png')
+			spell = pg.image.load('./ab_kuvat/blast/' + spell_type + '.png')
 			self.spell_sprites.append(pg.transform.scale(spell, ((width / 15), (height / 15))))
         
 		self.current_sprite = 0
 		self.image = self.spell_sprites[self.current_sprite]
 
 		self.rect = self.image.get_rect()
-		self.rect.topleft = [(xpos + (States.width / 16)), (ypos - (States.width / 27))] #bottomright #flatnumbers out
+		self.rect.topleft = [(xpos + (States.width / 16)), (ypos - (States.width / 27))] 
 
 	def animation_start(self):
 		self.attack_animation = True
@@ -85,7 +86,8 @@ class Blast(pg.sprite.Sprite):
 				self.current_sprite = 0
 				self.attack_animation = False
 				self.image = self.spell_sprites[int(self.current_sprite)]
-				melee_attack(States.acting, States.room_monsters[0])
+				#melee_attack(States.acting, States.room_monsters[0])
+				spell_attack(States.acting, States.room_monsters[0], self.attack_spell)
 				return True #triggers next attacker
 
 		self.image = self.spell_sprites[int(self.current_sprite)]
