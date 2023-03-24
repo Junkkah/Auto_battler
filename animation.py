@@ -7,7 +7,7 @@ def melee_attack(attacker, target):
 	target.data["health"] -= attacker.data["damage"]
 	target.health -= attacker.damage
 
-#Stab and Slash class code adapted from
+#Stab, Slash and Blast class code adapted from
 #https://github.com/clear-code-projects/animation
 
 class Stab(pg.sprite.Sprite):
@@ -21,6 +21,7 @@ class Stab(pg.sprite.Sprite):
 		
 		for i in range(1, 11):
 			sword = pg.image.load('auto_battle/ab_kuvat/stab/sword' + str(i) + '.png')
+			#adjust width height / 10 to screen size
 			self.sword_sprites.append(pg.transform.scale(sword, ((width / 10), (height / 10))))
         
 		self.current_sprite = 0
@@ -43,6 +44,51 @@ class Stab(pg.sprite.Sprite):
 				return True #triggers next attacker
 
 		self.image = self.sword_sprites[int(self.current_sprite)]
+
+class Blast(pg.sprite.Sprite):
+	def __init__(self, xpos, ypos):
+		super().__init__()
+		self.attack_animation = False
+		self.spell_sprites = [] 
+		spell_image = pg.image.load('auto_battle/ab_kuvat/blast/spell1.png')
+		#effect_image = pg.image.load('auto_battle/ab_kuvat/blast/spell_fire.png')
+		height = spell_image.get_height()
+		width = spell_image.get_width()
+		#e_height = effect_image.get_height()
+		#e_width = effect_image.get_width()
+		
+		#for i in range(1, 11):
+		#	spell = pg.image.load('auto_battle/ab_kuvat/blast/spell' + str(i) + '.png')
+		#	self.spell_sprites.append(pg.transform.scale(spell, ((width / 15), (height / 15))))
+		
+		for i in range(1, 6):
+			spell = pg.image.load('auto_battle/ab_kuvat/blast/spell1.png')
+			self.spell_sprites.append(pg.transform.scale(spell, ((width / 15), (height / 15))))
+		
+		for i in range(6, 11):
+			spell = pg.image.load('auto_battle/ab_kuvat/blast/spell2.png')
+			self.spell_sprites.append(pg.transform.scale(spell, ((width / 15), (height / 15))))
+        
+		self.current_sprite = 0
+		self.image = self.spell_sprites[self.current_sprite]
+
+		self.rect = self.image.get_rect()
+		self.rect.topleft = [(xpos + (States.width / 16)), (ypos - (States.width / 27))] #bottomright #flatnumbers out
+
+	def animation_start(self):
+		self.attack_animation = True
+
+	def animate(self, speed): #attacker is always speedorder[0], target enemy list[0]
+		if self.attack_animation == True:
+			self.current_sprite += speed
+			if int(self.current_sprite) >= len(self.spell_sprites):
+				self.current_sprite = 0
+				self.attack_animation = False
+				self.image = self.spell_sprites[int(self.current_sprite)]
+				melee_attack(States.acting, States.room_monsters[0])
+				return True #triggers next attacker
+
+		self.image = self.spell_sprites[int(self.current_sprite)]
 
 class Slash(pg.sprite.Sprite):
 	def __init__(self, xpos, ypos):

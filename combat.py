@@ -2,7 +2,7 @@ import pygame as pg
 import sys
 from states import States
 from objects import Hero, Monster, Spellhand
-from animation import Stab, Slash
+from animation import Stab, Slash, Blast
 from path import Path
 from stats import Stats
 from inv import Inv
@@ -93,7 +93,10 @@ class Combat(States):
         States.acting = self.actions_ordered[0]
         if States.acting.animation == False: #animation hasn't started yet
             if States.acting.player == True: #Attacker is hero
-               self.combat_animation = Stab(States.acting.xpos, States.acting.ypos)
+                if States.acting.attack_type == "weapon" or States.acting.spells == []:
+                    self.combat_animation = Stab(States.acting.xpos, States.acting.ypos)
+                else:
+                    self.combat_animation = Blast(States.acting.xpos, States.acting.ypos)
             elif States.acting.player == False:
                 self.combat_animation = Slash((States.acting.xpos + self.width * 0.1), (States.acting.ypos + self.height * 0.1))
             else:

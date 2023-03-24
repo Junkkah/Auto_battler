@@ -14,7 +14,8 @@ class Game(States):
         pass
     def startup(self):
         self.screen.fill((255,255,255))
-        self.ground = pg.image.load('auto_battle/ab_kuvat/game_bg.png')
+        self.ground = pg.image.load('./ab_kuvat/game_bg.png')
+        #pg.image.load('./ab_kuvat/game_bg.png') Auto_battle
         self.screen.blit(self.ground, (0,0))
         self.selection_sprites = pg.sprite.Group()
         
@@ -34,11 +35,11 @@ class Game(States):
 
         self.avail = random.sample(self.names, 8)
 
-        xpos = 400
+        xpos = 400 #width * 0.2
         for i in range(0,8):
-            ypos = 200
+            ypos = 200 #height * 0.2
             if i > 3:
-                ypos = 500
+                ypos = 500 #height * 0.5
             self.i = Hero((xpos, ypos), self.hero_sprites, self.avail[i][0], self.avail[i][1])
             self.selection.append(self.i)
             self.selection_sprites.add(self.i)

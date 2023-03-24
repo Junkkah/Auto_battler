@@ -1,5 +1,6 @@
 import pygame as pg
 from stats import Data
+from states import States
 
 class Hero(pg.sprite.Sprite):
     def __init__(self, pos, groups, name: str, type: str):
@@ -10,7 +11,7 @@ class Hero(pg.sprite.Sprite):
         naama = pg.image.load(path) 
         width = naama.get_width()
         height = naama.get_height()             
-        self.image = pg.transform.scale(naama, ((width / (height / 150)), 150))
+        self.image = pg.transform.scale(naama, ((width / (height / 150)), (States.height / 7.2)))
         self.rect = self.image.get_rect(topleft = (self.xpos, self.ypos))
         self.width = self.image.get_width()
         self.height = self.image.get_height()
@@ -28,6 +29,8 @@ class Hero(pg.sprite.Sprite):
         for i in self.data:
             if self.data[i] == type:
                 continue
+            elif self.data[i] == "spell" or self.data[i] == "weapon":
+                continue
             self.data[i] = int(self.data[i])
         self.level = 1
         self.next_level = 2
@@ -38,6 +41,7 @@ class Hero(pg.sprite.Sprite):
         self.health = min(self.health, self.max_health)
         self.speed = self.data["speed"]
         self.menace = self.data["menace"]
+        self.attack_type = self.data["attack_type"]
         #from data self.attack_type for animation
         self.spells = []
         self.armor = 0
