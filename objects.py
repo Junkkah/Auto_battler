@@ -7,7 +7,7 @@ class Hero(pg.sprite.Sprite):
         super().__init__(groups)
         self.xpos = pos[0]
         self.ypos = pos[1]
-        path = './ab_kuvat/' + name + '.png'
+        path = './ab_kuvat/hero/' + name + '.png'
         naama = pg.image.load(path) 
         width = naama.get_width()
         height = naama.get_height()             
@@ -49,7 +49,7 @@ class Hero(pg.sprite.Sprite):
 class Monster(pg.sprite.Sprite):
     def __init__(self, pos, groups, type: str):
         super().__init__(groups)
-        path = './ab_kuvat/' + type + '.png'
+        path = './ab_kuvat/monster/' + type + '.png'
         mob = pg.image.load(path)
         height = mob.get_height()
         width = mob.get_width()
