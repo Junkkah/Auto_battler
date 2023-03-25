@@ -17,3 +17,8 @@ class States(object):
         self.monster_sprites = pg.sprite.Group()
         self.weapon_sprites = pg.sprite.Group()
         self.map_sprites = pg.sprite.Group()
+        
+        self.red = (255, 0, 0)
+        self.white = (255, 255, 255)
+        self.info_font = pg.font.SysFont("Arial", 20)
+        self.max_party_size = 3

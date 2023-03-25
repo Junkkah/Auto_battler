@@ -5,6 +5,7 @@ from states import States
 class Hero(pg.sprite.Sprite):
     def __init__(self, pos, groups, name: str, type: str):
         super().__init__(groups)
+        self.pos = pos
         self.xpos = pos[0]
         self.ypos = pos[1]
         path = './ab_images/hero/' + name + '.png'
