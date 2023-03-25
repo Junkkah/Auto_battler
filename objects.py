@@ -24,18 +24,8 @@ class Hero(pg.sprite.Sprite):
         self.talents = []
         self.spot_frame = False
         #gold cost, random starting talent
-        #Create data dicts at startup only
-
-        #heroes = Data.hero_data()
-        #self.data = heroes[type]
-        
-        self.data = stats.heroes[type]  
-        for i in self.data:
-            if self.data[i] == type:
-                continue
-            elif self.data[i] == "spell" or self.data[i] == "weapon":
-                continue
-            self.data[i] = int(self.data[i])
+        self.data = stats.heroes[type]
+        self.data = {key: int(value) if value.isdigit() else value for key, value in self.data.items()}
         self.level = 1
         self.next_level = 2
         self.damage = self.data["damage"]
@@ -46,7 +36,6 @@ class Hero(pg.sprite.Sprite):
         self.speed = self.data["speed"]
         self.menace = self.data["menace"]
         self.attack_type = self.data["attack_type"]
-        #from data self.attack_type for animation
         self.spells = []
         self.armor = 0
               
@@ -66,15 +55,8 @@ class Monster(pg.sprite.Sprite):
         self.player = False
         self.animation = False
         self.attacked = False
- 
         self.data = stats.monsters[type]
         self.data = {key: int(value) if value.isdigit() else value for key, value in self.data.items()}
-        
-        #for i in self.data:
-        #    if self.data[i] == type:
-        #        continue
-        #    self.data[i] = int(self.data[i])
-
         self.speed = self.data["speed"]
         self.damage = self.data["damage"]
         self.exp = self.data["exp"]

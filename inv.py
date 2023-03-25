@@ -34,8 +34,8 @@ class Inv(States):
             self.inventory_hero_sprites.add(inv_hero)
             self.stats.levelup(inv_hero)
 
-        for thero in States.party_heroes:
-            self.talent_lists.append(Data.talent_data(thero.type))
+        self.talent_lists = [Data.talent_data(thero.type) for thero in States.party_heroes]
+
             #if thero.type == "cleric": which sample
                 #sample = domain1 and domain2
             #filter lists if hero does not meet requirements

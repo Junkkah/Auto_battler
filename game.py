@@ -15,7 +15,6 @@ class Game(States):
     def startup(self):
         self.screen.fill((255,255,255))
         self.ground = pg.image.load('./ab_images/game_bg.png')
-        #pg.image.load('./ab_images/game_bg.png') .
         self.screen.blit(self.ground, (0,0))
         self.selection_sprites = pg.sprite.Group()
         
