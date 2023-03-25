@@ -178,5 +178,5 @@ class Path(States):
     def draw(self, screen):
         self.screen.blit(self.ground, (0,0))
         self.path_sprites.draw(self.screen)
-        pg.draw.circle(self.screen, (255,0,0), (self.current_location.xpos, self.current_location.ypos), 20)
+        pg.draw.circle(self.screen, (self.red), (self.current_location.xpos, self.current_location.ypos), 20)
     

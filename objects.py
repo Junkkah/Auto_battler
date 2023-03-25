@@ -67,6 +67,22 @@ class Monster(pg.sprite.Sprite):
         self.menace = self.data["menace"]
         self.armor = self.data["armor"]
         #self.abilities = ["regenerating": True/False]
+
+class Adventure(pg.sprite.Sprite):
+    def __init__(self, pos, groups, desc: str, name: str):
+        super().__init__(groups)
+        path = './ab_images/map/' + name + '.png'
+        scenery = pg.image.load(path)
+        height = scenery.get_height()
+        width = scenery.get_width()
+        self.height = height / 9
+        self.width = width / 9
+        self.xpos = States.width * float(pos[0])
+        self.ypos = States.height * float(pos[1])
+        self.image = pg.transform.scale(scenery, (self.width, self.height))
+        self.rect = self.image.get_rect(topleft = (self.xpos, self.ypos))
+        self.desc = desc
+        self.name = name
         
 class Loc(pg.sprite.Sprite):
     def __init__(self, pos, groups, location, name: str):

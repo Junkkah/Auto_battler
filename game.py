@@ -8,7 +8,7 @@ from objects import Hero
 class Game(States):
     def __init__(self):
         States.__init__(self)
-        self.next = 'path' #skipping map
+        self.next = 'map'
     def cleanup(self):
         self.names = []
     def startup(self):

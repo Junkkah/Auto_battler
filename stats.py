@@ -31,6 +31,13 @@ class Data:
             spell_stats = list(spell_reader)
             sdata = {spell["name"]: spell for spell in spell_stats}
             return sdata
+    
+    def map_data():
+        with open('./ab_data/map.csv', "r") as map:
+            map_reader = DictReader(map)
+            map_stats = list(map_reader)
+            adata = {map["name"]: map for map in map_stats}
+            return adata
 
 class Stats():
     def __init__(self):
@@ -39,14 +46,16 @@ class Stats():
         self.level_health = {"bard": 2, "cleric": 4, "barbarian": 5, "ranger": 4, "thief": 3, "paladin": 4, "warrior": 5, "wizard": 2}
         self.monsters = Data.monster_data()
         self.heroes = Data.hero_data()
+        self.map = Data.map_data()
         #self.talents = Data.talent_data(type)
+        #Clerics start with domain, create talent list for each domain
 
     def add_talent(self, hero: object, name: str, type: str):
         talents = Data.talent_data(hero.type)
         spells = Data.spell_data()
         if type == "spell":
             hero.talents.append(name) #effect in talent data
-            hero.spells.append(spells[(talents[name]["effect"])]) #dict {'name': 'lightning_zap', 'damage': '2', 'speed': '1', 'type': 'lightning', 'area': '0'}
+            hero.spells.append(spells[(talents[name]["effect"])])
         elif type == "stat":
             hero.talents.append(name)
             stat_bonus = talents[name]["effect"]
