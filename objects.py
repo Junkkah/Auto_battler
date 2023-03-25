@@ -1,5 +1,5 @@
 import pygame as pg
-from stats import Data
+from stats import Data, Stats
 from states import States
 
 class Hero(pg.sprite.Sprite):
@@ -7,11 +7,12 @@ class Hero(pg.sprite.Sprite):
         super().__init__(groups)
         self.xpos = pos[0]
         self.ypos = pos[1]
-        path = './ab_kuvat/hero/' + name + '.png'
-        naama = pg.image.load(path) 
-        width = naama.get_width()
-        height = naama.get_height()             
-        self.image = pg.transform.scale(naama, ((width / (height / 150)), (States.height / 7.2)))
+        path = './ab_images/hero/' + name + '.png'
+        face = pg.image.load(path) 
+        width = face.get_width()
+        height = face.get_height() 
+        stats = Stats()            
+        self.image = pg.transform.scale(face, ((width / (height / 150)), (States.height / 7.2)))
         self.rect = self.image.get_rect(topleft = (self.xpos, self.ypos))
         self.width = self.image.get_width()
         self.height = self.image.get_height()
@@ -24,8 +25,11 @@ class Hero(pg.sprite.Sprite):
         self.spot_frame = False
         #gold cost, random starting talent
         #Create data dicts at startup only
-        heroes = Data.hero_data()
-        self.data = heroes[type]
+
+        #heroes = Data.hero_data()
+        #self.data = heroes[type]
+        
+        self.data = stats.heroes[type]  
         for i in self.data:
             if self.data[i] == type:
                 continue
@@ -49,10 +53,11 @@ class Hero(pg.sprite.Sprite):
 class Monster(pg.sprite.Sprite):
     def __init__(self, pos, groups, type: str):
         super().__init__(groups)
-        path = './ab_kuvat/monster/' + type + '.png'
+        path = './ab_images/monster/' + type + '.png'
         mob = pg.image.load(path)
         height = mob.get_height()
         width = mob.get_width()
+        stats = Stats()
         self.xpos = pos[0]
         self.ypos = pos[1]
         self.image = pg.transform.scale(mob, ((width / 10), (height / 10)))
@@ -61,12 +66,16 @@ class Monster(pg.sprite.Sprite):
         self.player = False
         self.animation = False
         self.attacked = False
-        monsters = Data.monster_data()
-        self.data = monsters[type]
+ 
+        self.data = stats.monsters[type]     
+
+
         for i in self.data:
             if self.data[i] == type:
                 continue
             self.data[i] = int(self.data[i])
+
+        
         self.speed = self.data["speed"]
         self.damage = self.data["damage"]
         self.exp = self.data["exp"]
@@ -80,7 +89,7 @@ class Monster(pg.sprite.Sprite):
 class Loc(pg.sprite.Sprite):
     def __init__(self, pos, groups, location, name: str):
         super().__init__(groups)
-        path = './ab_kuvat/' + name + '.png'
+        path = './ab_images/' + name + '.png'
         scenery = pg.image.load(path)
         self.height = scenery.get_height()
         self.width = scenery.get_width()
@@ -109,7 +118,7 @@ class Loc(pg.sprite.Sprite):
 class Arrow(pg.sprite.Sprite):
     def __init__(self, pos, angle: int, groups, destination: object, name: str):
         super().__init__(groups)
-        path = './ab_kuvat/' + name + '.png'
+        path = './ab_images/' + name + '.png'
         picture = pg.image.load(path)
         self.height = picture.get_height()
         self.width = picture.get_width()
@@ -156,7 +165,7 @@ class Talent():
 class Spellhand(pg.sprite.Sprite):
     def __init__(self, pos, groups):
         super().__init__(groups)
-        kasi = pg.image.load('./ab_kuvat/rhand.png')
+        kasi = pg.image.load('./ab_images/rhand.png')
         height = kasi.get_height()
         width = kasi.get_width()
         self.image = pg.transform.scale(kasi, ((width / 15), (height / 15)))

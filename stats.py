@@ -46,6 +46,8 @@ class Stats():
         self.abilities = {"bard": {}, "cleric": {}, "barbarian": {}, "ranger": {}, "thief": {}, "paladin": {}, "warrior": {}, "wizard": {}}
         #self.abilities = Data.talent_data() 
         self.level_health = {"bard": 2, "cleric": 4, "barbarian": 5, "ranger": 4, "thief": 3, "paladin": 4, "warrior": 5, "wizard": 2}
+        self.monsters = Data.monster_data()
+        self.heroes = Data.hero_data()
 
     def add_talent(self, hero: object, name: str, type: str):
         talents = Data.talent_data(hero.type)

@@ -4,7 +4,7 @@ from objects import Hero, Monster
 
 def melee_attack(attacker, target):
 	States.acting.animation = False
-	target.health -= attacker.damage
+	target.health -= (attacker.damage - target.armor)
 
 def spell_attack(attacker, target, spell):
 	States.acting.animation = False
@@ -21,12 +21,12 @@ class Stab(pg.sprite.Sprite):
 		super().__init__()
 		self.attack_animation = False
 		self.sword_sprites = [] 
-		sword_image = pg.image.load('./ab_kuvat/stab/sword1.png')
+		sword_image = pg.image.load('./ab_images/stab/sword1.png')
 		height = sword_image.get_height()
 		width = sword_image.get_width()
 		
 		for i in range(1, 11):
-			sword = pg.image.load('./ab_kuvat/stab/sword' + str(i) + '.png')
+			sword = pg.image.load('./ab_images/stab/sword' + str(i) + '.png')
 			#adjust width height / 10 to screen size
 			self.sword_sprites.append(pg.transform.scale(sword, ((width / 10), (height / 10))))
         
@@ -57,17 +57,17 @@ class Blast(pg.sprite.Sprite):
 		self.attack_animation = False
 		self.spell_sprites = [] 
 		self.attack_spell = spell
-		cast_image = pg.image.load('./ab_kuvat/blast/spell.png')
+		cast_image = pg.image.load('./ab_images/blast/spell.png')
 		height = cast_image.get_height()
 		width = cast_image.get_width()
 		spell_type = spell["type"]
 
 		for i in range(1, 6):
-			spell = pg.image.load('./ab_kuvat/blast/spell.png')
+			spell = pg.image.load('./ab_images/blast/spell.png')
 			self.spell_sprites.append(pg.transform.scale(spell, ((width / 15), (height / 15))))
 		
 		for i in range(6, 11):
-			spell = pg.image.load('./ab_kuvat/blast/' + spell_type + '.png')
+			spell = pg.image.load('./ab_images/blast/' + spell_type + '.png')
 			self.spell_sprites.append(pg.transform.scale(spell, ((width / 15), (height / 15))))
         
 		self.current_sprite = 0
@@ -97,12 +97,12 @@ class Slash(pg.sprite.Sprite):
 		super().__init__()
 		self.attack_animation = False
 		self.claw_sprites = []
-		claw1 = pg.image.load('./ab_kuvat/claw/claw1.png')
+		claw1 = pg.image.load('./ab_images/claw/claw1.png')
 		height = claw1.get_height()
 		width = claw1.get_width()
 
 		for i in range(10):
-			claw = pg.image.load('./ab_kuvat/claw/claw1.png')
+			claw = pg.image.load('./ab_images/claw/claw1.png')
 			clawr = pg.transform.rotozoom(claw, ((i * -9) + 45), 1)
 			self.claw_sprites.append(pg.transform.scale(clawr, ((width / 10), (height / 10))))
         

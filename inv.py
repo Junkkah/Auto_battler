@@ -10,7 +10,7 @@ class Inv(States):
         States.__init__(self)
         self.next = 'path'
         self.inventory_hero_sprites = pg.sprite.Group()
-        self.ground = pg.image.load('./ab_kuvat/game_bg.png')
+        self.ground = pg.image.load('./ab_images/game_bg.png')
         self.talents_selected = []
         self.talent_text = []
         self.talent_lists = []

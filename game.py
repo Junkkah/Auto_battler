@@ -14,15 +14,15 @@ class Game(States):
         pass
     def startup(self):
         self.screen.fill((255,255,255))
-        self.ground = pg.image.load('./ab_kuvat/game_bg.png')
-        #pg.image.load('./ab_kuvat/game_bg.png') .
+        self.ground = pg.image.load('./ab_images/game_bg.png')
+        #pg.image.load('./ab_images/game_bg.png') .
         self.screen.blit(self.ground, (0,0))
         self.selection_sprites = pg.sprite.Group()
         
-        bubble = pg.image.load('./ab_kuvat/menu_bubble.png')
+        bubble = pg.image.load('./ab_images/menu_bubble.png')
         self.bubble = pg.transform.scale(bubble, ((bubble.get_width() / 8), (bubble.get_height() / 8)))
         self.bubble_rect = self.bubble.get_rect(bottomleft=(self.width * 0.12, self.height * 0.85))
-        hood = pg.image.load('./ab_kuvat/hood.png')
+        hood = pg.image.load('./ab_images/hood.png')
         self.hood = pg.transform.scale(hood, ((hood.get_width() / 8), (hood.get_height() / 8)))
         self.hood_rect = self.hood.get_rect(topleft=(self.width * 0.05, self.height * 0.80))
 

@@ -16,19 +16,19 @@ class Path(States):
     def cleanup(self):
         pass 
     def startup(self):
-        self.ground = pg.image.load('./ab_kuvat/game_bg.png')
+        self.ground = pg.image.load('./ab_images/game_bg.png')
         self.screen.blit(self.ground, (0,0))
 
         #these as data files
         self.city = Loc(((self.width * 0.50), (self.height * 0.80)), self.path_sprites, "city", "city")
         self.tree1 = Loc(((self.width * 0.30), (self.height * 0.70)), self.path_sprites, "tree1", "tree")
-        self.tree1.content = ["goblin", "goblin"]
+        self.tree1.content = ["goblin"]
         self.bush1 = Loc(((self.width * 0.70), (self.height * 0.70)), self.path_sprites, "bush1", "bush")
         self.bush1.content = ["goblin"]
         self.tree2 = Loc(((self.width * 0.17), (self.height * 0.45)), self.path_sprites, "tree2", "tree")
-        self.tree2.content = ["goblin"]
+        self.tree2.content = ["orc"]
         self.bush2 = Loc(((self.width * 0.43), (self.height * 0.45)), self.path_sprites, "bush2", "bush")
-        self.bush2.content = ["goblin"]
+        self.bush2.content = ["orc"]
         self.tree3 = Loc(((self.width * 0.57), (self.height * 0.45)), self.path_sprites, "tree3", "tree")
         self.tree3.content = ["goblin"]
         self.tree4 = Loc(((self.width * 0.83), (self.height * 0.45)), self.path_sprites, "tree4", "tree")
