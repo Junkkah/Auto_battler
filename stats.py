@@ -8,9 +8,11 @@ class Data:
         with open('./ab_data/monsters.csv', "r") as mobs:
             mob_reader = DictReader(mobs)
             monster_stats = list(mob_reader)
-            mdata = {}
-            for x in range(len(monster_stats)):
-                mdata[monster_stats[x]["name"]] = monster_stats[x]
+            
+            #mdata = {}
+            #for x in range(len(monster_stats)):
+            #    mdata[monster_stats[x]["name"]] = monster_stats[x]
+            mdata = {monster["name"]: monster for monster in monster_stats}
             return mdata       
         
     def hero_data():

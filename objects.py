@@ -67,15 +67,14 @@ class Monster(pg.sprite.Sprite):
         self.animation = False
         self.attacked = False
  
-        self.data = stats.monsters[type]     
-
-
-        for i in self.data:
-            if self.data[i] == type:
-                continue
-            self.data[i] = int(self.data[i])
-
+        self.data = stats.monsters[type]
+        self.data = {key: int(value) if value.isdigit() else value for key, value in self.data.items()}
         
+        #for i in self.data:
+        #    if self.data[i] == type:
+        #        continue
+        #    self.data[i] = int(self.data[i])
+
         self.speed = self.data["speed"]
         self.damage = self.data["damage"]
         self.exp = self.data["exp"]
@@ -83,7 +82,7 @@ class Monster(pg.sprite.Sprite):
         self.max_health = self.data["max_health"]
         self.health = min(self.health, self.max_health)
         self.menace = self.data["menace"]
-        self.armor = 0
+        self.armor = self.data["armor"]
         #self.abilities = ["regenerating": True/False]
         
 class Loc(pg.sprite.Sprite):
