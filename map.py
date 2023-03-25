@@ -37,13 +37,14 @@ class Map(States):
         self.screen.blit(self.ground, (0,0))
         self.map_sprites.draw(self.screen)
 
-        for obj in self.map_objects:
-            if obj.rect.collidepoint(pg.mouse.get_pos()):
-                info_text = self.info_font.render((obj.desc), True, (0, 0, 0))
-                info_text_rect = info_text.get_rect(bottomleft=((obj.xpos), (obj.ypos + 5)))
-                self.screen.blit(info_text, info_text_rect)
-                if obj.name == "dark_forest":
-                    pg.draw.rect(self.screen, self.red, [obj.xpos, obj.ypos, obj.width, obj.height], 2)
+        collided_objects = [obj for obj in self.map_objects if obj.rect.collidepoint(pg.mouse.get_pos())]
+        if collided_objects:
+            obj = collided_objects[0]
+            info_text = self.info_font.render(obj.desc, True, (0, 0, 0))
+            info_text_rect = info_text.get_rect(bottomleft=(obj.xpos, obj.ypos + 5))
+            self.screen.blit(info_text, info_text_rect)
+            if obj.name == "dark_forest":
+                pg.draw.rect(self.screen, self.red, [obj.xpos, obj.ypos, obj.width, obj.height], 2)
         
         if self.error == True:
             self.screen.blit(self.error_text, self.error_text_rect)
