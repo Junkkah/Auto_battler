@@ -23,12 +23,20 @@ class Hero(pg.sprite.Sprite):
         self.spot_frame = False
         #gold cost, random starting talent
         #Create data dicts at startup only
+        
+        # heroes = Data.hero_data()
+        # self.data = heroes[type]
+        # for i in self.data:
+        #     if self.data[i] == type:
+        #         continue
+        #     self.data[i] = int(self.data[i])
+        
+        # S: Käytä dictionary comprehesion, tiiviimpi, nopeampi ja enemmän python-tyylinen:
         heroes = Data.hero_data()
         self.data = heroes[type]
-        for i in self.data:
-            if self.data[i] == type:
-                continue
-            self.data[i] = int(self.data[i])
+        self.data = {key: int(value) if key != type else value for key, value in self.data.items()}
+        
+            
         self.level = 1
         self.next_level = 2
         self.damage = self.data["damage"]
@@ -58,11 +66,18 @@ class Monster(pg.sprite.Sprite):
         self.animation = False
         self.attacked = False
         monsters = Data.monster_data()
+        
+        # self.data = monsters[type]
+        # for i in self.data:
+        #     if self.data[i] == type:
+        #         continue
+        #     self.data[i] = int(self.data[i])
+        
+        # S: Dictionary comprehesion
         self.data = monsters[type]
-        for i in self.data:
-            if self.data[i] == type:
-                continue
-            self.data[i] = int(self.data[i])
+        self.data = {key: int(value) if key != type else value for key, value in self.data.items()}
+
+            
         self.speed = self.data["speed"]
         self.damage = self.data["damage"]
         self.exp = self.data["exp"]
