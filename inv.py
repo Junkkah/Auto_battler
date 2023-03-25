@@ -10,7 +10,6 @@ class Inv(States):
         States.__init__(self)
         self.next = 'path'
         self.inventory_hero_sprites = pg.sprite.Group()
-        self.ground = pg.image.load('./ab_images/game_bg.png')
         self.talents_selected = []
         self.talent_text = []
         self.talent_lists = []
@@ -58,7 +57,6 @@ class Inv(States):
         self.continue_text = continue_font.render("CONTINUE", True, (127, 127, 127))
         self.ready_text = continue_font.render("CONTINUE", True, (0, 0, 0))
         self.continue_rect = self.continue_text.get_rect(center=(self.width * 0.75, self.height * 0.88))
-        self.info_font = pg.font.SysFont("Arial", 20)
 
         self.name_1 = TalentName(sample_1, (self.width * 0.3), (self.height * 0.15), (self.height * 0.30), self.info_font, 0)
         self.info_1 = TalentInfo(sample_1, (self.width * 0.3), (self.height * 0.20), (self.height * 0.35), self.info_font)
@@ -110,7 +108,7 @@ class Inv(States):
     def update(self, screen, dt):
         self.draw(screen)
     def draw(self, screen):
-        self.screen.fill((255,255,255))
+        self.screen.fill(self.white)
         self.screen.blit(self.ground, (0,0))
         self.inventory_hero_sprites.draw(self.screen)
 
@@ -125,8 +123,8 @@ class Inv(States):
         
         for n_text in self.name_text:
             if n_text.a_selected == True:
-                pg.draw.rect(self.screen, (255, 0, 0), n_text.a_rect, 2)
+                pg.draw.rect(self.screen, self.red, n_text.a_rect, 2)
             elif n_text.b_selected == True:
-                pg.draw.rect(self.screen, (255, 0, 0), n_text.b_rect, 2)
+                pg.draw.rect(self.screen, self.red, n_text.b_rect, 2)
         
        

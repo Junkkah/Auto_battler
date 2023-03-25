@@ -15,7 +15,7 @@ class Menu(States):
     def update(self, screen, dt):
         self.draw(screen)
     def draw(self, screen):
-        self.screen.fill((0,0,255))
+        self.screen.fill(self.blue)
         menu_font = pg.font.SysFont("Arial", 50)
         title_font = pg.font.SysFont("Arial", 75)
         

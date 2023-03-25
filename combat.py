@@ -33,8 +33,7 @@ class Combat(States):
         #pg.time.wait(2000)
 
     def startup(self):
-        self.screen.fill((255,255,255))
-        self.ground = pg.image.load('./ab_images/game_bg.png')
+        self.screen.fill((self.white))
         self.screen.blit(self.ground, (0,0))
 
         #Monster positions
@@ -107,7 +106,7 @@ class Combat(States):
 
         self.draw(screen)
     def draw(self, screen):
-        self.screen.fill((255,255,255))
+        self.screen.fill(self.white)
         self.screen.blit(self.ground, (0,0))
         self.combat_hero_sprites.draw(self.screen)
         self.combat_mob_sprites.draw(self.screen)
