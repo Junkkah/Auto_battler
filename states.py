@@ -4,6 +4,7 @@ class States(object):
     party_heroes = []
     room_monsters = []
     current_location = None
+    current_adventure = None
     acting = None
     width = 1920
     height = 1080

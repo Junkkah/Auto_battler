@@ -2,7 +2,7 @@ import pygame as pg
 import sys
 from states import States
 from objects import Location, Arrow
-from stats import Stats
+from stats import Data
 
 class Path(States):
     def __init__(self):
@@ -10,7 +10,6 @@ class Path(States):
         self.next = 'combat'
         self.path_sprites = pg.sprite.Group()
         self.unused_sprites = pg.sprite.Group()
-        self.stats = Stats()
         self.rooms_done = 0
         self.red_arrows = []
 
@@ -18,8 +17,7 @@ class Path(States):
         pass 
     def startup(self):
         self.screen.blit(self.ground, (0,0))
-
-        locations = self.stats.loc
+        locations = Data.location_data(States.current_adventure)
         self.loc_objects = [Location((loc["xpos"], loc["ypos"]), self.path_sprites, loc["desc"], loc["name"], loc["content"]) for loc in locations.values()]
         self.city, self.tree1, self.bush1, self.tree2, self.bush2, self.tree3, self.tree4, self.bush3, self.bush4, self.cave = self.loc_objects
  

@@ -1,5 +1,6 @@
 import pygame as pg
 from csv import DictReader
+from states import States
 
 class Data:
     def __init__(self):
@@ -39,8 +40,8 @@ class Data:
             adata = {map["name"]: map for map in map_stats}
             return adata
     
-    def location_data():
-        with open('./ab_data/location.csv', "r") as loc:
+    def location_data(name):
+        with open('./ab_data/' + name + '.csv', "r") as loc:
             loc_reader = DictReader(loc)
             loc_stats = list(loc_reader)
             ldata = {loc["desc"]: loc for loc in loc_stats}
@@ -54,7 +55,6 @@ class Stats():
         self.monsters = Data.monster_data()
         self.heroes = Data.hero_data()
         self.map = Data.map_data()
-        self.loc = Data.location_data()
         #self.talents = Data.talent_data(type)
         #Clerics start with domain, create talent list for each domain
 

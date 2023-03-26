@@ -25,6 +25,7 @@ class Map(States):
             for obj in self.map_objects:
                 if obj.rect.collidepoint(pg.mouse.get_pos()):
                     if obj.name == "dark_forest":
+                        States.current_adventure = obj.name
                         self.done = True
                     elif obj.name != "dark_forest":
                         error = "Inaccessible"
