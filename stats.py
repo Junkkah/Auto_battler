@@ -38,6 +38,13 @@ class Data:
             map_stats = list(map_reader)
             adata = {map["name"]: map for map in map_stats}
             return adata
+    
+    def location_data():
+        with open('./ab_data/location.csv', "r") as loc:
+            loc_reader = DictReader(loc)
+            loc_stats = list(loc_reader)
+            ldata = {loc["desc"]: loc for loc in loc_stats}
+            return ldata
 
 class Stats():
     def __init__(self):
@@ -47,6 +54,7 @@ class Stats():
         self.monsters = Data.monster_data()
         self.heroes = Data.hero_data()
         self.map = Data.map_data()
+        self.loc = Data.location_data()
         #self.talents = Data.talent_data(type)
         #Clerics start with domain, create talent list for each domain
 

@@ -1,7 +1,7 @@
 import pygame as pg
 import sys
 from states import States
-from objects import Hero, Monster, Spellhand
+from objects import Hero, Monster
 from animation import Stab, Slash, Blast
 from path import Path
 from stats import Stats

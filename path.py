@@ -1,7 +1,8 @@
 import pygame as pg
 import sys
 from states import States
-from objects import Loc, Arrow
+from objects import Location, Arrow
+from stats import Stats
 
 class Path(States):
     def __init__(self):
@@ -9,36 +10,19 @@ class Path(States):
         self.next = 'combat'
         self.path_sprites = pg.sprite.Group()
         self.unused_sprites = pg.sprite.Group()
+        self.stats = Stats()
         self.rooms_done = 0
         self.red_arrows = []
-        #if path not cleared: next=combat and mob list = Loc mob lsit
-        #next adventure_path 'path' need to give combat state monster information
+
     def cleanup(self):
         pass 
     def startup(self):
         self.screen.blit(self.ground, (0,0))
 
-        #these as data files
-        self.city = Loc(((self.width * 0.50), (self.height * 0.80)), self.path_sprites, "city", "city")
-        self.tree1 = Loc(((self.width * 0.30), (self.height * 0.70)), self.path_sprites, "tree1", "tree")
-        self.tree1.content = ["goblin"]
-        self.bush1 = Loc(((self.width * 0.70), (self.height * 0.70)), self.path_sprites, "bush1", "bush")
-        self.bush1.content = ["goblin"]
-        self.tree2 = Loc(((self.width * 0.17), (self.height * 0.45)), self.path_sprites, "tree2", "tree")
-        self.tree2.content = ["orc"]
-        self.bush2 = Loc(((self.width * 0.43), (self.height * 0.45)), self.path_sprites, "bush2", "bush")
-        self.bush2.content = ["orc"]
-        self.tree3 = Loc(((self.width * 0.57), (self.height * 0.45)), self.path_sprites, "tree3", "tree")
-        self.tree3.content = ["orc"]
-        self.tree4 = Loc(((self.width * 0.83), (self.height * 0.45)), self.path_sprites, "tree4", "tree")
-        self.tree4.content = ["gnoll"]
-        self.bush3 = Loc(((self.width * 0.30), (self.height * 0.20)), self.path_sprites, "bush3", "bush")
-        self.bush3.content = ["orc"]
-        self.bush4 = Loc(((self.width * 0.70), (self.height * 0.20)), self.path_sprites, "bush4", "bush")
-        self.bush4.content = ["gnoll"]
-        self.cave = Loc(((self.width * 0.50), (self.height * 0.10)), self.path_sprites, "cave", "cave")
-        self.cave.content = ["troll"]
-
+        locations = self.stats.loc
+        self.loc_objects = [Location((loc["xpos"], loc["ypos"]), self.path_sprites, loc["desc"], loc["name"], loc["content"]) for loc in locations.values()]
+        self.city, self.tree1, self.bush1, self.tree2, self.bush2, self.tree3, self.tree4, self.bush3, self.bush4, self.cave = self.loc_objects
+ 
         self.city.left = self.tree1
         self.city.right = self.bush1
 
@@ -118,8 +102,7 @@ class Path(States):
         self.bush4.lrarrow = Arrow(((self.width * 0.61), (self.height * 0.15)), 64, self.unused_sprites, self.cave, "rarrow")
         self.red_arrows.append(self.bush4.lrarrow)
         
-        path_font = pg.font.SysFont("Arial", 20)
-        self.city_text = path_font.render("Start City", True, (0, 0, 0))
+        self.city_text = self.info_font.render("Start City", True, self.black)
         self.city_text_rect = self.city_text.get_rect(bottomleft=(pg.mouse.get_pos()))
 
     def get_event(self, event):

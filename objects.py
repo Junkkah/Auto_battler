@@ -84,31 +84,26 @@ class Adventure(pg.sprite.Sprite):
         self.desc = desc
         self.name = name
         
-class Loc(pg.sprite.Sprite):
-    def __init__(self, pos, groups, location, name: str):
+class Location(pg.sprite.Sprite):
+    def __init__(self, pos, groups, desc, name, content):
         super().__init__(groups)
-        path = './ab_images/' + name + '.png'
+        path = './ab_images/location/' + name + '.png'
         scenery = pg.image.load(path)
         self.height = scenery.get_height()
         self.width = scenery.get_width()
-        self.xpos = pos[0]
-        self.ypos = pos[1]
+        self.xpos = States.width * float(pos[0])
+        self.ypos = States.height * float(pos[1])
         self.left = None
         self.right = None
-        self.location = location
+        self.desc = desc
         self.rwarrow = None
         self.rrarrow = None
         self.lwarrow = None
         self.rrarrow = None
-        if self.height + self.width > 4000:
-            self.image = pg.transform.scale(scenery, ((self.width / 17), (self.height / 17)))
-        elif self.height + self.width > 3000:
-            self.image = pg.transform.scale(scenery, ((self.width / 13), (self.height / 13)))
-        else:
-            self.image = pg.transform.scale(scenery, ((self.width / 8), (self.height / 8)))
-        self.rect = self.image.get_rect(center = pos)
+        self.image = pg.transform.scale(scenery, ((self.width / 5), (self.height / 5)))
+        self.rect = self.image.get_rect(center = (self.xpos, self.ypos))
         self.name = name
-        self.content = []
+        self.content = [content]
         self.treasure = []
         #self.terrain
         #self.modifier
@@ -159,12 +154,3 @@ class Talent():
         self.name_text = name
         self.desc_text = desc
         self.effect = effect
-
-class Spellhand(pg.sprite.Sprite):
-    def __init__(self, pos, groups):
-        super().__init__(groups)
-        kasi = pg.image.load('./ab_images/rhand.png')
-        height = kasi.get_height()
-        width = kasi.get_width()
-        self.image = pg.transform.scale(kasi, ((width / 15), (height / 15)))
-        self.rect = self.image.get_rect(topleft = pos)

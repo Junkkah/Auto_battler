@@ -19,6 +19,7 @@ class States(object):
         self.map_sprites = pg.sprite.Group()
         
         self.red = (255, 0, 0)
+        self.black = (0, 0, 0)
         self.white = (255, 255, 255)
         self.blue = (0,0,255)
         self.ground = pg.image.load('./ab_images/game_bg.png')

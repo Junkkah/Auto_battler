@@ -1,0 +1,4 @@
+name,xpos,ypos,desc,content
+city,0.50,0.80,city,""tree,0.30,0.70,tree1,goblinbush,0.70,0.70,bush1,goblin
+tree,0.17,0.45,tree2,orc
+bush,0.43,0.45,bush2,orctree,0.57,0.45,tree3,orctree,0.83,0.45,tree4,gnollbush,0.30,0.20,bush3,orcbush,0.70,0.20,bush4,gnollcave,0.50,0.10,cave,troll
