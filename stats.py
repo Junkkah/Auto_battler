@@ -46,6 +46,13 @@ class Data:
             loc_stats = list(loc_reader)
             ldata = {loc["desc"]: loc for loc in loc_stats}
             return ldata
+     
+    def arrow_data(name):
+        with open('./ab_data/' + name + '/arrow.csv', "r") as arr:
+            arr_reader = DictReader(arr)
+            arr_stats = list(arr_reader)
+            adata = {arr["desc"]: arr for arr in arr_stats}
+            return adata
 
 class Stats():
     def __init__(self):

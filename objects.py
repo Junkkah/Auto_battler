@@ -96,10 +96,8 @@ class Location(pg.sprite.Sprite):
         self.left = None
         self.right = None
         self.desc = desc
-        self.rwarrow = None
-        self.rrarrow = None
-        self.lwarrow = None
-        self.rrarrow = None
+        self.l_arrow = None
+        self.r_arrow = None
         self.image = pg.transform.scale(scenery, ((self.width / 5), (self.height / 5)))
         self.rect = self.image.get_rect(center = (self.xpos, self.ypos))
         self.name = name
@@ -109,17 +107,23 @@ class Location(pg.sprite.Sprite):
         #self.modifier
 
 class Arrow(pg.sprite.Sprite):
-    def __init__(self, pos, angle: int, groups, destination: object, name: str):
+    def __init__(self, pos, angle: int, groups, destination: object):
         super().__init__(groups)
-        path = './ab_images/' + name + '.png'
-        picture = pg.image.load(path)
-        self.height = picture.get_height()
-        self.width = picture.get_width()
-        arrow = pg.transform.scale(picture, ((self.width / 12), (self.height / 12)))
-        self.image = pg.transform.rotozoom(arrow, angle, 1) #lock in 50 and -50
+        w_path = './ab_images/w_arrow.png'
+        r_path = './ab_images/r_arrow.png'
+        w_picture = pg.image.load(w_path)
+        r_picture = pg.image.load(r_path)
+        self.height = w_picture.get_height()
+        self.width = w_picture.get_width()
+        w_arrow = pg.transform.scale(w_picture, ((self.width / 12), (self.height / 12)))
+        r_arrow = pg.transform.scale(r_picture, ((self.width / 12), (self.height / 12)))
+        self.r_image = pg.transform.rotozoom(r_arrow, angle, 1)
+        self.w_image = pg.transform.rotozoom(w_arrow, angle, 1)
+        self.image = self.w_image
+        #self.xpos = States.width * float(pos[0])
+        #self.ypos = States.height * float(pos[1])
         self.rect = self.image.get_rect(center = pos)
         self.destination = destination
-        self.visible = False
 
 class TalentName():
     def __init__(self, sample, xpos, ypos1, ypos2, font, hero: int):
