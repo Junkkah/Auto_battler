@@ -123,7 +123,7 @@ class Arrow(pg.sprite.Sprite):
 
 class TalentName():
     def __init__(self, sample, xpos, ypos1, ypos2, font, hero: int):
-        self.font = font 
+        self.font = font
         self.a_name = sample[0][1]['name']
         self.a_text = self.font.render(self.a_name + ":", True, (0,0,0))
         self.b_name = sample[1][1]['name']
