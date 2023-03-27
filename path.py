@@ -19,8 +19,10 @@ class Path(States):
         self.screen.blit(self.ground, (0,0))
         locations = Data.location_data(States.current_adventure)
         self.loc_objects = [Location((loc["xpos"], loc["ypos"]), self.path_sprites, loc["desc"], loc["name"], loc["content"]) for loc in locations.values()]
-        self.city, self.tree1, self.bush1, self.tree2, self.bush2, self.tree3, self.tree4, self.bush3, self.bush4, self.cave = self.loc_objects
- 
+        loc_names = [loc["desc"] for loc in locations.values()]
+        for name, value in zip(loc_names, self.loc_objects):
+            setattr(self, name, value)
+
         loc_tree = {
         self.city: {'left': self.tree1, 'right': self.bush1},
         self.tree1: {'left': self.tree2, 'right': self.bush2},
