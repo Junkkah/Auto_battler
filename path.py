@@ -9,16 +9,19 @@ class Path(States):
         States.__init__(self)
         self.next = 'combat'
         self.path_sprites = pg.sprite.Group()
-        self.unused_sprites = pg.sprite.Group()
         self.rooms_done = 0
+        self.red_left = False
+        self.red_right = False
 
     def cleanup(self):
-        pass 
+        self.path_sprites.empty()
+        self.loc_objects = []
     def startup(self):
         self.screen.blit(self.ground, (0,0))
 
         locations = Data.location_data(States.current_adventure)
-        self.loc_objects = [Location((loc["xpos"], loc["ypos"]), self.path_sprites, loc["desc"], loc["name"], loc["content"]) for loc in locations.values()]
+        self.loc_objects = [Location((loc["xpos"], loc["ypos"]), self.path_sprites, loc["desc"], 
+            loc["name"], loc["content"]) for loc in locations.values()]
         loc_names = [loc["desc"] for loc in locations.values()]
         for name, value in zip(loc_names, self.loc_objects):
             setattr(self, name, value)
@@ -41,32 +44,19 @@ class Path(States):
         if States.current_location == None:
             States.current_location = self.city
             self.current_location = States.current_location
-
         #arrows = Data.arrow_data(States.current_adventure) #curre adventure warrows
         #self.arrow_objects = [Arrow((arr["xpos"], arr["ypos"]), int(arr["angle"]), self.path_sprites, arr["desc"]) for arr in arrows.values()]
-  
         self.city.l_arrow = Arrow(((self.width * 0.38), (self.height * 0.77)), 50, self.path_sprites, self.tree1)
-       
         self.city.r_arrow = Arrow(((self.width * 0.62), (self.height * 0.77)), -50, self.path_sprites, self.bush1)
-       
         self.tree1.l_arrow = Arrow(((self.width * 0.24), (self.height * 0.57)), 50, self.path_sprites, self.tree2)
-       
-        self.tree1.r_arrow = Arrow(((self.width * 0.36), (self.height * 0.57)), -50, self.path_sprites, self.bush1)
-
+        self.tree1.r_arrow = Arrow(((self.width * 0.36), (self.height * 0.57)), -50, self.path_sprites, self.bush2)
         self.bush1.l_arrow = Arrow(((self.width * 0.64), (self.height * 0.57)), 50, self.path_sprites, self.tree3)
-
         self.bush1.r_arrow = Arrow(((self.width * 0.76), (self.height * 0.57)), -50, self.path_sprites, self.tree4)
-
         self.tree2.r_arrow = Arrow(((self.width * 0.24), (self.height * 0.33)), -50, self.path_sprites, self.bush3)
-
         self.bush2.l_arrow = Arrow(((self.width * 0.36), (self.height * 0.33)), 50, self.path_sprites, self.bush3)
-
         self.tree3.r_arrow = Arrow(((self.width * 0.64), (self.height * 0.33)), -50, self.path_sprites, self.bush4)
-
         self.tree4.l_arrow = Arrow(((self.width * 0.76), (self.height * 0.33)), 50, self.path_sprites, self.bush4)
-
         self.bush3.r_arrow = Arrow(((self.width * 0.39), (self.height * 0.15)), -50, self.path_sprites, self.cave)
-
         self.bush4.l_arrow = Arrow(((self.width * 0.61), (self.height * 0.15)), 50, self.path_sprites, self.cave)
 
     def get_event(self, event):
@@ -85,35 +75,27 @@ class Path(States):
                         States.room_monsters = content
                         self.current_location = location
                         self.done = True
-              
-        if self.current_location.left.rect.collidepoint(pg.mouse.get_pos()) == False: #True
-            if self.current_location.left != self.city and self.current_location.l_arrow != None: #== ==
-                self.current_location.l_arrow.image = self.current_location.l_arrow.w_image#r_image
+        try:
+            if self.current_location.l_arrow.dest.rect.collidepoint(pg.mouse.get_pos()) == True: 
+                self.red_left = True
             else:
-                pass#switcheroo
+                self.red_left = False
 
-        elif self.current_location.left.rect.collidepoint(pg.mouse.get_pos()) == True:#else
-            if self.current_location.left != self.city and self.current_location.l_arrow != None:
-                self.current_location.l_arrow.image = self.current_location.l_arrow.r_image
+            if self.current_location.r_arrow.dest.rect.collidepoint(pg.mouse.get_pos()) == True: 
+                self.red_right = True
             else:
-                pass
-
-        if self.current_location.right.rect.collidepoint(pg.mouse.get_pos()) == False: #True
-            if self.current_location.right != self.city and self.current_location.r_arrow != None:
-                self.current_location.r_arrow.image = self.current_location.r_arrow.w_image
-            else:
-                pass
-
-        elif self.current_location.right.rect.collidepoint(pg.mouse.get_pos()) == True: #else
-            if self.current_location.right != self.city and self.current_location.r_arrow != None:
-                self.current_location.r_arrow.image = self.current_location.r_arrow.r_image
-            else:
-                pass
-
+                self.red_right = False
+        except AttributeError:
+            pass
     def update(self, screen, dt):
         self.draw(screen)
     def draw(self, screen):
         self.screen.blit(self.ground, (0,0))
         self.path_sprites.draw(self.screen)
+
+        if self.red_left == True and self.current_location.l_arrow != None:
+            self.screen.blit(self.current_location.l_arrow.r_image, self.current_location.l_arrow.rect)
+        if self.red_right == True and self.current_location.r_arrow != None:
+            self.screen.blit(self.current_location.r_arrow.r_image, self.current_location.r_arrow.rect)
+
         pg.draw.circle(self.screen, (self.red), (self.current_location.xpos, self.current_location.ypos), 20)
-    

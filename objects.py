@@ -123,7 +123,7 @@ class Arrow(pg.sprite.Sprite):
         #self.xpos = States.width * float(pos[0])
         #self.ypos = States.height * float(pos[1])
         self.rect = self.image.get_rect(center = pos)
-        self.destination = destination
+        self.dest = destination
 
 class TalentName():
     def __init__(self, sample, xpos, ypos1, ypos2, font, hero: int):
