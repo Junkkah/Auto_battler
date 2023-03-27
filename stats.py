@@ -41,7 +41,7 @@ class Data:
             return adata
     
     def location_data(name):
-        with open('./ab_data/' + name + '.csv', "r") as loc:
+        with open('./ab_data/' + name + '/location.csv', "r") as loc:
             loc_reader = DictReader(loc)
             loc_stats = list(loc_reader)
             ldata = {loc["desc"]: loc for loc in loc_stats}

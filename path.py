@@ -17,6 +17,7 @@ class Path(States):
         pass 
     def startup(self):
         self.screen.blit(self.ground, (0,0))
+
         locations = Data.location_data(States.current_adventure)
         self.loc_objects = [Location((loc["xpos"], loc["ypos"]), self.path_sprites, loc["desc"], loc["name"], loc["content"]) for loc in locations.values()]
         loc_names = [loc["desc"] for loc in locations.values()]
@@ -41,7 +42,7 @@ class Path(States):
         if States.current_location == None:
             States.current_location = self.city
             self.current_location = States.current_location
-        
+
         self.city.lwarrow = Arrow(((self.width * 0.38), (self.height * 0.77)), 50, self.path_sprites, self.tree1, "warrow")
         self.city.lrarrow = Arrow(((self.width * 0.38), (self.height * 0.77)), 50, self.unused_sprites, self.tree1, "rarrow")
         self.red_arrows.append(self.city.lrarrow)
