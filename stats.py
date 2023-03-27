@@ -20,7 +20,7 @@ class Data:
             return hdata
 
     def talent_data(type):
-        with open('./ab_data/' + type + '_talents.csv', "r") as talent:
+        with open('./ab_data/talents/' + type + '_talents.csv', "r") as talent:
             talent_reader = DictReader(talent)
             talent_stats = list(talent_reader)
             tdata = {talent["name"]: talent for talent in talent_stats}
