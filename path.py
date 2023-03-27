@@ -21,33 +21,21 @@ class Path(States):
         self.loc_objects = [Location((loc["xpos"], loc["ypos"]), self.path_sprites, loc["desc"], loc["name"], loc["content"]) for loc in locations.values()]
         self.city, self.tree1, self.bush1, self.tree2, self.bush2, self.tree3, self.tree4, self.bush3, self.bush4, self.cave = self.loc_objects
  
-        self.city.left = self.tree1
-        self.city.right = self.bush1
-
-        self.tree1.left = self.tree2
-        self.tree1.right = self.bush2
-
-        self.bush1.left = self.tree3
-        self.bush1.right = self.tree4
-
-        self.tree2.right = self.bush3
-        self.tree2.left = self.city
-
-        self.bush2.left = self.bush3
-        self.bush2.right = self.city
-
-        self.tree3.right = self.bush4
-        self.tree3.left = self.city
-        
-        self.tree4.left = self.bush4
-        self.tree4.right = self.city
-
-        self.bush3.right = self.cave
-        self.bush3.left = self.city
-
-        self.bush4.left = self.cave
-        self.bush4.right = self.city
-        
+        loc_tree = {
+        self.city: {'left': self.tree1, 'right': self.bush1},
+        self.tree1: {'left': self.tree2, 'right': self.bush2},
+        self.bush1: {'left': self.tree3, 'right': self.tree4},
+        self.tree2: {'left': self.city, 'right': self.bush3},
+        self.bush2: {'left': self.bush3, 'right': self.city},
+        self.tree3: {'left': self.city, 'right': self.bush4},
+        self.tree4: {'left': self.bush4, 'right': self.city},
+        self.bush3: {'left': self.city, 'right': self.cave},
+        self.bush4: {'left': self.cave, 'right': self.city}
+        }
+        for parent, children in loc_tree.items():
+            for dir, child in children.items():
+                setattr(parent, dir, child)
+      
         if States.current_location == None:
             States.current_location = self.city
             self.current_location = States.current_location
@@ -92,12 +80,12 @@ class Path(States):
         self.tree4.lrarrow = Arrow(((self.width * 0.76), (self.height * 0.33)), 50, self.unused_sprites, self.bush4, "rarrow")
         self.red_arrows.append(self.tree4.lrarrow)
 
-        self.bush3.rwarrow = Arrow(((self.width * 0.39), (self.height * 0.15)), -64, self.path_sprites, self.cave, "warrow")
-        self.bush3.rrarrow = Arrow(((self.width * 0.39), (self.height * 0.15)), -64, self.unused_sprites, self.cave, "rarrow")
+        self.bush3.rwarrow = Arrow(((self.width * 0.39), (self.height * 0.15)), -50, self.path_sprites, self.cave, "warrow")
+        self.bush3.rrarrow = Arrow(((self.width * 0.39), (self.height * 0.15)), -50, self.unused_sprites, self.cave, "rarrow")
         self.red_arrows.append(self.bush3.rrarrow)
 
-        self.bush4.lwarrow = Arrow(((self.width * 0.61), (self.height * 0.15)), 64, self.path_sprites, self.cave, "warrow")
-        self.bush4.lrarrow = Arrow(((self.width * 0.61), (self.height * 0.15)), 64, self.unused_sprites, self.cave, "rarrow")
+        self.bush4.lwarrow = Arrow(((self.width * 0.61), (self.height * 0.15)), 50, self.path_sprites, self.cave, "warrow")
+        self.bush4.lrarrow = Arrow(((self.width * 0.61), (self.height * 0.15)), 50, self.unused_sprites, self.cave, "rarrow")
         self.red_arrows.append(self.bush4.lrarrow)
         
         self.city_text = self.info_font.render("Start City", True, self.black)
