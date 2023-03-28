@@ -44,23 +44,23 @@ class Path(States):
         if States.current_location == None:
             States.current_location = self.city
             self.current_location = States.current_location
-        
-        
-        # S: hard-coded vakioita (aka magic numbers) pitäisi välttää, ne ei oikein kerro mitään. 
-        # Tässä kun esim nuolet on kartalla olevia kuvia, niin niiden xpos/ypos/angle vois laittaa vakioihin:
-        #   
+          
         COORDS_CITY_L_ARROW = ((self.width * 0.38), (self.height * 0.77))
         COORDS_CITY_R_ARROW = ((self.width * 0.62), (self.height * 0.77))
         COORDS_TREE1_L_ARROW = ((self.width * 0.24), (self.height * 0.57))
         COORDS_TREE1_R_ARROW = ((self.width * 0.36), (self.height * 0.57))
-        # jne...
+        COORDS_BUSH1_L_ARROW = ((self.width * 0.64), (self.height * 0.57))
+        COORDS_BUSH1_R_ARROW = ((self.width * 0.76), (self.height * 0.57))
+        COORDS_BUSH2_L_ARROW = ((self.width * 0.36), (self.height * 0.33))
+        COORDS_TREE2_R_ARROW = ((self.width * 0.24), (self.height * 0.33))
+        COORDS_TREE4_L_ARROW = ((self.width * 0.76), (self.height * 0.33))
+        COORDS_TREE3_R_ARROW = ((self.width * 0.64), (self.height * 0.33))
+        COORDS_BUSH4_L_ARROW = ((self.width * 0.61), (self.height * 0.15))
+        COORDS_BUSH3_R_ARROW = ((self.width * 0.39), (self.height * 0.15))
         
-        # Angle:lle näyttäisi olevan kaksi arvoa 50/-50, eli ne jotenkin tyyliiin
         ANGLE_LEFT_ARROW = 50
         ANGLE_RIGHT_ARROW = -50
-        #
         
-        # Sen jälkeen ite koodaisin logiikan mistä-mihin nuolet vievät esim dictionaryyn
         arrows = {
             'city_L_arrow': {
                 'origin': self.city,
@@ -85,31 +85,63 @@ class Path(States):
                 'destination': self.bush2,
                 'coords': COORDS_TREE1_R_ARROW,
                 'angle': ANGLE_RIGHT_ARROW
+            },
+            'bush1_L_arrow': {
+                'origin': self.bush1,
+                'destination': self.tree3,
+                'coords': COORDS_BUSH1_L_ARROW,
+                'angle': ANGLE_LEFT_ARROW
+            },
+            'bush1_R_arrow': {
+                'origin': self.bush1,
+                'destination': self.tree4,
+                'coords': COORDS_BUSH1_R_ARROW,
+                'angle': ANGLE_RIGHT_ARROW
+            },
+            'bush2_L_arrow': {
+                'origin': self.bush2,
+                'destination': self.bush3,
+                'coords': COORDS_BUSH2_L_ARROW,
+                'angle': ANGLE_LEFT_ARROW
+            },
+            'tree2_R_arrow': {
+                'origin': self.tree2,
+                'destination': self.bush3,
+                'coords': COORDS_TREE2_R_ARROW,
+                'angle': ANGLE_RIGHT_ARROW
+            },
+            'tree4_L_arrow': {
+                'origin': self.tree4,
+                'destination': self.bush4,
+                'coords': COORDS_TREE4_L_ARROW,
+                'angle': ANGLE_LEFT_ARROW
+            },
+            'tree3_R_arrow': {
+                'origin': self.tree3,
+                'destination': self.bush4,
+                'coords': COORDS_TREE3_R_ARROW,
+                'angle': ANGLE_RIGHT_ARROW
+            },
+            'bush4_L_arrow': {
+                'origin': self.bush4,
+                'destination': self.cave,
+                'coords': COORDS_BUSH4_L_ARROW,
+                'angle': ANGLE_LEFT_ARROW
+            },
+            'bush3_R_arrow': {
+                'origin': self.bush3,
+                'destination': self.cave,
+                'coords': COORDS_BUSH3_R_ARROW,
+                'angle': ANGLE_RIGHT_ARROW
             }
-            # jne...
-        }
-                
-        # jonka jälkeen nuolet voi luoda nätisti loopilla:
+        }   
         for name, data in arrows.items():
-            print("arrow name: " + name)
-            print("data.loc: " + str(data['coords']))
+            #print("arrow name: " + name)
+            #print("data.loc: " + str(data['coords']))
             setattr(data['origin'], name, Arrow(data['coords'], data['angle'], self.path_sprites, data['destination']))
         
         #arrows = Data.arrow_data(States.current_adventure) #curre adventure warrows
         #self.arrow_objects = [Arrow((arr["xpos"], arr["ypos"]), int(arr["angle"]), self.path_sprites, arr["desc"]) for arr in arrows.values()]
-        # self.city.l_arrow = Arrow(((self.width * 0.38), (self.height * 0.77)), 50, self.path_sprites, self.tree1)
-        # self.city.r_arrow = Arrow(((self.width * 0.62), (self.height * 0.77)), -50, self.path_sprites, self.bush1)
-        # self.tree1.l_arrow = Arrow(((self.width * 0.24), (self.height * 0.57)), 50, self.path_sprites, self.tree2)
-        # self.tree1.r_arrow = Arrow(((self.width * 0.36), (self.height * 0.57)), -50, self.path_sprites, self.bush2)
-        
-        self.bush1.l_arrow = Arrow(((self.width * 0.64), (self.height * 0.57)), 50, self.path_sprites, self.tree3)
-        self.bush1.r_arrow = Arrow(((self.width * 0.76), (self.height * 0.57)), -50, self.path_sprites, self.tree4)
-        self.tree2.r_arrow = Arrow(((self.width * 0.24), (self.height * 0.33)), -50, self.path_sprites, self.bush3)
-        self.bush2.l_arrow = Arrow(((self.width * 0.36), (self.height * 0.33)), 50, self.path_sprites, self.bush3)
-        self.tree3.r_arrow = Arrow(((self.width * 0.64), (self.height * 0.33)), -50, self.path_sprites, self.bush4)
-        self.tree4.l_arrow = Arrow(((self.width * 0.76), (self.height * 0.33)), 50, self.path_sprites, self.bush4)
-        self.bush3.r_arrow = Arrow(((self.width * 0.39), (self.height * 0.15)), -50, self.path_sprites, self.cave)
-        self.bush4.l_arrow = Arrow(((self.width * 0.61), (self.height * 0.15)), 50, self.path_sprites, self.cave)
 
     def get_event(self, event):
         if event.type == pg.KEYDOWN:

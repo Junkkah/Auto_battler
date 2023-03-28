@@ -1,2 +1,2 @@
 name,xpos,ypos,angle,desc
-warrow,0.38,0.77,50,tree1warrow,0.62,0.77,-50,bush1warrow,0.24,0.57,50,tree2warrow,0.36,0.57,-50,bush2warrow,0.64,0.57,50,tree3warrow,0.76,0.57,-50,tree4warrow,0.24,0.33,-50,bush3warrow,0.36,0.33,50,bush3warrow,0.64,0.33,-50,bush4warrow,0.76,0.33,50,bush4warrow,0.39,0.15,-50,cavewarrow,0.61,0.15,50,cave
+w_arrow,0.38,0.77,50,tree1w_arrow,0.62,0.77,-50,bush1w_arrow,0.24,0.57,50,tree2w_arrow,0.36,0.57,-50,bush2w_arrow,0.64,0.57,50,tree3w_arrow,0.76,0.57,-50,tree4w_arrow,0.24,0.33,-50,bush3w_arrow,0.36,0.33,50,bush3w_arrow,0.64,0.33,-50,bush4w_arrow,0.76,0.33,50,bush4w_arrow,0.39,0.15,-50,cavew_arrow,0.61,0.15,50,cave
