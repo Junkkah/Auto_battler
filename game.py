@@ -15,39 +15,51 @@ class Game(States):
         self.screen.fill(self.white)
         self.screen.blit(self.ground, (0,0))
         self.selection_sprites = pg.sprite.Group()
-        self.selectable_heroes = 8
         self.selection = []
+        SELECTABLE_HEROES = 8
         
         bubble = pg.image.load('./ab_images/menu_bubble.png')
-        self.bubble = pg.transform.scale(bubble, ((bubble.get_width() / 8), (bubble.get_height() / 8)))
-        self.bubble_rect = self.bubble.get_rect(bottomleft=(self.width * 0.12, self.height * 0.85))
         hood = pg.image.load('./ab_images/hood.png')
-        self.hood = pg.transform.scale(hood, ((hood.get_width() / 8), (hood.get_height() / 8)))
-        self.hood_rect = self.hood.get_rect(topleft=(self.width * 0.05, self.height * 0.80))
+        COORDS_BUBBLE  = (self.width * 0.12, self.height * 0.85)
+        COORDS_HOOD = (self.width * 0.05, self.height * 0.80)
+        SCALAR_BUBBLE = ((bubble.get_width() / 8), (bubble.get_height() / 8))
+        SCALAR_HOOD = ((hood.get_width() / 8), (hood.get_height() / 8))
+        
+        self.bubble = pg.transform.scale(bubble, SCALAR_BUBBLE)
+        self.hood = pg.transform.scale(hood, SCALAR_HOOD)
+        self.bubble_rect = self.bubble.get_rect(bottomleft=COORDS_BUBBLE)
+        self.hood_rect = self.hood.get_rect(topleft=COORDS_HOOD)
 
         def name_data():
             with open('./ab_data/names.csv', "r") as name:
                 name_reader = csv.reader(name)
                 self.names = list(tuple(row) for row in name_reader)
         name_data()
-        self.available = random.sample(self.names, self.selectable_heroes)
+        self.available = random.sample(self.names, SELECTABLE_HEROES)
 
-        hero_xpos = (self.width * 0.20)
-        for i in range(0,self.selectable_heroes):
-            hero_ypos = (self.height * 0.2)
-            if i > 3: #second row
-                hero_ypos = (self.height * 0.5)
-            self.i = Hero((hero_xpos, hero_ypos), self.hero_sprites, self.available[i][0], self.available[i][1])
-            self.selection.append(self.i)
-            self.selection_sprites.add(self.i)
-            if i == 3:
-                hero_xpos -= (self.width * 0.60)
-            hero_xpos += (self.width * 0.15)
+        HERO_XPOS = (self.width * 0.20)
+        HERO_YPOS_ROW1 = (self.height * 0.2)
+        HERO_YPOS_ROW2 = (self.height * 0.5)
+        HERO_GAP = (self.width * 0.15)
+        HERO_ROW_LENGTH = (self.width * 0.60)
+        NEXT_ROW = 3
+
+        for spot_hero in range(0, SELECTABLE_HEROES):
+            HERO_YPOS = HERO_YPOS_ROW1
+            if spot_hero > NEXT_ROW: 
+                HERO_YPOS = HERO_YPOS_ROW2
+            self.spot_hero = Hero((HERO_XPOS, HERO_YPOS), self.hero_sprites, self.available[spot_hero][0], self.available[spot_hero][1])
+            self.selection.append(self.spot_hero)
+            self.selection_sprites.add(self.spot_hero)
+            if spot_hero == NEXT_ROW:
+                HERO_XPOS -= HERO_ROW_LENGTH
+            HERO_XPOS += HERO_GAP
         
-        continue_font = pg.font.SysFont("Arial", 50)
-        self.continue_text = continue_font.render("CONTINUE", True, (127, 127, 127))
-        self.ready_text = continue_font.render("CONTINUE", True, (0, 0, 0))
-        self.continue_rect = self.continue_text.get_rect(center=(self.width * 0.75, self.height * 0.88))
+        CONTINUE_FONT = pg.font.SysFont("Arial", 50)
+        self.continue_text = CONTINUE_FONT.render("CONTINUE", True, self.grey)
+        self.ready_text = CONTINUE_FONT.render("CONTINUE", True, self.black)
+        COORDS_CONTINUE = (self.width * 0.75, self.height * 0.88)
+        self.continue_rect = self.continue_text.get_rect(center=COORDS_CONTINUE)
         
     def get_event(self, event):
         if event.type == pg.KEYDOWN:
@@ -84,7 +96,8 @@ class Game(States):
         
         for shero in self.selection:
             if shero.rect.collidepoint(pg.mouse.get_pos()):
+                COORDS_INFO = ((shero.xpos), (shero.ypos + (self.height / 7.1)))
                 info = shero.name.capitalize() + ", " + shero.type.capitalize()
-                info_text = self.info_font.render(info, True, (0, 0, 0))
-                info_text_rect = info_text.get_rect(topleft=((shero.xpos), (shero.ypos + (self.height / 7.1))))
+                info_text = self.info_font.render(info, True, self.black)
+                info_text_rect = info_text.get_rect(topleft=COORDS_INFO)
                 self.screen.blit(info_text, info_text_rect)
