@@ -44,12 +44,64 @@ class Path(States):
         if States.current_location == None:
             States.current_location = self.city
             self.current_location = States.current_location
+        
+        
+        # S: hard-coded vakioita (aka magic numbers) pitäisi välttää, ne ei oikein kerro mitään. 
+        # Tässä kun esim nuolet on kartalla olevia kuvia, niin niiden xpos/ypos/angle vois laittaa vakioihin:
+        #   
+        COORDS_CITY_L_ARROW = ((self.width * 0.38), (self.height * 0.77))
+        COORDS_CITY_R_ARROW = ((self.width * 0.62), (self.height * 0.77))
+        COORDS_TREE1_L_ARROW = ((self.width * 0.24), (self.height * 0.57))
+        COORDS_TREE1_R_ARROW = ((self.width * 0.36), (self.height * 0.57))
+        # jne...
+        
+        # Angle:lle näyttäisi olevan kaksi arvoa 50/-50, eli ne jotenkin tyyliiin
+        ANGLE_LEFT_ARROW = 50
+        ANGLE_RIGHT_ARROW = -50
+        #
+        
+        # Sen jälkeen ite koodaisin logiikan mistä-mihin nuolet vievät esim dictionaryyn
+        arrows = {
+            'city_L_arrow': {
+                'origin': self.city,
+                'destination': self.tree1,
+                'coords': COORDS_CITY_L_ARROW,
+                'angle': ANGLE_LEFT_ARROW
+            },
+            'city_R_arrow': {
+                'origin': self.city,
+                'destination': self.bush1,
+                'coords': COORDS_CITY_R_ARROW,
+                'angle': ANGLE_RIGHT_ARROW
+            },
+            'tree1_L_arrow': {
+                'origin': self.tree1,
+                'destination': self.tree2,
+                'coords': COORDS_TREE1_L_ARROW,
+                'angle': ANGLE_LEFT_ARROW
+            },
+            'tree1_R_arrow': {
+                'origin': self.tree1,
+                'destination': self.bush2,
+                'coords': COORDS_TREE1_R_ARROW,
+                'angle': ANGLE_RIGHT_ARROW
+            }
+            # jne...
+        }
+                
+        # jonka jälkeen nuolet voi luoda nätisti loopilla:
+        for name, data in arrows.items():
+            print("arrow name: " + name)
+            print("data.loc: " + str(data['coords']))
+            setattr(data['origin'], name, Arrow(data['coords'], data['angle'], self.path_sprites, data['destination']))
+        
         #arrows = Data.arrow_data(States.current_adventure) #curre adventure warrows
         #self.arrow_objects = [Arrow((arr["xpos"], arr["ypos"]), int(arr["angle"]), self.path_sprites, arr["desc"]) for arr in arrows.values()]
-        self.city.l_arrow = Arrow(((self.width * 0.38), (self.height * 0.77)), 50, self.path_sprites, self.tree1)
-        self.city.r_arrow = Arrow(((self.width * 0.62), (self.height * 0.77)), -50, self.path_sprites, self.bush1)
-        self.tree1.l_arrow = Arrow(((self.width * 0.24), (self.height * 0.57)), 50, self.path_sprites, self.tree2)
-        self.tree1.r_arrow = Arrow(((self.width * 0.36), (self.height * 0.57)), -50, self.path_sprites, self.bush2)
+        # self.city.l_arrow = Arrow(((self.width * 0.38), (self.height * 0.77)), 50, self.path_sprites, self.tree1)
+        # self.city.r_arrow = Arrow(((self.width * 0.62), (self.height * 0.77)), -50, self.path_sprites, self.bush1)
+        # self.tree1.l_arrow = Arrow(((self.width * 0.24), (self.height * 0.57)), 50, self.path_sprites, self.tree2)
+        # self.tree1.r_arrow = Arrow(((self.width * 0.36), (self.height * 0.57)), -50, self.path_sprites, self.bush2)
+        
         self.bush1.l_arrow = Arrow(((self.width * 0.64), (self.height * 0.57)), 50, self.path_sprites, self.tree3)
         self.bush1.r_arrow = Arrow(((self.width * 0.76), (self.height * 0.57)), -50, self.path_sprites, self.tree4)
         self.tree2.r_arrow = Arrow(((self.width * 0.24), (self.height * 0.33)), -50, self.path_sprites, self.bush3)
