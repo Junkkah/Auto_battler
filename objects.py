@@ -96,8 +96,6 @@ class Location(pg.sprite.Sprite):
         self.left = None
         self.right = None
         self.desc = desc
-        self.l_arrow = None
-        self.r_arrow = None
         self.image = pg.transform.scale(scenery, ((self.width / 5), (self.height / 5)))
         self.rect = self.image.get_rect(center = (self.xpos, self.ypos))
         self.name = name

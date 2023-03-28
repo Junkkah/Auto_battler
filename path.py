@@ -10,8 +10,6 @@ class Path(States):
         self.next = 'combat'
         self.path_sprites = pg.sprite.Group()
         self.rooms_done = 0
-        self.red_left = False
-        self.red_right = False
 
     def cleanup(self):
         self.path_sprites.empty()
@@ -44,6 +42,8 @@ class Path(States):
         if States.current_location == None:
             States.current_location = self.city
             self.current_location = States.current_location
+        
+        self.current_location = next((loc_object for loc_object in self.loc_objects if loc_object.desc == self.current_location.desc), None)
           
         COORDS_CITY_L_ARROW = ((self.width * 0.38), (self.height * 0.77))
         COORDS_CITY_R_ARROW = ((self.width * 0.62), (self.height * 0.77))
@@ -61,16 +61,18 @@ class Path(States):
         ANGLE_LEFT_ARROW = 50
         ANGLE_RIGHT_ARROW = -50
         
-        arrows = {
+        self.arrows = {
             'city_L_arrow': {
                 'origin': self.city,
                 'destination': self.tree1,
+                'desc': "tree1",
                 'coords': COORDS_CITY_L_ARROW,
                 'angle': ANGLE_LEFT_ARROW
             },
-            'city_R_arrow': {
+            'city_ R_arrow': {
                 'origin': self.city,
                 'destination': self.bush1,
+                'desc': "bush1",
                 'coords': COORDS_CITY_R_ARROW,
                 'angle': ANGLE_RIGHT_ARROW
             },
@@ -135,14 +137,9 @@ class Path(States):
                 'angle': ANGLE_RIGHT_ARROW
             }
         }   
-        for name, data in arrows.items():
-            #print("arrow name: " + name)
-            #print("data.loc: " + str(data['coords']))
+        for name, data in self.arrows.items():
             setattr(data['origin'], name, Arrow(data['coords'], data['angle'], self.path_sprites, data['destination']))
         
-        #arrows = Data.arrow_data(States.current_adventure) #curre adventure warrows
-        #self.arrow_objects = [Arrow((arr["xpos"], arr["ypos"]), int(arr["angle"]), self.path_sprites, arr["desc"]) for arr in arrows.values()]
-
     def get_event(self, event):
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_ESCAPE:
@@ -159,27 +156,15 @@ class Path(States):
                         States.room_monsters = content
                         self.current_location = location
                         self.done = True
-        try:
-            if self.current_location.l_arrow.dest.rect.collidepoint(pg.mouse.get_pos()) == True: 
-                self.red_left = True
-            else:
-                self.red_left = False
 
-            if self.current_location.r_arrow.dest.rect.collidepoint(pg.mouse.get_pos()) == True: 
-                self.red_right = True
-            else:
-                self.red_right = False
-        except AttributeError:
-            pass
+        for key, data in self.arrows.items():
+            loc_instance = getattr(data['origin'], key)
+            collides = data["destination"].rect.collidepoint(pg.mouse.get_pos())
+            loc_instance.image = loc_instance.r_image if collides and self.current_location == data['origin'] else loc_instance.w_image
+
     def update(self, screen, dt):
         self.draw(screen)
     def draw(self, screen):
         self.screen.blit(self.ground, (0,0))
         self.path_sprites.draw(self.screen)
-
-        if self.red_left == True and self.current_location.l_arrow != None:
-            self.screen.blit(self.current_location.l_arrow.r_image, self.current_location.l_arrow.rect)
-        if self.red_right == True and self.current_location.r_arrow != None:
-            self.screen.blit(self.current_location.r_arrow.r_image, self.current_location.r_arrow.rect)
-
         pg.draw.circle(self.screen, (self.red), (self.current_location.xpos, self.current_location.ypos), 20)
