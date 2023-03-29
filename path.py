@@ -137,7 +137,6 @@ class Path(States):
         }   
         for name, data in self.arrows.items():
             setattr(data['origin'], name, Arrow(data['coords'], data['angle'], self.path_sprites, data['destination']))
-        
     def get_event(self, event):
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_ESCAPE:
@@ -151,7 +150,8 @@ class Path(States):
                     if location == self.city:
                         pass
                     else:
-                        States.room_monsters = content
+                        monsters = content.split(" ")
+                        States.room_monsters = monsters
                         self.current_location = location
                         self.done = True
 

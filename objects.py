@@ -45,27 +45,34 @@ class Monster(pg.sprite.Sprite):
         super().__init__(groups)
         path = './ab_images/monster/' + type + '.png'
         mob = pg.image.load(path)
-        height = mob.get_height()
-        width = mob.get_width()
+        HEIGHT = mob.get_height()
+        WIDTH = mob.get_width()
         stats = Stats()
         self.xpos = pos[0]
         self.ypos = pos[1]
-        self.image = pg.transform.scale(mob, ((width / 10), (height / 10)))
-        self.rect = self.image.get_rect(topleft = (self.xpos, self.ypos))
         self.type = type
         self.player = False
         self.animation = False
         self.attacked = False
         self.data = stats.monsters[type]
         self.data = {key: int(value) if value.isdigit() else value for key, value in self.data.items()}
-        self.speed = self.data["speed"]
-        self.damage = self.data["damage"]
-        self.exp = self.data["exp"]
-        self.health = self.data["health"]
-        self.max_health = self.data["max_health"]
+        #Decreases code readability?
+        for name, value in self.data.items():
+            setattr(self, name, value)
+        #self.speed = self.data["speed"]
+        #self.damage = self.data["damage"]
+        #self.exp = self.data["exp"]
+        #self.health = self.data["health"]
+        #self.max_health = self.data["max_health"]
+        #self.health = min(self.health, self.max_health)
+        #self.menace = self.data["menace"]
+        #self.armor = self.data["armor"]
+        #SIZE_SCALAR = self.data["size_scalar"]
         self.health = min(self.health, self.max_health)
-        self.menace = self.data["menace"]
-        self.armor = self.data["armor"]
+        SCALAR_W = WIDTH / self.size_scalar
+        SCALAR_H = HEIGHT / self.size_scalar
+        self.image = pg.transform.scale(mob, (SCALAR_W, SCALAR_H))
+        self.rect = self.image.get_rect(topleft = (self.xpos, self.ypos))
         #self.abilities = ["regenerating": True/False]
 
 class Adventure(pg.sprite.Sprite):
@@ -99,7 +106,7 @@ class Location(pg.sprite.Sprite):
         self.image = pg.transform.scale(scenery, ((self.width / 5), (self.height / 5)))
         self.rect = self.image.get_rect(center = (self.xpos, self.ypos))
         self.name = name
-        self.content = [content]
+        self.content = content
         self.treasure = []
         #self.terrain
         #self.modifier
