@@ -65,14 +65,12 @@ class Path(States):
             'city_L_arrow': {
                 'origin': self.city,
                 'destination': self.tree1,
-                'desc': "tree1",
                 'coords': COORDS_CITY_L_ARROW,
                 'angle': ANGLE_LEFT_ARROW
             },
-            'city_ R_arrow': {
+            'city_R_arrow': {
                 'origin': self.city,
                 'destination': self.bush1,
-                'desc': "bush1",
                 'coords': COORDS_CITY_R_ARROW,
                 'angle': ANGLE_RIGHT_ARROW
             },
