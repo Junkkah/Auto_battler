@@ -35,7 +35,7 @@ class Combat(States):
     def startup(self):
         self.screen.fill((self.white))
         self.screen.blit(self.ground, (0,0))
-
+        
         #Monster positions
         if len(States.room_monsters) == 1:
             self.monster1 = Monster(((self.width * 0.5), self.height * 0.2), self.monster_sprites, States.room_monsters[0]) 
@@ -74,9 +74,14 @@ class Combat(States):
         MONSTERS_NAMES = [monster.type.capitalize() for monster in States.room_monsters]
         MONSTERS_TEXT = "Enemies: " + ", ".join(MONSTERS_NAMES)
         self.MONSTERS_TEXT = self.info_font.render(MONSTERS_TEXT, True, self.black)
-        COORDS_MONSTERS_TEXT = (self.width * 0.05, self.height * 0.05)
+        COORDS_MONSTERS_TEXT = (self.width * 0.50, self.height * 0.45)
         self.MONSTERS_RECT = self.MONSTERS_TEXT.get_rect(topleft=COORDS_MONSTERS_TEXT)
 
+        self.combat_hero_sprites.draw(self.screen)
+        self.combat_mob_sprites.draw(self.screen)
+        self.screen.blit(self.MONSTERS_TEXT, self.MONSTERS_RECT)
+        pg.display.update()
+        pg.time.delay(300)
         #Who acts first
         #tie breaker, first in hero/mob list > lower, hero > mob, class prios
         def order_sort(incombat: list):
@@ -116,8 +121,7 @@ class Combat(States):
         self.screen.blit(self.ground, (0,0))
         self.combat_hero_sprites.draw(self.screen)
         self.combat_mob_sprites.draw(self.screen)
-
-        self.screen.blit(self.MONSTERS_TEXT, self.MONSTERS_RECT)
+        #self.screen.blit(self.MONSTERS_TEXT, self.MONSTERS_RECT)
         
         if States.acting.animation == True: 
             self.animation_sprites.draw(screen)
@@ -150,3 +154,4 @@ class Combat(States):
                     if States.party_heroes == []: #do loss screen
                         self.next = 'menu'
                         self.done = True
+            
