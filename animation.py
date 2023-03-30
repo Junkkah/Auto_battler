@@ -14,19 +14,19 @@ def spell_attack(attacker, target, spell):
 	target.health -= attacker.damage
 
 #Stab, Slash and Blast class code adapted from
-#https://github.com/clear-code-projects/animation
+#https://github.com/clear-code-projects/animation 
 
 class Stab(pg.sprite.Sprite):
 	def __init__(self, xpos, ypos):
 		super().__init__()
 		self.attack_animation = False
 		self.sword_sprites = [] 
-		sword_image = pg.image.load('./ab_images/stab/sword1.png')
+		sword_image = pg.image.load('./ab_images/stab/sword1.png').convert_alpha()
 		height = sword_image.get_height()
 		width = sword_image.get_width()
 		
 		for i in range(1, 11):
-			sword = pg.image.load('./ab_images/stab/sword' + str(i) + '.png')
+			sword = pg.image.load('./ab_images/stab/sword' + str(i) + '.png').convert_alpha()
 			#adjust width height / 10 to screen size
 			self.sword_sprites.append(pg.transform.scale(sword, ((width / 10), (height / 10))))
         
@@ -57,17 +57,17 @@ class Blast(pg.sprite.Sprite):
 		self.attack_animation = False
 		self.spell_sprites = [] 
 		self.attack_spell = spell
-		cast_image = pg.image.load('./ab_images/blast/spell.png')
+		cast_image = pg.image.load('./ab_images/blast/spell.png').convert_alpha()
 		height = cast_image.get_height()
 		width = cast_image.get_width()
 		spell_type = spell["type"]
 
 		for i in range(1, 6):
-			spell = pg.image.load('./ab_images/blast/spell.png')
+			spell = pg.image.load('./ab_images/blast/spell.png').convert_alpha()
 			self.spell_sprites.append(pg.transform.scale(spell, ((width / 15), (height / 15))))
 		
 		for i in range(6, 11):
-			spell = pg.image.load('./ab_images/blast/' + spell_type + '.png')
+			spell = pg.image.load('./ab_images/blast/' + spell_type + '.png').convert_alpha()
 			self.spell_sprites.append(pg.transform.scale(spell, ((width / 15), (height / 15))))
         
 		self.current_sprite = 0
@@ -97,14 +97,14 @@ class Slash(pg.sprite.Sprite):
 		super().__init__()
 		self.attack_animation = False
 		self.claw_sprites = []
-		claw1 = pg.image.load('./ab_images/claw/claw1.png')
-		height = claw1.get_height()
-		width = claw1.get_width()
+		claw = pg.image.load('./ab_images/claw/claw.png').convert_alpha()
+		HEIGHT = claw.get_height()
+		WIDTH = claw.get_width()
+		SIZE_SCALAR = 10
 
 		for i in range(10):
-			claw = pg.image.load('./ab_images/claw/claw1.png')
-			clawr = pg.transform.rotozoom(claw, ((i * -9) + 45), 1)
-			self.claw_sprites.append(pg.transform.scale(clawr, ((width / 10), (height / 10))))
+			CLAW_ROTATION = pg.transform.rotozoom(claw, ((i * -9) + 45), 1)
+			self.claw_sprites.append(pg.transform.scale(CLAW_ROTATION, ((WIDTH / SIZE_SCALAR), (HEIGHT / SIZE_SCALAR))))
         
 		self.current_sprite = 0
 		self.image = self.claw_sprites[self.current_sprite]

@@ -8,8 +8,7 @@ class Hero(pg.sprite.Sprite):
         self.pos = pos
         self.xpos = pos[0]
         self.ypos = pos[1]
-        path = './ab_images/hero/' + name + '.png'
-        face = pg.image.load(path) 
+        face = pg.image.load('./ab_images/hero/' + name + '.png').convert_alpha()
         width = face.get_width()
         height = face.get_height() 
         stats = Stats()            
@@ -43,8 +42,7 @@ class Hero(pg.sprite.Sprite):
 class Monster(pg.sprite.Sprite):
     def __init__(self, pos, groups, type: str):
         super().__init__(groups)
-        path = './ab_images/monster/' + type + '.png'
-        mob = pg.image.load(path)
+        mob = pg.image.load('./ab_images/monster/' + type + '.png').convert_alpha()
         HEIGHT = mob.get_height()
         WIDTH = mob.get_width()
         stats = Stats()
@@ -78,8 +76,7 @@ class Monster(pg.sprite.Sprite):
 class Adventure(pg.sprite.Sprite):
     def __init__(self, pos, groups, desc: str, name: str):
         super().__init__(groups)
-        path = './ab_images/map/' + name + '.png'
-        scenery = pg.image.load(path)
+        scenery = pg.image.load('./ab_images/map/' + name + '.png').convert_alpha()
         height = scenery.get_height()
         width = scenery.get_width()
         self.height = height / 9
@@ -94,8 +91,7 @@ class Adventure(pg.sprite.Sprite):
 class Location(pg.sprite.Sprite):
     def __init__(self, pos, groups, desc, name, content):
         super().__init__(groups)
-        path = './ab_images/location/' + name + '.png'
-        scenery = pg.image.load(path)
+        scenery = pg.image.load('./ab_images/location/' + name + '.png').convert_alpha()
         self.height = scenery.get_height()
         self.width = scenery.get_width()
         self.xpos = States.width * float(pos[0])
@@ -114,10 +110,8 @@ class Location(pg.sprite.Sprite):
 class Arrow(pg.sprite.Sprite):
     def __init__(self, pos, angle: int, groups, destination: object):
         super().__init__(groups)
-        w_path = './ab_images/w_arrow.png'
-        r_path = './ab_images/r_arrow.png'
-        w_picture = pg.image.load(w_path)
-        r_picture = pg.image.load(r_path)
+        w_picture = pg.image.load('./ab_images/w_arrow.png').convert_alpha()
+        r_picture = pg.image.load('./ab_images/r_arrow.png').convert_alpha()
         self.height = w_picture.get_height()
         self.width = w_picture.get_width()
         w_arrow = pg.transform.scale(w_picture, ((self.width / 12), (self.height / 12)))
