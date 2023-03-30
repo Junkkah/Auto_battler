@@ -70,6 +70,12 @@ class Combat(States):
         for party_hero in States.party_heroes:
             self.combat_hero_sprites.add(party_hero)
             self.actions_unordered.append(party_hero)
+        
+        MONSTERS_NAMES = [monster.type.capitalize() for monster in States.room_monsters]
+        MONSTERS_TEXT = "Enemies: " + ", ".join(MONSTERS_NAMES)
+        self.MONSTERS_TEXT = self.info_font.render(MONSTERS_TEXT, True, self.black)
+        COORDS_MONSTERS_TEXT = (self.width * 0.05, self.height * 0.05)
+        self.MONSTERS_RECT = self.MONSTERS_TEXT.get_rect(topleft=COORDS_MONSTERS_TEXT)
 
         #Who acts first
         #tie breaker, first in hero/mob list > lower, hero > mob, class prios
@@ -111,6 +117,8 @@ class Combat(States):
         self.combat_hero_sprites.draw(self.screen)
         self.combat_mob_sprites.draw(self.screen)
 
+        self.screen.blit(self.MONSTERS_TEXT, self.MONSTERS_RECT)
+        
         if States.acting.animation == True: 
             self.animation_sprites.draw(screen)
 
