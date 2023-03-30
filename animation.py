@@ -103,14 +103,15 @@ class Slash(pg.sprite.Sprite):
 		SIZE_SCALAR = 10
 
 		for i in range(10):
-			CLAW_ROTATION = pg.transform.rotozoom(claw, ((i * -9) + 45), 1)
+			#CLAW_ROTATION = pg.transform.rotozoom(claw, ((i * -9) + 45), 1)
+			CLAW_ROTATION = pg.transform.rotate(claw, ((i * -9) + 45))
 			self.claw_sprites.append(pg.transform.scale(CLAW_ROTATION, ((WIDTH / SIZE_SCALAR), (HEIGHT / SIZE_SCALAR))))
         
 		self.current_sprite = 0
 		self.image = self.claw_sprites[self.current_sprite]
 		self.rect = self.image.get_rect()
 		self.rect.center = [xpos, ypos]
-
+		
 	def animation_start(self):
 		self.attack_animation = True
 
@@ -125,3 +126,4 @@ class Slash(pg.sprite.Sprite):
 				return True
 
 		self.image = self.claw_sprites[int(self.current_sprite)]
+		self.rect = self.image.get_rect(topleft = self.rect.topleft)

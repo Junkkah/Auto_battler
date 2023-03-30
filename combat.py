@@ -128,7 +128,7 @@ class Combat(States):
             self.animation_sprites.draw(screen)
 
         #Advance animation
-        if self.combat_animation.animate(1) == True:
+        if self.combat_animation.animate(0.5) == True:
             self.animation_sprites.remove(self.combat_animation)
             self.actions_ordered.append(self.actions_ordered.pop(0))
             
