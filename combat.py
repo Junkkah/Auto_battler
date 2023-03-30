@@ -24,45 +24,47 @@ class Combat(States):
         self.combat_mob_sprites.empty()
         self.actions_unordered = []
         self.temp_stats = []
-        #loot here
+        States.room_monsters = []
         for ehero in States.party_heroes:
             ehero.exp += self.exp_reward 
-
         self.exp_reward = 0
         #Victory screen
+        #loot here
         #pg.time.wait(2000)
-
+        
     def startup(self):
         self.screen.fill((self.white))
         self.screen.blit(self.ground, (0,0))
-        
-        #Monster positions
-        if len(States.room_monsters) == 1:
-            self.monster1 = Monster(((self.width * 0.5), self.height * 0.2), self.monster_sprites, States.room_monsters[0]) 
-            States.room_monsters = []
-            States.room_monsters.append(self.monster1)
-        elif len(States.room_monsters) == 2:
-            self.monster1 = Monster(((self.width / 2), self.height / 5), self.monster_sprites, States.room_monsters[0]) 
-            self.monster2 = Monster(((self.width / 3), self.height / 5), self.monster_sprites, States.room_monsters[1])
-            States.room_monsters = []
-            States.room_monsters.append(self.monster1)
-            States.room_monsters.append(self.monster2)
-        elif len(States.room_monsters) == 3:
-            self.monster1 = Monster(((self.width * 0.25), self.height / 5), self.monster_sprites, States.room_monsters[0]) 
-            self.monster2 = Monster(((self.width * 0.50), self.height / 5), self.monster_sprites, States.room_monsters[1])
-            self.monster3 = Monster(((self.width * 0.75), self.height / 5), self.monster_sprites, States.room_monsters[2])
-            States.room_monsters = []
-            States.room_monsters.append(self.monster1)
-            States.room_monsters.append(self.monster2)
-            States.room_monsters.append(self.monster3)
 
-        #Hero positions
-        x_hero = 0.3
+        MONSTER_COUNT = len(States.room_monsters)
+        MONSTER_NAMES = []
+        MONSTER_NAMES.extend(States.room_monsters)
+        MONSTER_YPOS = self.height * 0.2
+        ONE_MONSTER_COORDS = (self.width * 0.5, MONSTER_YPOS)
+        TWO_MONSTERS_COORDS = ((self.width * 0.33, MONSTER_YPOS), (self.width * 0.66, MONSTER_YPOS))
+        THREE_MONSTERS_COORDS = ((self.width * 0.25, MONSTER_YPOS), (self.width * 0.50, MONSTER_YPOS), (self.width * 0.75, MONSTER_YPOS))
+
+        if MONSTER_COUNT == 1:
+            self.monster1 = Monster(ONE_MONSTER_COORDS, self.monster_sprites, MONSTER_NAMES[0]) 
+            States.room_monsters = [self.monster1]
+        elif MONSTER_COUNT == 2:
+            self.monster1 = Monster(TWO_MONSTERS_COORDS[0], self.monster_sprites, MONSTER_NAMES[0]) 
+            self.monster2 = Monster(TWO_MONSTERS_COORDS[1], self.monster_sprites, MONSTER_NAMES[1])
+            States.room_monsters = [self.monster1, self.monster2]
+        elif MONSTER_COUNT == 3:
+            self.monster1 = Monster(THREE_MONSTERS_COORDS[0], self.monster_sprites, MONSTER_NAMES[0]) 
+            self.monster2 = Monster(THREE_MONSTERS_COORDS[1], self.monster_sprites, MONSTER_NAMES[1])
+            self.monster3 = Monster(THREE_MONSTERS_COORDS[2], self.monster_sprites, MONSTER_NAMES[2])
+            States.room_monsters = [self.monster1, self.monster2, self.monster3]
+
+        HERO_XPOS = (self.width * 0.3)
+        HERO_YPOS = (self.height * 0.6)
+        HERO_GAP = (self.width * 0.2)
         for phero in States.party_heroes:
-           phero.rect = phero.image.get_rect(topleft = ((self.width * x_hero), (self.height * 0.6))) 
-           phero.xpos = (self.width * x_hero)
-           phero.ypos = (self.height * 0.6)
-           x_hero += 0.2
+           phero.rect = phero.image.get_rect(topleft = (HERO_XPOS, HERO_YPOS)) 
+           phero.xpos = HERO_XPOS
+           phero.ypos = HERO_YPOS
+           HERO_XPOS += HERO_GAP
 
         for room_monster in States.room_monsters:
             self.combat_mob_sprites.add(room_monster)
@@ -82,14 +84,14 @@ class Combat(States):
         self.screen.blit(self.MONSTERS_TEXT, self.MONSTERS_RECT)
         pg.display.update()
         pg.time.delay(300)
-        #Who acts first
+        
         #tie breaker, first in hero/mob list > lower, hero > mob, class prios
         def order_sort(incombat: list):
             def speed_order(par: object):
                 return par.data["speed"]
             return sorted(incombat, key=speed_order, reverse=True)
         self.actions_ordered = order_sort(self.actions_unordered)
-        
+
     def get_event(self, event):
         if event.type == pg.KEYDOWN:
             pass
@@ -121,7 +123,6 @@ class Combat(States):
         self.screen.blit(self.ground, (0,0))
         self.combat_hero_sprites.draw(self.screen)
         self.combat_mob_sprites.draw(self.screen)
-        #self.screen.blit(self.MONSTERS_TEXT, self.MONSTERS_RECT)
         
         if States.acting.animation == True: 
             self.animation_sprites.draw(screen)
