@@ -35,8 +35,6 @@ class Inv(States):
 
         self.talent_lists = [Data.talent_data(thero.type) for thero in States.party_heroes]
 
-           
-            
             #for i in range(0,3):
                 #for talent in self.talent_lists[i]:
                     #if talent in States.party_heroes[0].talents:

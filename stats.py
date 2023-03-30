@@ -51,8 +51,8 @@ class Data:
         with open('./ab_data/' + name + '/arrow.csv', "r") as arr:
             arr_reader = DictReader(arr)
             arr_stats = list(arr_reader)
-            adata = {arr["desc"]: arr for arr in arr_stats}
-            return adata
+            rdata = {arr["name"]: arr for arr in arr_stats}
+            return rdata
 
 class Stats():
     def __init__(self):

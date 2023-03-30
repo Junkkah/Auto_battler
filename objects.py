@@ -106,7 +106,7 @@ class Location(pg.sprite.Sprite):
         self.image = pg.transform.scale(scenery, ((self.width / 5), (self.height / 5)))
         self.rect = self.image.get_rect(center = (self.xpos, self.ypos))
         self.name = name
-        self.content = content
+        self.content = content.split(" ")
         self.treasure = []
         #self.terrain
         #self.modifier
@@ -122,12 +122,13 @@ class Arrow(pg.sprite.Sprite):
         self.width = w_picture.get_width()
         w_arrow = pg.transform.scale(w_picture, ((self.width / 12), (self.height / 12)))
         r_arrow = pg.transform.scale(r_picture, ((self.width / 12), (self.height / 12)))
-        self.r_image = pg.transform.rotozoom(r_arrow, angle, 1)
-        self.w_image = pg.transform.rotozoom(w_arrow, angle, 1)
+        self.angle = int(angle)
+        self.r_image = pg.transform.rotozoom(r_arrow, self.angle, 1)
+        self.w_image = pg.transform.rotozoom(w_arrow, self.angle, 1)
         self.image = self.w_image
-        #self.xpos = States.width * float(pos[0])
-        #self.ypos = States.height * float(pos[1])
-        self.rect = self.image.get_rect(center = pos)
+        self.xpos = States.width * float(pos[0])
+        self.ypos = States.height * float(pos[1])
+        self.rect = self.image.get_rect(center = (self.xpos, self.ypos))
         self.dest = destination
 
 class TalentName():
