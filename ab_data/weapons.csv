@@ -1,4 +1,4 @@
-name,damage,speed
-sword,1,2
-axe,1,1
-mace,1,1
+name,damage,speedunarmed,0,3
+sword,1,4
+club,2,2
+mace,1,3

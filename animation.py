@@ -20,18 +20,19 @@ class Stab(pg.sprite.Sprite):
 	def __init__(self, xpos, ypos):
 		super().__init__()
 		self.attack_animation = False
-		self.sword_sprites = [] 
-		sword_image = pg.image.load('./ab_images/stab/sword1.png').convert_alpha()
-		height = sword_image.get_height()
-		width = sword_image.get_width()
+		self.weapon_sprites = [] 
+		#club_image = pg.image.load('./ab_images/club.png').convert_alpha()
+		weapon_image = pg.image.load('./ab_images/stab/sword1.png').convert_alpha()
+		height = weapon_image.get_height()
+		width = weapon_image.get_width()
 		
 		for i in range(1, 11):
-			sword = pg.image.load('./ab_images/stab/sword' + str(i) + '.png').convert_alpha()
+			weapon = pg.image.load('./ab_images/stab/sword' + str(i) + '.png').convert_alpha()
 			#adjust width height / 10 to screen size
-			self.sword_sprites.append(pg.transform.scale(sword, ((width / 10), (height / 10))))
+			self.weapon_sprites.append(pg.transform.scale(weapon, ((width / 10), (height / 10))))
         
 		self.current_sprite = 0
-		self.image = self.sword_sprites[self.current_sprite]
+		self.image = self.weapon_sprites[self.current_sprite]
 
 		self.rect = self.image.get_rect()
 		self.rect.bottomright = [xpos, ypos]
@@ -42,14 +43,14 @@ class Stab(pg.sprite.Sprite):
 	def animate(self, speed): #attacker is always speedorder[0], target enemy list[0]
 		if self.attack_animation == True:
 			self.current_sprite += speed
-			if int(self.current_sprite) >= len(self.sword_sprites):
+			if int(self.current_sprite) >= len(self.weapon_sprites):
 				self.current_sprite = 0
 				self.attack_animation = False
-				self.image = self.sword_sprites[int(self.current_sprite)]
+				self.image = self.weapon_sprites[int(self.current_sprite)]
 				melee_attack(States.acting, States.room_monsters[0])
 				return True #triggers next attacker
 
-		self.image = self.sword_sprites[int(self.current_sprite)]
+		self.image = self.weapon_sprites[int(self.current_sprite)]
 
 class Blast(pg.sprite.Sprite):
 	def __init__(self, xpos, ypos, spell):
