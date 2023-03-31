@@ -36,6 +36,7 @@ class Combat(States):
         self.screen.fill((self.white))
         self.screen.blit(self.ground, (0,0))
 
+        START_DELAY = 300 #milliseconds
         MONSTER_COUNT = len(States.room_monsters)
         MONSTER_NAMES = []
         MONSTER_NAMES.extend(States.room_monsters)
@@ -83,7 +84,7 @@ class Combat(States):
         self.combat_mob_sprites.draw(self.screen)
         self.screen.blit(self.MONSTERS_TEXT, self.MONSTERS_RECT)
         pg.display.update()
-        pg.time.delay(300)
+        pg.time.delay(START_DELAY)
         
         #tie breaker, first in hero/mob list > lower, hero > mob, class prios
         def order_sort(incombat: list):
