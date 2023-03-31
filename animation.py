@@ -16,7 +16,7 @@ def spell_attack(attacker, target, spell):
 #Stab, Slash and Blast class code adapted from
 #https://github.com/clear-code-projects/animation 
 
-class Stab(pg.sprite.Sprite):
+class Stab(pg.sprite.Sprite): #Groupsingle
 	def __init__(self, xpos, ypos):
 		super().__init__()
 		self.attack_animation = False
@@ -99,8 +99,7 @@ class Slash(pg.sprite.Sprite):
 		self.attack_animation = False
 		self.claw_sprites = []
 		claw = pg.image.load('./ab_images/claw/claw.png').convert_alpha()
-		HEIGHT = claw.get_height()
-		WIDTH = claw.get_width()
+		WIDTH, HEIGHT = claw.get_size()
 		SIZE_SCALAR = 10
 
 		for i in range(10):
@@ -128,3 +127,39 @@ class Slash(pg.sprite.Sprite):
 
 		self.image = self.claw_sprites[int(self.current_sprite)]
 		self.rect = self.image.get_rect(topleft = self.rect.topleft)
+
+class Smash(pg.sprite.Sprite):
+	def __init__(self, xpos, ypos):
+		super().__init__()
+		self.attack_animation = False
+		self.club_sprites = []
+		club = pg.image.load('./ab_images/club.png').convert_alpha()
+		WIDTH, HEIGHT = club.get_size()
+		SIZE_SCALAR = 10
+
+		for i in range(10):
+			#club_ROTATION = pg.transform.rotozoom(club, ((i * -9) + 45), 1)
+			CLUB_ROTATION = pg.transform.rotate(club, ((i * -9) + 45))
+			self.club_sprites.append(pg.transform.scale(CLUB_ROTATION, ((WIDTH / SIZE_SCALAR), (HEIGHT / SIZE_SCALAR))))
+        
+		self.current_sprite = 0
+		self.image = self.club_sprites[self.current_sprite]
+		self.rect = self.image.get_rect()
+		self.rect.center = [xpos, ypos]
+		
+	def animation_start(self):
+		self.attack_animation = True
+
+	def animate(self, speed):
+		if self.attack_animation == True:
+			self.current_sprite += speed
+			if int(self.current_sprite) >= len(self.club_sprites):
+				self.current_sprite = 0
+				self.attack_animation = False
+				self.image = self.club_sprites[int(self.current_sprite)]
+				melee_attack(States.acting, States.party_heroes[0])
+				return True
+
+		self.image = self.club_sprites[int(self.current_sprite)]
+		self.rect = self.image.get_rect(topleft = self.rect.topleft)
+
