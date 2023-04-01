@@ -70,6 +70,8 @@ class Monster(pg.sprite.Sprite):
         SCALAR_W = WIDTH / self.size_scalar
         SCALAR_H = HEIGHT / self.size_scalar
         self.image = pg.transform.scale(mob, (SCALAR_W, SCALAR_H))
+        self.width = self.image.get_width()
+        self.height = self.image.get_height()
         self.rect = self.image.get_rect(topleft = (self.xpos, self.ypos))
         #self.abilities = ["regenerating": True/False]
 

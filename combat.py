@@ -2,7 +2,7 @@ import pygame as pg
 import sys
 from states import States
 from objects import Hero, Monster
-from animation import Stab, Slash, Blast
+from animation import Stab, Slash, Blast, Smash
 from path import Path
 from stats import Stats
 from inv import Inv
@@ -111,7 +111,8 @@ class Combat(States):
                 else:
                     self.combat_animation = Blast(States.acting.xpos, States.acting.ypos, States.acting.spells[0])#passing 1st spell
             elif States.acting.player == False:
-                self.combat_animation = Slash((States.acting.xpos + self.width * 0.1), (States.acting.ypos + self.height * 0.1))
+                self.combat_animation = Smash((States.acting.xpos + States.acting.width), (States.acting.ypos + States.acting.height))
+                #self.combat_animation = Slash((States.acting.xpos + self.width * 0.1), (States.acting.ypos + self.height * 0.1))
             else:
                 pass
             self.animation_sprites.add(self.combat_animation)

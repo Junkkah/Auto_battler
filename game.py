@@ -18,8 +18,8 @@ class Game(States):
         self.selection = []
         SELECTABLE_HEROES = 8
         
-        bubble = pg.image.load('./ab_images/menu_bubble.png')
-        hood = pg.image.load('./ab_images/hood.png')
+        bubble = pg.image.load('./ab_images/menu_bubble.png').convert_alpha()
+        hood = pg.image.load('./ab_images/hood.png').convert_alpha()
         COORDS_BUBBLE  = (self.width * 0.12, self.height * 0.85)
         COORDS_HOOD = (self.width * 0.05, self.height * 0.80)
         SCALAR_BUBBLE = ((bubble.get_width() / 8), (bubble.get_height() / 8))

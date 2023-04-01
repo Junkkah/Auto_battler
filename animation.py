@@ -1,6 +1,7 @@
 import pygame as pg, sys
 from states import States
 from objects import Hero, Monster
+import numpy as np
 
 def melee_attack(attacker, target):
 	States.acting.animation = False
@@ -15,6 +16,8 @@ def spell_attack(attacker, target, spell):
 
 #Stab, Slash and Blast class code adapted from
 #https://github.com/clear-code-projects/animation 
+
+#Animation masterclass or consolidate into single class
 
 class Stab(pg.sprite.Sprite): #Groupsingle
 	def __init__(self, xpos, ypos):
@@ -132,34 +135,44 @@ class Smash(pg.sprite.Sprite):
 	def __init__(self, xpos, ypos):
 		super().__init__()
 		self.attack_animation = False
-		self.club_sprites = []
-		club = pg.image.load('./ab_images/club.png').convert_alpha()
-		WIDTH, HEIGHT = club.get_size()
-		SIZE_SCALAR = 10
-
-		for i in range(10):
-			#club_ROTATION = pg.transform.rotozoom(club, ((i * -9) + 45), 1)
-			CLUB_ROTATION = pg.transform.rotate(club, ((i * -9) + 45))
-			self.club_sprites.append(pg.transform.scale(CLUB_ROTATION, ((WIDTH / SIZE_SCALAR), (HEIGHT / SIZE_SCALAR))))
-        
-		self.current_sprite = 0
-		self.image = self.club_sprites[self.current_sprite]
+		self.xpos = xpos
+		self.ypos = ypos
+		CLUB_IMAGE = pg.image.load('./ab_images/club.png').convert_alpha()
+		WIDTH, HEIGHT = CLUB_IMAGE.get_size()
+		SIZE_SCALAR = 5
+		SCALED_WIDTH = WIDTH / SIZE_SCALAR
+		SCALED_HEIGHT = HEIGHT / SIZE_SCALAR
+		INITIAL_ANGLE = 150
+		self.club = pg.transform.scale(CLUB_IMAGE, (SCALED_WIDTH, SCALED_HEIGHT))
+		self.reach = self.club.get_rect()[2]
+		self.offset = self.reach / 2.0
+		self.rotation = np.radians(INITIAL_ANGLE)
+		self.rotation_remaining = 50
+		self.image = pg.transform.rotozoom(self.club, np.degrees(self.rotation), 1)
 		self.rect = self.image.get_rect()
 		self.rect.center = [xpos, ypos]
-		
+
+	def rotate(self, rotation_speed):
+		self.rotation -= rotation_speed
+		self.rotation_remaining -= np.degrees(rotation_speed)
+		image = pg.transform.rotozoom(self.club, np.degrees(self.rotation), 1)
+		rect = image.get_rect()
+		rect.center = (0, 0)
+		return image, rect
+
 	def animation_start(self):
 		self.attack_animation = True
 
 	def animate(self, speed):
 		if self.attack_animation == True:
-			self.current_sprite += speed
-			if int(self.current_sprite) >= len(self.club_sprites):
-				self.current_sprite = 0
+			ROTA_SPEED = 2 * speed
+			SPEED_RADIANS = np.radians(ROTA_SPEED)
+			self.image, self.rect = self.rotate(SPEED_RADIANS)
+			if self.rotation_remaining <= 0:
 				self.attack_animation = False
-				self.image = self.club_sprites[int(self.current_sprite)]
+				self.image = pg.transform.rotozoom(self.club, np.degrees(self.rotation), 1)
 				melee_attack(States.acting, States.party_heroes[0])
 				return True
-
-		self.image = self.club_sprites[int(self.current_sprite)]
-		self.rect = self.image.get_rect(topleft = self.rect.topleft)
-
+		
+		XOFFSET, YOFFSET = np.cos(self.rotation) * self.offset, -np.sin(self.rotation) * self.offset
+		self.rect.center = (self.xpos + self.rect.centerx - XOFFSET, self.ypos + self.rect.centery - YOFFSET)
