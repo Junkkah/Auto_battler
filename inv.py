@@ -4,6 +4,7 @@ import random
 from states import States
 from stats import Data,Stats
 from objects import TalentInfo, TalentName
+from combat import Combat
 
 class Inv(States):
     def __init__(self):
@@ -19,9 +20,9 @@ class Inv(States):
     def cleanup(self):
         for s_talent in self.talents_selected:
             if s_talent.a_selected == True:
-                self.stats.add_talent(States.party_heroes[s_talent.hero], s_talent.a_name, s_talent.a_type)
+                self.stats.add_talent(s_talent.hero, s_talent.a_name, s_talent.a_type)
             elif s_talent.b_selected == True:
-                self.stats.add_talent(States.party_heroes[s_talent.hero], s_talent.b_name, s_talent.b_type)
+                self.stats.add_talent(s_talent.hero, s_talent.b_name, s_talent.b_type)
 
         self.name_text = []
         self.talent_lists = []
@@ -29,53 +30,48 @@ class Inv(States):
         self.talents_selected = []
         
     def startup(self):
+
+        continue_font = pg.font.SysFont("Arial", self.big_font_size)
+        self.continue_text = continue_font.render("CONTINUE", True, self.grey)
+        self.ready_text = continue_font.render("CONTINUE", True, self.black)
+        COORDS_CONTINUE = (self.width * 0.75, self.height * 0.88)
+        self.continue_rect = self.continue_text.get_rect(center=COORDS_CONTINUE)
+
+        combat_instance = Combat()
+        combat_instance.position_heroes(States.party_heroes)
         for inv_hero in States.party_heroes:
             self.inventory_hero_sprites.add(inv_hero)
             self.stats.levelup(inv_hero)
 
         self.talent_lists = [Data.talent_data(thero.type) for thero in States.party_heroes]
-
-            #for i in range(0,3):
-                #for talent in self.talent_lists[i]:
-                    #if talent in States.party_heroes[0].talents:
-                        #continue #skip for req
-                    #for req in talent["reqs"]:
-                        #if req not in States.party_heroes[0].talents:
-                            #self.talent_lists[0].remove(talent)
-        #breaks if less than 3 heroes
-        #1 fixed to pos 1 hero, check pos of surviving heroes
+        self.numer_of_heroes = len(States.party_heroes)
         samples = [random.sample(t.items(), 2) for t in self.talent_lists]
-        sample_1, sample_2, sample_3 = samples
-       
-        continue_font = pg.font.SysFont("Arial", 50)
-        self.continue_text = continue_font.render("CONTINUE", True, self.grey)
-        self.ready_text = continue_font.render("CONTINUE", True, self.black)
-        self.continue_rect = self.continue_text.get_rect(center=(self.width * 0.75, self.height * 0.88))
+    
+        SAMPLE1_POS_X = (self.width * 0.3)
+        SAMPLE2_POS_X = (self.width * 0.5)
+        SAMPLE3_POS_X = (self.width * 0.7)
+        SAMPLES_POS_X = (self.width * 0.3), (self.width * 0.5), (self.width * 0.7)
+        NAME_POS_Y1Y2 = (self.height * 0.15), (self.height * 0.30)
+        INFO_POS_Y1Y2 = (self.height * 0.20), (self.height * 0.35)
 
-        self.name_1 = TalentName(sample_1, (self.width * 0.3), (self.height * 0.15), (self.height * 0.30), self.info_font, 0)
-        self.info_1 = TalentInfo(sample_1, (self.width * 0.3), (self.height * 0.20), (self.height * 0.35), self.info_font)
-        self.name_2 = TalentName(sample_2, (self.width * 0.5), (self.height * 0.15), (self.height * 0.30), self.info_font, 1)
-        self.info_2 = TalentInfo(sample_2, (self.width * 0.5), (self.height * 0.20), (self.height * 0.35), self.info_font)
-        self.name_3 = TalentName(sample_3, (self.width * 0.7), (self.height * 0.15), (self.height * 0.30), self.info_font, 2)
-        self.info_3 = TalentInfo(sample_3, (self.width * 0.7), (self.height * 0.20), (self.height * 0.35), self.info_font)
-        self.talent_text.append(self.name_1)
-        self.name_text.append(self.name_1)
-        self.talent_text.append(self.info_1)
-        self.talent_text.append(self.name_2)
-        self.name_text.append(self.name_2)
-        self.talent_text.append(self.info_2)
-        self.talent_text.append(self.name_3)
-        self.name_text.append(self.name_3)
-        self.talent_text.append(self.info_3)
+        for i in range(self.numer_of_heroes):
+            sample = samples[i]
+            hero = States.party_heroes[i] 
+            name_value = TalentName(sample, SAMPLES_POS_X[i], NAME_POS_Y1Y2, self.info_font, hero)
+            info_value = TalentInfo(sample, SAMPLES_POS_X[i], INFO_POS_Y1Y2, self.info_font)
+            setattr(self, f"name_{i+1}", name_value)
+            setattr(self, f"info_{i+1}", info_value)
+            self.name_text.append(name_value)
+            self.talent_text.append(name_value)
+            self.talent_text.append(info_value)
     
     def get_event(self, event): 
-
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_ESCAPE:
                 exit()
 
         elif event.type == pg.MOUSEBUTTONDOWN:
-            if self.continue_rect.collidepoint(pg.mouse.get_pos()) and len(self.talents_selected) == len(States.party_heroes):
+            if self.continue_rect.collidepoint(pg.mouse.get_pos()) and len(self.talents_selected) == self.numer_of_heroes:
                 self.done = True
 
             for name in self.name_text:
@@ -106,7 +102,7 @@ class Inv(States):
         self.screen.blit(self.ground, (0,0))
         self.inventory_hero_sprites.draw(self.screen)
 
-        if len(self.talents_selected) == len(States.party_heroes):
+        if len(self.talents_selected) == self.numer_of_heroes:
             self.screen.blit(self.ready_text, self.continue_rect)    
         else:
             self.screen.blit(self.continue_text, self.continue_rect)

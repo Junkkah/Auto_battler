@@ -5,7 +5,6 @@ from objects import Hero, Monster
 from animation import Stab, Slash, Blast, Smash
 from path import Path
 from stats import Stats
-from inv import Inv
 
 class Combat(States):
     def __init__(self):
@@ -31,12 +30,23 @@ class Combat(States):
         #Victory screen
         #loot here
         #pg.time.wait(2000)
+
+    def position_heroes(self, heroes: list):
+        HEROPOS_X = (self.width * 0.3)
+        HEROPOS_Y = (self.height * 0.6)
+        HERO_GAP = (self.width * 0.2)
+        for phero in States.party_heroes:
+           phero.rect = phero.image.get_rect(topleft = (HEROPOS_X, HEROPOS_Y)) 
+           phero.pos_x = HEROPOS_X
+           phero.pos_y = HEROPOS_Y
+           HEROPOS_X += HERO_GAP
         
     def startup(self):
         self.screen.fill((self.white))
         self.screen.blit(self.ground, (0,0))
-
         DELAY_AT_START = 300 #milliseconds
+
+        self.position_heroes(States.party_heroes)
         MONSTER_COUNT = len(States.room_monsters)
         MONSTER_NAMES = []
         MONSTER_NAMES.extend(States.room_monsters)
@@ -57,15 +67,6 @@ class Combat(States):
             self.monster2 = Monster(THREE_MONSTERS_COORDS[1], self.monster_sprites, MONSTER_NAMES[1])
             self.monster3 = Monster(THREE_MONSTERS_COORDS[2], self.monster_sprites, MONSTER_NAMES[2])
             States.room_monsters = [self.monster1, self.monster2, self.monster3]
-
-        HEROPOS_X = (self.width * 0.3)
-        HEROPOS_Y = (self.height * 0.6)
-        HERO_GAP = (self.width * 0.2)
-        for phero in States.party_heroes:
-           phero.rect = phero.image.get_rect(topleft = (HEROPOS_X, HEROPOS_Y)) 
-           phero.pos_x = HEROPOS_X
-           phero.pos_y = HEROPOS_Y
-           HEROPOS_X += HERO_GAP
 
         for room_monster in States.room_monsters:
             self.combat_mob_sprites.add(room_monster)

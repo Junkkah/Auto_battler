@@ -54,7 +54,6 @@ class Monster(pg.sprite.Sprite):
         self.attacked = False
         self.data = stats.monsters[type]
         self.data = {key: int(value) if value.isdigit() else value for key, value in self.data.items()}
-        #Decreases code readability?
         for name, value in self.data.items():
             setattr(self, name, value)
         #self.speed = self.data["speed"]
@@ -128,14 +127,14 @@ class Arrow(pg.sprite.Sprite):
         self.dest = destination
 
 class TalentName():
-    def __init__(self, sample, pos_x, pos_y1, pos_y2, font, hero: int):
+    def __init__(self, sample, pos_x, pos_y, font, hero):
         self.font = font
         self.a_name = sample[0][1]['name']
         self.a_text = self.font.render(self.a_name + ":", True, (0,0,0))
         self.b_name = sample[1][1]['name']
         self.b_text = self.font.render(self.b_name + ":", True, (0,0,0))
-        self.a_rect = self.a_text.get_rect(topleft=(pos_x, pos_y1))
-        self.b_rect = self.b_text.get_rect(topleft=(pos_x, pos_y2))
+        self.a_rect = self.a_text.get_rect(topleft=(pos_x, pos_y[0]))
+        self.b_rect = self.b_text.get_rect(topleft=(pos_x, pos_y[1]))
         self.a_selected = False
         self.b_selected = False
         self.hero = hero
@@ -144,14 +143,14 @@ class TalentName():
         self.b_type = sample[1][1]['type']
 
 class TalentInfo():
-    def __init__(self, sample, pos_x, pos_y1, pos_2, font):
+    def __init__(self, sample, pos_x, pos_y, font):
         self.font = font  
         self.a_info = sample[0][1]['desc']
         self.a_text = self.font.render(self.a_info, True, (0,0,0))
         self.b_info = sample[1][1]['desc']
         self.b_text = self.font.render(self.b_info, True, (0,0,0))
-        self.a_rect = self.a_text.get_rect(topleft=(pos_x, pos_y1))
-        self.b_rect = self.b_text.get_rect(topleft=(pos_x, pos_2))
+        self.a_rect = self.a_text.get_rect(topleft=(pos_x, pos_y[0]))
+        self.b_rect = self.b_text.get_rect(topleft=(pos_x, pos_y[1]))
         self.a_selected = False
         self.b_selected = False
 
