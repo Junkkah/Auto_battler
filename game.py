@@ -38,13 +38,13 @@ class Game(States):
         self.available = random.sample(self.names, SELECTABLE_HEROES)
 
         HEROPOS_X = (self.width * 0.20)
-        HEROPOS_Y_ROW1 = (self.height * 0.2)
-        HEROPOS_Y_ROW2 = (self.height * 0.5)
+        HEROPOS_Y_ROW1 = (self.height * 0.20)
+        HEROPOS_Y_ROW2 = (self.height * 0.50)
         HERO_GAP = (self.width * 0.15)
         HERO_ROW_LENGTH = (self.width * 0.60)
         NEXT_ROW = 3
 
-        for spot_hero in range(0, SELECTABLE_HEROES):
+        for spot_hero in range(SELECTABLE_HEROES):
             HEROPOS_Y = HEROPOS_Y_ROW1
             if spot_hero > NEXT_ROW: 
                 HEROPOS_Y = HEROPOS_Y_ROW2
@@ -55,7 +55,7 @@ class Game(States):
                 HEROPOS_X -= HERO_ROW_LENGTH
             HEROPOS_X += HERO_GAP
         
-        CONTINUE_FONT = pg.font.SysFont("Arial", 50)
+        CONTINUE_FONT = pg.font.SysFont("Arial", self.big_font_size)
         self.continue_text = CONTINUE_FONT.render("CONTINUE", True, self.grey)
         self.ready_text = CONTINUE_FONT.render("CONTINUE", True, self.black)
         COORDS_CONTINUE = (self.width * 0.75, self.height * 0.88)

@@ -16,21 +16,31 @@ class Menu(States):
         self.draw(screen)
     def draw(self, screen):
         self.screen.fill(self.blue)
-        menu_font = pg.font.SysFont("Arial", 50)
-        title_font = pg.font.SysFont("Arial", 75)
         
-        self.title_text = title_font.render("Ukko Advantures", True, (0, 0, 0))
-        self.title_rect = self.title_text.get_rect(center=(self.width / 2, self.height / 6)) 
+        TITLE_FONT_NAME = "Arial"
+        MENU_FONT_NAME = "Arial"
+        menu_font = pg.font.SysFont(MENU_FONT_NAME, self.big_font_size)
+        title_font = pg.font.SysFont(TITLE_FONT_NAME, self.title_font_size)
+        TITLE = "Ukko Advantures"
+        PLAY = "Play"
+        SETTINGS = "Settings"
+        QUIT = "Quit"
+        MIDDLE = self.width * 0.50
+        HEIGHT_GAP = self.height * 0.16
+        COORDS_TITLE = (MIDDLE, HEIGHT_GAP)
+        COORDS_PLAY = (MIDDLE, HEIGHT_GAP * 2)
+        COORDS_SETTINGS = (MIDDLE, HEIGHT_GAP * 3)
+        COORDS_QUIT = (MIDDLE, HEIGHT_GAP * 4)
 
-        self.play_text = menu_font.render("Play", True, (0, 0, 0))
-        self.play_rect = self.play_text.get_rect(center=(self.width / 2, self.height / 3)) 
-
-        self.settings_text = menu_font.render("Settings", True, (0, 0, 0))
-        self.info_rect = self.settings_text.get_rect(center=(self.width / 2, self.height / 2))
-
-        self.quit_text = menu_font.render("Quit", True, (0, 0, 0))
-        self.quit_rect = self.quit_text.get_rect(center=(self.width / 2, self.height / 1.5))
-                
+        self.title_text = title_font.render(TITLE, True, self.black)
+        self.play_text = menu_font.render(PLAY, True, self.black)
+        self.settings_text = menu_font.render(SETTINGS, True, self.black)
+        self.quit_text = menu_font.render(QUIT, True, self.black)
+        self.title_rect = self.title_text.get_rect(center=COORDS_TITLE) 
+        self.play_rect = self.play_text.get_rect(center=COORDS_PLAY) 
+        self.info_rect = self.settings_text.get_rect(center=COORDS_SETTINGS)
+        self.quit_rect = self.quit_text.get_rect(center=COORDS_QUIT)
+     
         self.screen.blit(self.play_text, self.play_rect)
         self.screen.blit(self.title_text, self.title_rect)
         self.screen.blit(self.settings_text, self.info_rect)
