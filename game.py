@@ -37,23 +37,23 @@ class Game(States):
         name_data()
         self.available = random.sample(self.names, SELECTABLE_HEROES)
 
-        HERO_XPOS = (self.width * 0.20)
-        HERO_YPOS_ROW1 = (self.height * 0.2)
-        HERO_YPOS_ROW2 = (self.height * 0.5)
+        HEROPOS_X = (self.width * 0.20)
+        HEROPOS_Y_ROW1 = (self.height * 0.2)
+        HEROPOS_Y_ROW2 = (self.height * 0.5)
         HERO_GAP = (self.width * 0.15)
         HERO_ROW_LENGTH = (self.width * 0.60)
         NEXT_ROW = 3
 
         for spot_hero in range(0, SELECTABLE_HEROES):
-            HERO_YPOS = HERO_YPOS_ROW1
+            HEROPOS_Y = HEROPOS_Y_ROW1
             if spot_hero > NEXT_ROW: 
-                HERO_YPOS = HERO_YPOS_ROW2
-            self.spot_hero = Hero((HERO_XPOS, HERO_YPOS), self.hero_sprites, self.available[spot_hero][0], self.available[spot_hero][1])
+                HEROPOS_Y = HEROPOS_Y_ROW2
+            self.spot_hero = Hero((HEROPOS_X, HEROPOS_Y), self.hero_sprites, self.available[spot_hero][0], self.available[spot_hero][1])
             self.selection.append(self.spot_hero)
             self.selection_sprites.add(self.spot_hero)
             if spot_hero == NEXT_ROW:
-                HERO_XPOS -= HERO_ROW_LENGTH
-            HERO_XPOS += HERO_GAP
+                HEROPOS_X -= HERO_ROW_LENGTH
+            HEROPOS_X += HERO_GAP
         
         CONTINUE_FONT = pg.font.SysFont("Arial", 50)
         self.continue_text = CONTINUE_FONT.render("CONTINUE", True, self.grey)
@@ -70,14 +70,14 @@ class Game(States):
             if self.continue_rect.collidepoint(pg.mouse.get_pos()) and len(States.party_heroes) == self.max_party_size:
                 self.done = True
 
-            for s_hero in self.selection:
-                if s_hero.rect.collidepoint(pg.mouse.get_pos()):
-                    if s_hero.spot_frame == True:
-                        s_hero.spot_frame = False
-                        States.party_heroes.remove(s_hero) 
+            for selected_hero in self.selection:
+                if selected_hero.rect.collidepoint(pg.mouse.get_pos()):
+                    if selected_hero.spot_frame == True:
+                        selected_hero.spot_frame = False
+                        States.party_heroes.remove(selected_hero) 
                     else:
-                        s_hero.spot_frame = True
-                        States.party_heroes.append(s_hero)
+                        selected_hero.spot_frame = True
+                        States.party_heroes.append(selected_hero)
 
     def update(self, screen, dt):
         self.draw(screen)
@@ -87,7 +87,7 @@ class Game(States):
         self.screen.blit(self.bubble, self.bubble_rect)
         self.screen.blit(self.hood, self.hood_rect)
 
-        [pg.draw.rect(self.screen, self.red, [f_hero.xpos, f_hero.ypos, f_hero.width, f_hero.height], 2) for f_hero in self.selection if f_hero.spot_frame == True]
+        [pg.draw.rect(self.screen, self.red, [f_hero.pos_x, f_hero.pos_y, f_hero.width, f_hero.height], 2) for f_hero in self.selection if f_hero.spot_frame == True]
         
         if len(States.party_heroes) == self.max_party_size:
             self.screen.blit(self.ready_text, self.continue_rect)    
@@ -96,7 +96,7 @@ class Game(States):
         
         for shero in self.selection:
             if shero.rect.collidepoint(pg.mouse.get_pos()):
-                COORDS_INFO = ((shero.xpos), (shero.ypos + (self.height / 7.1)))
+                COORDS_INFO = ((shero.pos_x), (shero.pos_y + (self.height / 7.1)))
                 info = shero.name.capitalize() + ", " + shero.type.capitalize()
                 info_text = self.info_font.render(info, True, self.black)
                 info_text_rect = info_text.get_rect(topleft=COORDS_INFO)

@@ -18,7 +18,7 @@ class Path(States):
         self.screen.blit(self.ground, (0,0))
 
         locations = Data.location_data(States.current_adventure)
-        self.loc_objects = [Location((loc["xpos"], loc["ypos"]), self.path_sprites, loc["desc"], 
+        self.loc_objects = [Location((loc["pos_x"], loc["pos_y"]), self.path_sprites, loc["desc"], 
             loc["name"], loc["content"]) for loc in locations.values()]
         loc_names = [loc["desc"] for loc in locations.values()]
         for name, value in zip(loc_names, self.loc_objects):
@@ -48,7 +48,7 @@ class Path(States):
         self.arrows = Data.arrow_data(States.current_adventure)
         self.arrows = {name: {**data, 'origin': getattr(self, data['origin']), 'destination': getattr(self, data['destination'])} 
             for name, data in self.arrows.items()}
-        [setattr(data['origin'], name, Arrow((data['xpos'], data['ypos']), data['angle'], self.path_sprites, data['destination'])) 
+        [setattr(data['origin'], name, Arrow((data['pos_x'], data['pos_y']), data['angle'], self.path_sprites, data['destination'])) 
             for name, data in self.arrows.items()]
 
     def get_event(self, event):
@@ -78,4 +78,4 @@ class Path(States):
     def draw(self, screen):
         self.screen.blit(self.ground, (0,0))
         self.path_sprites.draw(self.screen)
-        pg.draw.circle(self.screen, (self.red), (self.current_location.xpos, self.current_location.ypos), 20)
+        pg.draw.circle(self.screen, (self.red), (self.current_location.pos_x, self.current_location.pos_y), 20)

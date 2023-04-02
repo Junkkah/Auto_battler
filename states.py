@@ -25,5 +25,6 @@ class States(object):
         self.blue = (0, 0, 255)
         self.grey = (127, 127, 127)
         self.ground = pg.image.load('./ab_images/game_bg.png').convert()
-        self.info_font = pg.font.SysFont("Arial", 20)
+        self.info_font_size = 20
+        self.info_font = pg.font.SysFont("Arial", self.info_font_size)
         self.max_party_size = 3

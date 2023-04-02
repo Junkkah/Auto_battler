@@ -20,7 +20,7 @@ def spell_attack(attacker, target, spell):
 #Animation masterclass or consolidate into single class
 
 class Stab(pg.sprite.Sprite): #Groupsingle
-	def __init__(self, xpos, ypos):
+	def __init__(self, pos_x, pos_y):
 		super().__init__()
 		self.attack_animation = False
 		self.weapon_sprites = [] 
@@ -38,7 +38,7 @@ class Stab(pg.sprite.Sprite): #Groupsingle
 		self.image = self.weapon_sprites[self.current_sprite]
 
 		self.rect = self.image.get_rect()
-		self.rect.bottomright = [xpos, ypos]
+		self.rect.bottomright = [pos_x, pos_y]
 
 	def animation_start(self):
 		self.attack_animation = True
@@ -56,7 +56,7 @@ class Stab(pg.sprite.Sprite): #Groupsingle
 		self.image = self.weapon_sprites[int(self.current_sprite)]
 
 class Blast(pg.sprite.Sprite):
-	def __init__(self, xpos, ypos, spell):
+	def __init__(self, pos_x, pos_y, spell):
 		super().__init__()
 		self.attack_animation = False
 		self.spell_sprites = [] 
@@ -78,7 +78,7 @@ class Blast(pg.sprite.Sprite):
 		self.image = self.spell_sprites[self.current_sprite]
 
 		self.rect = self.image.get_rect()
-		self.rect.topleft = [(xpos + (States.width / 16)), (ypos - (States.width / 27))] 
+		self.rect.topleft = [(pos_x + (States.width / 16)), (pos_y - (States.width / 27))] 
 
 	def animation_start(self):
 		self.attack_animation = True
@@ -97,23 +97,24 @@ class Blast(pg.sprite.Sprite):
 		self.image = self.spell_sprites[int(self.current_sprite)]
 
 class Slash(pg.sprite.Sprite):
-	def __init__(self, xpos, ypos):
+	def __init__(self, pos_x, pos_y):
 		super().__init__()
 		self.attack_animation = False
 		self.claw_sprites = []
 		claw = pg.image.load('./ab_images/claw/claw.png').convert_alpha()
 		WIDTH, HEIGHT = claw.get_size()
 		SIZE_SCALAR = 10
+		SCALED_WIDTH = WIDTH / SIZE_SCALAR
+		SCALED_HEIGHT = HEIGHT / SIZE_SCALAR
 
 		for i in range(10):
-			#CLAW_ROTATION = pg.transform.rotozoom(claw, ((i * -9) + 45), 1)
 			CLAW_ROTATION = pg.transform.rotate(claw, ((i * -9) + 45))
-			self.claw_sprites.append(pg.transform.scale(CLAW_ROTATION, ((WIDTH / SIZE_SCALAR), (HEIGHT / SIZE_SCALAR))))
+			self.claw_sprites.append(pg.transform.scale(CLAW_ROTATION, (SCALED_WIDTH, SCALED_HEIGHT)))
         
 		self.current_sprite = 0
 		self.image = self.claw_sprites[self.current_sprite]
 		self.rect = self.image.get_rect()
-		self.rect.center = [xpos, ypos]
+		self.rect.center = [pos_x, pos_y]
 		
 	def animation_start(self):
 		self.attack_animation = True
@@ -132,25 +133,26 @@ class Slash(pg.sprite.Sprite):
 		self.rect = self.image.get_rect(topleft = self.rect.topleft)
 
 class Smash(pg.sprite.Sprite):
-	def __init__(self, xpos, ypos):
+	def __init__(self, pos_x, pos_y):
 		super().__init__()
 		self.attack_animation = False
-		self.xpos = xpos
-		self.ypos = ypos
+		self.pos_x = pos_x
+		self.pos_y = pos_y
 		CLUB_IMAGE = pg.image.load('./ab_images/club.png').convert_alpha()
 		WIDTH, HEIGHT = CLUB_IMAGE.get_size()
 		SIZE_SCALAR = 5
 		SCALED_WIDTH = WIDTH / SIZE_SCALAR
 		SCALED_HEIGHT = HEIGHT / SIZE_SCALAR
 		INITIAL_ANGLE = 150
+		ROTATION_ANGLE = 50
 		self.club = pg.transform.scale(CLUB_IMAGE, (SCALED_WIDTH, SCALED_HEIGHT))
 		self.reach = self.club.get_rect()[2]
 		self.offset = self.reach / 2.0
 		self.rotation = np.radians(INITIAL_ANGLE)
-		self.rotation_remaining = 50
+		self.rotation_remaining = ROTATION_ANGLE
 		self.image = pg.transform.rotozoom(self.club, np.degrees(self.rotation), 1)
 		self.rect = self.image.get_rect()
-		self.rect.center = [xpos, ypos]
+		self.rect.center = [pos_x, pos_y]
 
 	def rotate(self, rotation_speed):
 		self.rotation -= rotation_speed
@@ -175,4 +177,4 @@ class Smash(pg.sprite.Sprite):
 				return True
 		
 		XOFFSET, YOFFSET = np.cos(self.rotation) * self.offset, -np.sin(self.rotation) * self.offset
-		self.rect.center = (self.xpos + self.rect.centerx - XOFFSET, self.ypos + self.rect.centery - YOFFSET)
+		self.rect.center = (self.pos_x + self.rect.centerx - XOFFSET, self.pos_y + self.rect.centery - YOFFSET)

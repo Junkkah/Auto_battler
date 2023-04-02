@@ -48,8 +48,8 @@ class Inv(States):
         sample_1, sample_2, sample_3 = samples
        
         continue_font = pg.font.SysFont("Arial", 50)
-        self.continue_text = continue_font.render("CONTINUE", True, (127, 127, 127))
-        self.ready_text = continue_font.render("CONTINUE", True, (0, 0, 0))
+        self.continue_text = continue_font.render("CONTINUE", True, self.grey)
+        self.ready_text = continue_font.render("CONTINUE", True, self.black)
         self.continue_rect = self.continue_text.get_rect(center=(self.width * 0.75, self.height * 0.88))
 
         self.name_1 = TalentName(sample_1, (self.width * 0.3), (self.height * 0.15), (self.height * 0.30), self.info_font, 0)

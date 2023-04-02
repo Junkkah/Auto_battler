@@ -36,14 +36,14 @@ class Combat(States):
         self.screen.fill((self.white))
         self.screen.blit(self.ground, (0,0))
 
-        START_DELAY = 300 #milliseconds
+        DELAY_AT_START = 300 #milliseconds
         MONSTER_COUNT = len(States.room_monsters)
         MONSTER_NAMES = []
         MONSTER_NAMES.extend(States.room_monsters)
-        MONSTER_YPOS = self.height * 0.2
-        ONE_MONSTER_COORDS = (self.width * 0.5, MONSTER_YPOS)
-        TWO_MONSTERS_COORDS = ((self.width * 0.33, MONSTER_YPOS), (self.width * 0.66, MONSTER_YPOS))
-        THREE_MONSTERS_COORDS = ((self.width * 0.25, MONSTER_YPOS), (self.width * 0.50, MONSTER_YPOS), (self.width * 0.75, MONSTER_YPOS))
+        MONSTERPOS_Y = self.height * 0.2
+        ONE_MONSTER_COORDS = (self.width * 0.5, MONSTERPOS_Y)
+        TWO_MONSTERS_COORDS = ((self.width * 0.33, MONSTERPOS_Y), (self.width * 0.66, MONSTERPOS_Y))
+        THREE_MONSTERS_COORDS = ((self.width * 0.25, MONSTERPOS_Y), (self.width * 0.50, MONSTERPOS_Y), (self.width * 0.75, MONSTERPOS_Y))
 
         if MONSTER_COUNT == 1:
             self.monster1 = Monster(ONE_MONSTER_COORDS, self.monster_sprites, MONSTER_NAMES[0]) 
@@ -58,14 +58,14 @@ class Combat(States):
             self.monster3 = Monster(THREE_MONSTERS_COORDS[2], self.monster_sprites, MONSTER_NAMES[2])
             States.room_monsters = [self.monster1, self.monster2, self.monster3]
 
-        HERO_XPOS = (self.width * 0.3)
-        HERO_YPOS = (self.height * 0.6)
+        HEROPOS_X = (self.width * 0.3)
+        HEROPOS_Y = (self.height * 0.6)
         HERO_GAP = (self.width * 0.2)
         for phero in States.party_heroes:
-           phero.rect = phero.image.get_rect(topleft = (HERO_XPOS, HERO_YPOS)) 
-           phero.xpos = HERO_XPOS
-           phero.ypos = HERO_YPOS
-           HERO_XPOS += HERO_GAP
+           phero.rect = phero.image.get_rect(topleft = (HEROPOS_X, HEROPOS_Y)) 
+           phero.pos_x = HEROPOS_X
+           phero.pos_y = HEROPOS_Y
+           HEROPOS_X += HERO_GAP
 
         for room_monster in States.room_monsters:
             self.combat_mob_sprites.add(room_monster)
@@ -84,12 +84,12 @@ class Combat(States):
         self.combat_mob_sprites.draw(self.screen)
         self.screen.blit(self.MONSTERS_TEXT, self.MONSTERS_RECT)
         pg.display.update()
-        pg.time.delay(START_DELAY)
+        pg.time.delay(DELAY_AT_START)
         
         #tie breaker, first in hero/mob list > lower, hero > mob, class prios
         def order_sort(incombat: list):
-            def speed_order(par: object):
-                return par.data["speed"]
+            def speed_order(par: object): 
+                return par.speed
             return sorted(incombat, key=speed_order, reverse=True)
         self.actions_ordered = order_sort(self.actions_unordered)
 
@@ -107,12 +107,12 @@ class Combat(States):
         if States.acting.animation == False: #animation hasn't started yet
             if States.acting.player == True: #Attacker is hero
                 if States.acting.attack_type == "weapon" or States.acting.spells == []:
-                    self.combat_animation = Stab(States.acting.xpos, States.acting.ypos)
+                    self.combat_animation = Stab(States.acting.pos_x, States.acting.pos_y)
                 else:
-                    self.combat_animation = Blast(States.acting.xpos, States.acting.ypos, States.acting.spells[0])#passing 1st spell
+                    self.combat_animation = Blast(States.acting.pos_x, States.acting.pos_y, States.acting.spells[0])#passing 1st spell
             elif States.acting.player == False:
-                self.combat_animation = Smash((States.acting.xpos + States.acting.width), (States.acting.ypos + States.acting.height))
-                #self.combat_animation = Slash((States.acting.xpos + self.width * 0.1), (States.acting.ypos + self.height * 0.1))
+                self.combat_animation = Smash((States.acting.pos_x + States.acting.width), (States.acting.pos_y + States.acting.height))
+                #self.combat_animation = Slash((States.acting.pos_x + self.width * 0.1), (States.acting.pos_y + self.height * 0.1))
             else:
                 pass
             self.animation_sprites.add(self.combat_animation)
