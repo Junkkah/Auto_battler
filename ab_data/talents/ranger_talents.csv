@@ -1,6 +1,7 @@
 name,desc,effect,type
 Grudge,More damage to grudgees,self.damage += 5 if target grudge,special
-Speedy,Act earlier,speed 2,stat
-Damage,Deal more damage,damage 2,stat
+Swift,Act earlier,speed 2,stat
+Hunter,Deal more damage,damage 2,stat
 Thorn Strike,Damaging spell,thorn_strike,spell
-Survival,Party healing,health+ after node,special
+Survival Skills,Party healing,health+ after node,specialGrasping Roots,Damaging area spell,grasping_roots,spell
+Green Power,Nature spells deal more damage,if spell type nat +dam,special
