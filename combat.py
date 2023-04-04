@@ -16,6 +16,7 @@ class Combat(States):
         self.animation_sprites = pg.sprite.Group()
         self.exp_reward = 0
         self.temp_stats = [] #buffs etc
+        self.animation_speed = 0.3
  
     def cleanup(self):
         self.animation_sprites.empty()
@@ -131,7 +132,7 @@ class Combat(States):
             self.animation_sprites.draw(screen)
 
         #Advance animation
-        if self.combat_animation.animate(0.5) == True:
+        if self.combat_animation.animate(self.animation_speed) == True:
             self.animation_sprites.remove(self.combat_animation)
             self.actions_ordered.append(self.actions_ordered.pop(0))
             

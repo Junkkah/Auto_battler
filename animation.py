@@ -24,26 +24,29 @@ class Stab(pg.sprite.Sprite): #Groupsingle
 		super().__init__()
 		self.attack_animation = False
 		self.weapon_sprites = [] 
-		#club_image = pg.image.load('./ab_images/club.png').convert_alpha()
-		weapon_image = pg.image.load('./ab_images/stab/sword1.png').convert_alpha()
-		height = weapon_image.get_height()
-		width = weapon_image.get_width()
-		
-		for i in range(1, 11):
-			weapon = pg.image.load('./ab_images/stab/sword' + str(i) + '.png').convert_alpha()
-			#adjust width height / 10 to screen size
-			self.weapon_sprites.append(pg.transform.smoothscale(weapon, ((width / 10), (height / 10))))
-        
+		weapon_image = pg.image.load('./ab_images/sword.png').convert_alpha()
+		WIDTH, HEIGHT = weapon_image.get_size()
+		SIZE_SCALAR = 10
+		SCALED_WIDTH = WIDTH / SIZE_SCALAR
+		SCALED_HEIGHT = HEIGHT / SIZE_SCALAR
+		POS_Y_ADJUST = 15
+		pos_y += POS_Y_ADJUST
+		self.pos_y = pos_y
+		self.pos_x = pos_x
+		self.stab_speed = 3 #too many speed values, redundancy somehwre
+
+		for i in range(0, 10):
+			self.weapon_sprites.append(pg.transform.smoothscale(weapon_image, (SCALED_WIDTH, SCALED_HEIGHT)))
+	
 		self.current_sprite = 0
 		self.image = self.weapon_sprites[self.current_sprite]
-
 		self.rect = self.image.get_rect()
-		self.rect.bottomright = [pos_x, pos_y]
+		self.rect.bottomright = [self.pos_x, self.pos_y]
 
 	def animation_start(self):
 		self.attack_animation = True
 
-	def animate(self, speed): #attacker is always speedorder[0], target enemy list[0]
+	def animate(self, speed): 
 		if self.attack_animation == True:
 			self.current_sprite += speed
 			if int(self.current_sprite) >= len(self.weapon_sprites):
@@ -51,9 +54,11 @@ class Stab(pg.sprite.Sprite): #Groupsingle
 				self.attack_animation = False
 				self.image = self.weapon_sprites[int(self.current_sprite)]
 				melee_attack(States.acting, States.room_monsters[0])
-				return True #triggers next attacker
-
+				return True
+		self.pos_y -= 3
 		self.image = self.weapon_sprites[int(self.current_sprite)]
+		self.rect = self.image.get_rect()
+		self.rect.bottomright = [self.pos_x, self.pos_y]
 
 class Blast(pg.sprite.Sprite):
 	def __init__(self, pos_x, pos_y, spell):
@@ -90,9 +95,8 @@ class Blast(pg.sprite.Sprite):
 				self.current_sprite = 0
 				self.attack_animation = False
 				self.image = self.spell_sprites[int(self.current_sprite)]
-				#melee_attack(States.acting, States.room_monsters[0])
 				spell_attack(States.acting, States.room_monsters[0], self.attack_spell)
-				return True #triggers next attacker
+				return True
 
 		self.image = self.spell_sprites[int(self.current_sprite)]
 
@@ -167,7 +171,7 @@ class Smash(pg.sprite.Sprite):
 
 	def animate(self, speed):
 		if self.attack_animation == True:
-			ROTA_SPEED = 2 * speed
+			ROTA_SPEED = 3 * speed
 			SPEED_RADIANS = np.radians(ROTA_SPEED)
 			self.image, self.rect = self.rotate(SPEED_RADIANS)
 			if self.rotation_remaining <= 0:
