@@ -24,21 +24,12 @@ class Path(States):
         for name, value in zip(loc_names, self.loc_objects):
             setattr(self, name, value)
 
-        loc_tree = {
-        self.city: {'left': self.tree1, 'right': self.bush1},
-        self.tree1: {'left': self.tree2, 'right': self.bush2},
-        self.bush1: {'left': self.tree3, 'right': self.tree4},
-        self.tree2: {'left': self.city, 'right': self.bush3},
-        self.bush2: {'left': self.bush3, 'right': self.city},
-        self.tree3: {'left': self.city, 'right': self.bush4},
-        self.tree4: {'left': self.bush4, 'right': self.city},
-        self.bush3: {'left': self.city, 'right': self.cave},
-        self.bush4: {'left': self.cave, 'right': self.city}
-        }
+        loc_tree = Data.loc_tree_data(States.current_adventure)
         for parent, children in loc_tree.items():
-            for dir, child in children.items():
-                setattr(parent, dir, child)
-      
+            for dir, child_str in children.items():
+                child_obj = getattr(self, child_str)
+                setattr(getattr(self, parent), dir, child_obj)
+        
         if States.current_location == None:
             States.current_location = self.city
             self.current_location = States.current_location

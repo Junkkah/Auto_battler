@@ -1,6 +1,7 @@
 import pygame as pg
 from csv import DictReader
 from states import States
+import json
 
 class Data:
     def __init__(self):
@@ -53,6 +54,11 @@ class Data:
             arr_stats = list(arr_reader)
             rdata = {arr["name"]: arr for arr in arr_stats}
             return rdata
+    
+    def loc_tree_data(name):
+        with open('./ab_data/' + name + '/loc_tree.json', "r") as tree:
+            loc_tree = json.load(tree)
+            return loc_tree
 
 class Stats():
     def __init__(self):
