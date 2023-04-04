@@ -9,7 +9,7 @@ Python game project for a single player auto battler ( with roguelite elements)
 
 ## Installation
 ```
-git clone https://github.com/your-username/auto_battler.git
+git clone https://github.com/Junkkah/auto_battler.git
 cd auto_battler
 pip install .
 python main.py
