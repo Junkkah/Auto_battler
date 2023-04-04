@@ -12,7 +12,7 @@ class Hero(pg.sprite.Sprite):
         width = face.get_width()
         height = face.get_height() 
         stats = Stats()            
-        self.image = pg.transform.scale(face, ((width / (height / 150)), (States.height / 7.2)))
+        self.image = pg.transform.smoothscale(face, ((width / (height / 150)), (States.height / 7.2)))
         self.rect = self.image.get_rect(topleft = (self.pos_x, self.pos_y))
         self.width = self.image.get_width()
         self.height = self.image.get_height()
@@ -68,7 +68,7 @@ class Monster(pg.sprite.Sprite):
         self.health = min(self.health, self.max_health)
         SCALAR_W = WIDTH / self.size_scalar
         SCALAR_H = HEIGHT / self.size_scalar
-        self.image = pg.transform.scale(mob, (SCALAR_W, SCALAR_H))
+        self.image = pg.transform.smoothscale(mob, (SCALAR_W, SCALAR_H))
         self.width = self.image.get_width()
         self.height = self.image.get_height()
         self.rect = self.image.get_rect(topleft = (self.pos_x, self.pos_y))
@@ -84,7 +84,7 @@ class Adventure(pg.sprite.Sprite):
         self.width = width / 9
         self.pos_x = States.width * float(pos[0])
         self.pos_y = States.height * float(pos[1])
-        self.image = pg.transform.scale(scenery, (self.width, self.height))
+        self.image = pg.transform.smoothscale(scenery, (self.width, self.height))
         self.rect = self.image.get_rect(topleft = (self.pos_x, self.pos_y))
         self.desc = desc
         self.name = name
@@ -100,7 +100,7 @@ class Location(pg.sprite.Sprite):
         self.left = None
         self.right = None
         self.desc = desc
-        self.image = pg.transform.scale(scenery, ((self.width / 5), (self.height / 5)))
+        self.image = pg.transform.smoothscale(scenery, ((self.width / 5), (self.height / 5)))
         self.rect = self.image.get_rect(center = (self.pos_x, self.pos_y))
         self.name = name
         self.content = content.split(" ")
@@ -115,8 +115,8 @@ class Arrow(pg.sprite.Sprite):
         r_picture = pg.image.load('./ab_images/r_arrow.png').convert_alpha()
         self.height = w_picture.get_height()
         self.width = w_picture.get_width()
-        w_arrow = pg.transform.scale(w_picture, ((self.width / 12), (self.height / 12)))
-        r_arrow = pg.transform.scale(r_picture, ((self.width / 12), (self.height / 12)))
+        w_arrow = pg.transform.smoothscale(w_picture, ((self.width / 12), (self.height / 12)))
+        r_arrow = pg.transform.smoothscale(r_picture, ((self.width / 12), (self.height / 12)))
         self.angle = int(angle)
         self.r_image = pg.transform.rotozoom(r_arrow, self.angle, 1)
         self.w_image = pg.transform.rotozoom(w_arrow, self.angle, 1)

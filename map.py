@@ -24,8 +24,8 @@ class Map(States):
         SCALAR_BUBBLE = ((bubble.get_width() / 7), (bubble.get_height() / 7))
         SCALAR_HOOD = ((hood.get_width() / 8), (hood.get_height() / 8))
 
-        self.bubble = pg.transform.scale(bubble, SCALAR_BUBBLE)
-        self.hood = pg.transform.scale(hood, SCALAR_HOOD)
+        self.bubble = pg.transform.smoothscale(bubble, SCALAR_BUBBLE)
+        self.hood = pg.transform.smoothscale(hood, SCALAR_HOOD)
         self.bubble_rect = self.bubble.get_rect(bottomleft=COORDS_BUBBLE)
         self.hood_rect = self.hood.get_rect(topleft=COORDS_HOOD)
 

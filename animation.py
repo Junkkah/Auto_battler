@@ -32,7 +32,7 @@ class Stab(pg.sprite.Sprite): #Groupsingle
 		for i in range(1, 11):
 			weapon = pg.image.load('./ab_images/stab/sword' + str(i) + '.png').convert_alpha()
 			#adjust width height / 10 to screen size
-			self.weapon_sprites.append(pg.transform.scale(weapon, ((width / 10), (height / 10))))
+			self.weapon_sprites.append(pg.transform.smoothscale(weapon, ((width / 10), (height / 10))))
         
 		self.current_sprite = 0
 		self.image = self.weapon_sprites[self.current_sprite]
@@ -68,11 +68,11 @@ class Blast(pg.sprite.Sprite):
 
 		for i in range(1, 6):
 			spell = pg.image.load('./ab_images/blast/spell.png').convert_alpha()
-			self.spell_sprites.append(pg.transform.scale(spell, ((width / 15), (height / 15))))
+			self.spell_sprites.append(pg.transform.smoothscale(spell, ((width / 15), (height / 15))))
 		
 		for i in range(6, 11):
 			spell = pg.image.load('./ab_images/blast/' + spell_type + '.png').convert_alpha()
-			self.spell_sprites.append(pg.transform.scale(spell, ((width / 15), (height / 15))))
+			self.spell_sprites.append(pg.transform.smoothscale(spell, ((width / 15), (height / 15))))
         
 		self.current_sprite = 0
 		self.image = self.spell_sprites[self.current_sprite]
@@ -109,7 +109,7 @@ class Slash(pg.sprite.Sprite):
 
 		for i in range(10):
 			CLAW_ROTATION = pg.transform.rotate(claw, ((i * -9) + 45))
-			self.claw_sprites.append(pg.transform.scale(CLAW_ROTATION, (SCALED_WIDTH, SCALED_HEIGHT)))
+			self.claw_sprites.append(pg.transform.smoothscale(CLAW_ROTATION, (SCALED_WIDTH, SCALED_HEIGHT)))
         
 		self.current_sprite = 0
 		self.image = self.claw_sprites[self.current_sprite]
@@ -145,7 +145,7 @@ class Smash(pg.sprite.Sprite):
 		SCALED_HEIGHT = HEIGHT / SIZE_SCALAR
 		INITIAL_ANGLE = 150
 		ROTATION_ANGLE = 50
-		self.club = pg.transform.scale(CLUB_IMAGE, (SCALED_WIDTH, SCALED_HEIGHT))
+		self.club = pg.transform.smoothscale(CLUB_IMAGE, (SCALED_WIDTH, SCALED_HEIGHT))
 		self.reach = self.club.get_rect()[2]
 		self.offset = self.reach / 2.0
 		self.rotation = np.radians(INITIAL_ANGLE)
