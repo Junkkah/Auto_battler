@@ -39,7 +39,10 @@ class Map(States):
                     if obj.name == "dark_forest":
                         States.current_adventure = obj.name
                         self.done = True
-                    elif obj.name != "dark_forest":
+                    elif obj.name == "ruins":
+                        States.current_adventure = obj.name
+                        self.done = True
+                    else: #obj.name != "dark_forest":
                         error = "Inaccessible"
                         self.error_text = self.info_font.render((error), True, (self.red))
                         self.error_text_rect = self.error_text.get_rect(topleft=((obj.pos_x), (obj.pos_y)))

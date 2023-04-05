@@ -160,6 +160,7 @@ class Combat(States):
                     self.actions_ordered.remove(States.party_heroes[0])
                     States.party_heroes.remove(States.party_heroes[0])
                     if States.party_heroes == []: #do loss screen
+                        States.current_location = None
                         self.next = 'menu'
                         self.done = True
-            
+                        #clear lists?

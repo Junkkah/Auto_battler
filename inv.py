@@ -28,6 +28,7 @@ class Inv(States):
         self.talent_lists = []
         self.talent_text = []
         self.talents_selected = []
+        self.inventory_hero_sprites.empty()
         
     def startup(self):
 
