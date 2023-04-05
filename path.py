@@ -23,6 +23,8 @@ class Path(States):
         loc_names = [loc["desc"] for loc in locations.values()]
         for name, value in zip(loc_names, self.loc_objects):
             setattr(self, name, value)
+        
+        STARTING_LOCATION = self.loc_objects[0]
 
         loc_tree = Data.loc_tree_data(States.current_adventure)
         for parent, children in loc_tree.items():
@@ -31,7 +33,8 @@ class Path(States):
                 setattr(getattr(self, parent), dir, child_obj)
         
         if States.current_location == None:
-            States.current_location = self.city
+            States.current_location = STARTING_LOCATION
+            #States.current_location = self.city
             self.current_location = States.current_location
         
         self.current_location = next((loc_object for loc_object in self.loc_objects if loc_object.desc == self.current_location.desc), None)

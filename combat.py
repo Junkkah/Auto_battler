@@ -146,6 +146,9 @@ class Combat(States):
                         if self.exp_reward + States.party_heroes[0].exp >= States.party_heroes[0].next_level:
                             self.next = 'inv'
                         else:
+                            #if States.current_location == 'lastnode' next = 'map'
+                            #set States.current_location to None
+                            #Same checks to end of Inv if next = 'inv' after 'lastnode'
                             self.next = 'path'
                         States.room_monsters.remove(health_check)
                         if States.room_monsters == []:

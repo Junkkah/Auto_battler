@@ -1,4 +1,4 @@
 name,size_scalar,health,max_health,exp,damage,speed,menace,armor,weaponkobold,9,8,8,1,1,2,1,0,None
 goblin,12,10,10,2,1,3,2,0,None
 orc,9,15,15,4,4,2,4,1,Nonegnoll,11,20,20,6,6,4,4,0,Nonebugbear,8,20,20,7,5,3,5,1,2ogre,6,23,23,9,8,3,8,0,2
-troll,9,30,30,11,10,7,10,2,None
+troll,9,30,30,11,10,7,10,2,Noneskeleton,8,15,15,5,4,2,3,0,Nonezombie,8,18,18,7,5,2,3,0,Noneghoul,10,22,22,10,9,5,7,0,Nonewraith,7,26,26,12,11,7,13,0,Nonemummy,9,30,30,14,12,5,15,1,Noneghost,9,35,35,17,15,7,13,0,Nonedread_knight,8,40,40,20,15,7,15,2,None

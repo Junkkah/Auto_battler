@@ -1,0 +1,2 @@
+name,pos_x,pos_y,angle,destination,origin
+city_L_arrow,0.38,0.77,50,column1,citycity_R_arrow,0.62,0.77,-50,rock1,citycolumn1_L_arrow,0.24,0.57,50,column2,column1column1_R_arrow,0.36,0.57,-50,rock2,column1rock1_L_arrow,0.64,0.57,50,column3,rock1rock1_R_arrow,0.76,0.57,-50,column4,rock1rock2_L_arrow,0.36,0.33,50,rock3,rock2column2_R_arrow,0.24,0.33,-50,rock3,column2column4_L_arrow,0.76,0.33,50,rock4,column4column3_R_arrow,0.64,0.33,-50,rock4,column3rock4_R_arrow,0.61,0.15,50,tower,rock4rock3_R_arrow,0.39,0.15,-50,tower,rock3
