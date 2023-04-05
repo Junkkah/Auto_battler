@@ -53,18 +53,16 @@ class Monster(pg.sprite.Sprite):
         self.animation = False
         self.attacked = False
         self.data = stats.monsters[type]
+    #    self._set_data()
+    #def _set_data(self):
+    #    self.data = {key: int(value) if value.isdigit() else value for key, value in self.data.items()}
+    #    for name, value in self.data.items():
+    #        if not hasattr(self, name):
+    #            setattr(self, name, value)
         self.data = {key: int(value) if value.isdigit() else value for key, value in self.data.items()}
         for name, value in self.data.items():
             setattr(self, name, value)
-        #self.speed = self.data["speed"]
-        #self.damage = self.data["damage"]
-        #self.exp = self.data["exp"]
-        #self.health = self.data["health"]
-        #self.max_health = self.data["max_health"]
-        #self.health = min(self.health, self.max_health)
-        #self.menace = self.data["menace"]
-        #self.armor = self.data["armor"]
-        #SIZE_SCALAR = self.data["size_scalar"]
+  
         self.health = min(self.health, self.max_health)
         SCALAR_W = WIDTH / self.size_scalar
         SCALAR_H = HEIGHT / self.size_scalar
@@ -154,8 +152,8 @@ class TalentInfo():
         self.a_selected = False
         self.b_selected = False
 
-class Talent(): 
-    def __init__(self, name: str, desc: str, effect: str):
-        self.name_text = name
-        self.desc_text = desc
-        self.effect = effect
+#class Talent(): 
+#    def __init__(self, name: str, desc: str, effect: str):
+#        self.name_text = name
+#        self.desc_text = desc
+#        self.effect = effect

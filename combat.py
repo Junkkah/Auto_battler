@@ -45,7 +45,7 @@ class Combat(States):
     def startup(self):
         self.screen.fill((self.white))
         self.screen.blit(self.ground, (0,0))
-        DELAY_AT_START = 300 #milliseconds
+        DELAY_AT_START = 400 #milliseconds
 
         self.position_heroes(States.party_heroes)
         MONSTER_COUNT = len(States.room_monsters)
