@@ -1,0 +1,5 @@
+name,desc,effect,type
+
+Lightning Zap,Damage spell,lightning_zap,spell
+
+Speed of Wind,Act earlier,speed 2,stat

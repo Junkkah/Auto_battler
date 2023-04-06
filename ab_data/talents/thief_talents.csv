@@ -1,6 +1,16 @@
-name,desc,effect,type
-Ambush,Attack first for extra damage,ordered[0],special
-Greedy,find more gold,gold+ per loot,special
-Deadly,Deal more damage,damage 2,stat
-Precise Strikes,Deal more damage,damage 2,stat
-Nimble,Act earlier,speed 2,statInconspicuous,Less likely to be attacked,menace -2,statAgile,Act earlier,speed 2,stat
+name,desc,effect,type
+
+Ambush,Attack first for extra damage,ordered[0],special
+
+Greedy,find more gold,gold+ per loot,special
+
+Deadly,Deal more damage,damage 2,stat
+
+Precise Strikes,Deal more damage,damage 2,stat
+
+Nimble,Act earlier,speed 2,stat
+
+Inconspicuous,Less likely to be attacked,menace negative2,special
+
+Agile,Act earlier,speed 2,stat
+

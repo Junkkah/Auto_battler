@@ -70,37 +70,46 @@ class Stats():
         self.map = Data.map_data()
         self.spells = Data.spell_data()
         #self.talents = Data.talent_data(type)
-        #Clerics start with domain, create talent list for each domain
+
+    #move to hero methods 
+    def add_stat(self, hero, stat_bonus):
+        stat_name, stat_val_str = stat_bonus.split()
+        stat_val = int(stat_val_str)
+        if hasattr(hero, stat_name):
+            old_val = getattr(hero, stat_name)
+            new_val = old_val + stat_val
+            setattr(hero, stat_name, new_val)
 
     def add_talent(self, hero: object, name: str, type: str):
         talents = Data.talent_data(hero.type)
-        #spells = Data.spell_data()
         if type == "spell":
-            hero.talents.append(name) #effect in talent data
+            hero.talents.append(name)
             hero.spells.append(self.spells[(talents[name]["effect"])])
         elif type == "stat":
             hero.talents.append(name)
             stat_bonus = talents[name]["effect"]
-            stat_name, stat_val_str = stat_bonus.split()
-            stat_val = int(stat_val_str)
-            if hasattr(hero, stat_name):
-                old_val = getattr(hero, stat_name)
-                new_val = old_val + stat_val
-                setattr(hero, stat_name, new_val)
+            self.add_stat(hero, stat_bonus)
+        elif type == "special":
+            hero.talents.append(name)
+            #check hero talent list start of combat and pull effects from data
+        elif type == "domain":
+            hero.talents.append(name) 
+            hero.type = talents[name]["effect"]
+            bonus = talents[name]["bonus"]
+            self.add_stat(hero, bonus)
         elif type == "m_stat":
             hero.talents.append(name)
             #speed 1 damage 1
         elif type == "song":
             hero.talents.append(name)
-        elif type == "domain":
-            hero.talents.append(name)
-        elif type == "special":
-            hero.talents.append(name)
-        #need special, song
         
     def levelup(self, hero):
         hero.level += 1
         hero.next_level = int(self.level_cost[hero.level])
         hero.health += hero.level
-        hero.max_health += self.level_health[hero.type]
+        if hero.type not in self.level_health.keys():
+            hero_type = 'cleric'
+        else:
+            hero_type = hero.type
+        hero.max_health += self.level_health[hero_type]
              

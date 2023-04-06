@@ -1,0 +1,5 @@
+name,desc,effect,type
+
+Dense,Take more hits,max_health 5,stat
+
+Mud Ground,Enemy hindering spell,mud_ground,spell

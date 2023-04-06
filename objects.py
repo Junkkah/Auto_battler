@@ -44,7 +44,7 @@ class Hero(pg.sprite.Sprite):
                 target_mob.health -= spell["damage"]
         else:
             target.health -= spell["damage"]
-              
+
 class Monster(pg.sprite.Sprite):
     def __init__(self, pos, groups, type: str):
         super().__init__(groups)
@@ -77,7 +77,7 @@ class Monster(pg.sprite.Sprite):
         self.height = self.image.get_height()
         self.rect = self.image.get_rect(topleft = (self.pos_x, self.pos_y))
         #self.abilities = ["regenerating": True/False]
-        
+
     def melee_attack(self, target):
         self.animation = False
         target.health -= (self.damage - target.armor)

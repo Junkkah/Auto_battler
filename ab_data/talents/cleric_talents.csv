@@ -1,6 +1,2 @@
-name,desc,effect,type
-Domain Earth,Protective cleric,fire,domainDomain Fire,Aggressive cleric,earth,domain
-Heal Wounds,Healing spell,heal_wounds,spell
-Flame Bolt,Damage spell,flame_bolt,spell
-Earth Power1,Defence,armor 1,stat
-Fire Power1,Fire spells deal more damage,damage 2,special
+name,desc,effect,type,bonusDomain Tempest,Volatile Cleric,tempest,domain,speed 1
+Domain Stone,Defensive Cleric,stone,domain,armor 1Domain Flame,Fiery Cleric,flame,domain,menace 1Domain Warmth,Helpful Cleric,warmth,domain,max_health 5Domain War,Offensive Cleric,war,domain,damage 1
