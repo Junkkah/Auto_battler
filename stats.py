@@ -28,10 +28,10 @@ class Data:
             return tdata
 
     def spell_data():
-        with open('./ab_data/spells.csv', "r") as spell:
-            spell_reader = DictReader(spell)
+        with open('./ab_data/spells.csv', "r") as spells:
+            spell_reader = DictReader(spells)
             spell_stats = list(spell_reader)
-            sdata = {spell["name"]: spell for spell in spell_stats}
+            sdata = {spell["name"]: {k: int(v) if v.isdigit() else v for k, v in spell.items()} for spell in spell_stats}
             return sdata
     
     def map_data():
@@ -68,15 +68,16 @@ class Stats():
         self.monsters = Data.monster_data()
         self.heroes = Data.hero_data()
         self.map = Data.map_data()
+        self.spells = Data.spell_data()
         #self.talents = Data.talent_data(type)
         #Clerics start with domain, create talent list for each domain
 
     def add_talent(self, hero: object, name: str, type: str):
         talents = Data.talent_data(hero.type)
-        spells = Data.spell_data()
+        #spells = Data.spell_data()
         if type == "spell":
             hero.talents.append(name) #effect in talent data
-            hero.spells.append(spells[(talents[name]["effect"])])
+            hero.spells.append(self.spells[(talents[name]["effect"])])
         elif type == "stat":
             hero.talents.append(name)
             stat_bonus = talents[name]["effect"]
@@ -102,5 +103,4 @@ class Stats():
         hero.next_level = int(self.level_cost[hero.level])
         hero.health += hero.level
         hero.max_health += self.level_health[hero.type]
-        
-      
+             

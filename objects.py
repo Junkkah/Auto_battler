@@ -24,20 +24,26 @@ class Hero(pg.sprite.Sprite):
         self.talents = []
         self.spot_frame = False
         #gold cost, random starting talent
-        self.data = stats.heroes[type]
-        self.data = {key: int(value) if value.isdigit() else value for key, value in self.data.items()}
         self.level = 1
         self.next_level = 2
-        self.damage = self.data["damage"]
-        self.exp = self.data["exp"]
-        self.health = self.data["health"]
-        self.max_health = self.data["max_health"]
-        self.health = min(self.health, self.max_health)
-        self.speed = self.data["speed"]
-        self.menace = self.data["menace"]
-        self.attack_type = self.data["attack_type"]
+        self.data = stats.heroes[type]
+        self.data = {key: int(value) if value.isdigit() else value for key, value in self.data.items()}
+        for name, value in self.data.items():
+            setattr(self, name, value)
         self.spells = []
         self.armor = 0
+        #def levelup def add_talent def add stats
+    def melee_attack(self, target):
+        self.animation = False
+        target.health -= (self.damage - target.armor)
+
+    def spell_attack(self, target, spell):
+        self.animation = False
+        if spell["area"] == 1:
+            for target_mob in States.room_monsters:
+                target_mob.health -= spell["damage"]
+        else:
+            target.health -= spell["damage"]
               
 class Monster(pg.sprite.Sprite):
     def __init__(self, pos, groups, type: str):
@@ -71,6 +77,10 @@ class Monster(pg.sprite.Sprite):
         self.height = self.image.get_height()
         self.rect = self.image.get_rect(topleft = (self.pos_x, self.pos_y))
         #self.abilities = ["regenerating": True/False]
+        
+    def melee_attack(self, target):
+        self.animation = False
+        target.health -= (self.damage - target.armor)
 
 class Adventure(pg.sprite.Sprite):
     def __init__(self, pos, groups, desc: str, name: str):
@@ -152,8 +162,9 @@ class TalentInfo():
         self.a_selected = False
         self.b_selected = False
 
-#class Talent(): 
-#    def __init__(self, name: str, desc: str, effect: str):
-#        self.name_text = name
-#        self.desc_text = desc
-#        self.effect = effect
+class MagicItem(): 
+    def __init__(self, name: str, desc: str, effect: str, type: str):
+        self.name_text = name
+        self.desc_text = desc
+        self.effect = effect
+        self.type = type

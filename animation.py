@@ -3,17 +3,6 @@ from states import States
 from objects import Hero, Monster
 import numpy as np
 
-def melee_attack(attacker, target):
-	States.acting.animation = False
-	target.health -= (attacker.damage - target.armor)
-
-def spell_attack(attacker, target, spell):
-	States.acting.animation = False
-	if spell["area"] == 1:
-		for target_mob in States.room_monsters:
-			target_mob.health -= spell["damage"]
-	target.health -= attacker.damage
-
 #Stab, Slash and Blast class code adapted from
 #https://github.com/clear-code-projects/animation 
 
@@ -53,7 +42,7 @@ class Stab(pg.sprite.Sprite): #Groupsingle
 				self.current_sprite = 0
 				self.attack_animation = False
 				self.image = self.weapon_sprites[int(self.current_sprite)]
-				melee_attack(States.acting, States.room_monsters[0])
+				States.acting.melee_attack(States.room_monsters[0])
 				return True
 		self.pos_y -= 3
 		self.image = self.weapon_sprites[int(self.current_sprite)]
@@ -66,18 +55,19 @@ class Blast(pg.sprite.Sprite):
 		self.attack_animation = False
 		self.spell_sprites = [] 
 		self.attack_spell = spell
-		cast_image = pg.image.load('./ab_images/blast/spell.png').convert_alpha()
-		height = cast_image.get_height()
-		width = cast_image.get_width()
+		CAST_IMAGE = pg.image.load('./ab_images/blast/spell.png').convert_alpha()
+		WIDTH, HEIGHT = CAST_IMAGE.get_size()
+		SIZE_SCALAR = 15
+		SCALED_WIDTH = WIDTH / SIZE_SCALAR
+		SCALED_HEIGHT = HEIGHT / SIZE_SCALAR
 		spell_type = spell["type"]
 
 		for i in range(1, 6):
-			spell = pg.image.load('./ab_images/blast/spell.png').convert_alpha()
-			self.spell_sprites.append(pg.transform.smoothscale(spell, ((width / 15), (height / 15))))
+			self.spell_sprites.append(pg.transform.smoothscale(CAST_IMAGE, (SCALED_WIDTH, SCALED_HEIGHT)))
 		
 		for i in range(6, 11):
 			spell = pg.image.load('./ab_images/blast/' + spell_type + '.png').convert_alpha()
-			self.spell_sprites.append(pg.transform.smoothscale(spell, ((width / 15), (height / 15))))
+			self.spell_sprites.append(pg.transform.smoothscale(spell, (SCALED_WIDTH, SCALED_HEIGHT)))
         
 		self.current_sprite = 0
 		self.image = self.spell_sprites[self.current_sprite]
@@ -95,7 +85,7 @@ class Blast(pg.sprite.Sprite):
 				self.current_sprite = 0
 				self.attack_animation = False
 				self.image = self.spell_sprites[int(self.current_sprite)]
-				spell_attack(States.acting, States.room_monsters[0], self.attack_spell)
+				States.acting.spell_attack(States.room_monsters[0], self.attack_spell)
 				return True
 
 		self.image = self.spell_sprites[int(self.current_sprite)]
@@ -130,7 +120,7 @@ class Slash(pg.sprite.Sprite):
 				self.current_sprite = 0
 				self.attack_animation = False
 				self.image = self.claw_sprites[int(self.current_sprite)]
-				melee_attack(States.acting, States.party_heroes[0])
+				States.acting.melee_attack(States.party_heroes[0])
 				return True
 
 		self.image = self.claw_sprites[int(self.current_sprite)]
@@ -177,7 +167,7 @@ class Smash(pg.sprite.Sprite):
 			if self.rotation_remaining <= 0:
 				self.attack_animation = False
 				self.image = pg.transform.rotozoom(self.club, np.degrees(self.rotation), 1)
-				melee_attack(States.acting, States.party_heroes[0])
+				States.acting.melee_attack(States.party_heroes[0])
 				return True
 		
 		XOFFSET, YOFFSET = np.cos(self.rotation) * self.offset, -np.sin(self.rotation) * self.offset
