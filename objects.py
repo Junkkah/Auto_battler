@@ -2,6 +2,7 @@ import pygame as pg
 from stats import Data, Stats
 from states import States
 import numpy as np
+import random
 
 class Hero(pg.sprite.Sprite):
     def __init__(self, pos, groups, name: str, type: str):
@@ -27,11 +28,14 @@ class Hero(pg.sprite.Sprite):
         self.next_level = 2
         self.data = stats.heroes[type]
         #health,max_health,damage,speed,exp,menace,armor,attack_type
+        #self._set_data()
         self.data = {key: int(value) if value.isdigit() else value for key, value in self.data.items()}
         for name, value in self.data.items():
             setattr(self, name, value)
         self.spells = []
         self.talents = []
+        #done before creating animation object
+        #set acting, run eval, create animation object
     #def eval_attack_type(self): uncertainty
         #if song in talents do song
         #if spell in spells compare melee, spell
@@ -41,7 +45,10 @@ class Hero(pg.sprite.Sprite):
     
     def melee_attack(self, target):
         self.animation = False
-        target.health -= (self.damage - target.armor)
+        DAMAGE = self.damage - target.armor
+        target.health -= DAMAGE
+        DAMAGE_NUMBER_OBJ = DamageNumber(DAMAGE, target.pos_x, target.pos_y)
+        target.damage_numbers.add(DAMAGE_NUMBER_OBJ)
 
     def spell_attack(self, target, spell):
         self.animation = False
@@ -65,12 +72,6 @@ class Monster(pg.sprite.Sprite):
         self.animation = False
         self.attacked = False
         self.data = stats.monsters[type]
-    #    self._set_data()
-    #def _set_data(self):
-    #    self.data = {key: int(value) if value.isdigit() else value for key, value in self.data.items()}
-    #    for name, value in self.data.items():
-    #        if not hasattr(self, name):
-    #            setattr(self, name, value)
         self.data = {key: int(value) if value.isdigit() else value for key, value in self.data.items()}
         for name, value in self.data.items():
             setattr(self, name, value)
@@ -83,6 +84,7 @@ class Monster(pg.sprite.Sprite):
         self.height = self.image.get_height()
         self.rect = self.image.get_rect(topleft = (self.pos_x, self.pos_y))
         #self.abilities = ["regenerating": True/False]
+        self.damage_numbers = pg.sprite.Group()
     
     def get_target(self):
         total_menace = sum(hero.menace for hero in States.party_heroes)
@@ -181,3 +183,13 @@ class MagicItem():
         self.desc_text = desc
         self.effect = effect
         self.type = type
+
+class DamageNumber(pg.sprite.Sprite):
+    def __init__(self, damage, pos_x, pos_y):
+        super().__init__()
+        self.damage = damage
+        self.image = pg.font.SysFont("Arial", 30).render(str(damage), True, (255, 0, 0))
+        self.rect = self.image.get_rect()
+        SCATTER_MIN = 15
+        SCATTER_MAX = 110
+        self.rect.center = (pos_x + random.randint(SCATTER_MIN, SCATTER_MAX), pos_y + random.randint(SCATTER_MIN, SCATTER_MAX))

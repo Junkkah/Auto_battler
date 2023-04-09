@@ -1,7 +1,7 @@
 import pygame as pg
 import sys
 from states import States
-from objects import Hero, Monster
+from objects import Hero, Monster, DamageNumber
 from animation import Stab, Slash, Blast, Smash
 from path import Path
 from stats import Stats
@@ -101,9 +101,7 @@ class Combat(States):
             #pause button
         elif event.type == pg.MOUSEBUTTONDOWN:
             pass
-    
-    #hero target is always mob[0] and mob target is hero[0]
-    #Needs targeting algo
+
     def update(self, screen, dt):
         States.acting = self.actions_ordered[0]
         if States.acting.animation == False: #animation hasn't started yet
@@ -120,13 +118,17 @@ class Combat(States):
             self.animation_sprites.add(self.combat_animation)
             States.acting.animation = True
             self.combat_animation.animation_start()
-
+        
         self.draw(screen)
+
     def draw(self, screen):
         self.screen.fill(self.white)
         self.screen.blit(self.ground, (0,0))
         self.combat_hero_sprites.draw(self.screen)
         self.combat_mob_sprites.draw(self.screen)
+
+        for wounded_mob in States.room_monsters:
+            wounded_mob.damage_numbers.draw(self.screen)
         
         if States.acting.animation == True: 
             self.animation_sprites.draw(screen)
