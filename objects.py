@@ -1,6 +1,7 @@
 import pygame as pg
 from stats import Data, Stats
 from states import States
+import numpy as np
 
 class Hero(pg.sprite.Sprite):
     def __init__(self, pos, groups, name: str, type: str):
@@ -18,21 +19,26 @@ class Hero(pg.sprite.Sprite):
         self.height = self.image.get_height()
         self.animation = False
         self.attacked = False
+        self.spot_frame = False
         self.name = name
         self.player = True
         self.type = type
-        self.talents = []
-        self.spot_frame = False
-        #gold cost, random starting talent
         self.level = 1
         self.next_level = 2
         self.data = stats.heroes[type]
+        #health,max_health,damage,speed,exp,menace,armor,attack_type
         self.data = {key: int(value) if value.isdigit() else value for key, value in self.data.items()}
         for name, value in self.data.items():
             setattr(self, name, value)
         self.spells = []
-        self.armor = 0
-        #def levelup def add_talent def add stats
+        self.talents = []
+    #def eval_attack_type(self): uncertainty
+        #if song in talents do song
+        #if spell in spells compare melee, spell
+            #if spell compare spells, healing?
+    def get_target(self):
+        pass
+    
     def melee_attack(self, target):
         self.animation = False
         target.health -= (self.damage - target.armor)
@@ -77,8 +83,15 @@ class Monster(pg.sprite.Sprite):
         self.height = self.image.get_height()
         self.rect = self.image.get_rect(topleft = (self.pos_x, self.pos_y))
         #self.abilities = ["regenerating": True/False]
+    
+    def get_target(self):
+        total_menace = sum(hero.menace for hero in States.party_heroes)
+        prob = [hero.menace/total_menace for hero in States.party_heroes]
+        target = np.random.choice(States.party_heroes, p=prob)
+        return target
 
-    def melee_attack(self, target):
+    def melee_attack(self): #target
+        target = self.get_target()
         self.animation = False
         target.health -= (self.damage - target.armor)
 

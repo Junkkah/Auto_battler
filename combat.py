@@ -131,36 +131,32 @@ class Combat(States):
         if States.acting.animation == True: 
             self.animation_sprites.draw(screen)
 
-        #Advance animation
-        if self.combat_animation.animate(self.animation_speed) == True:
+        if self.combat_animation.animate(self.animation_speed) == True: #Advance animation
+            #States.acting.melee_attack(States.room_monsters[0]) way to be correct attack type?
             self.animation_sprites.remove(self.combat_animation)
             self.actions_ordered.append(self.actions_ordered.pop(0))
             
             if States.acting.player == True:
-                for health_check in States.room_monsters:
-                    if health_check.health <=0:#get target instead of [0] #data["health"]
-                        self.combat_mob_sprites.remove(health_check)
-                        self.actions_ordered.remove(health_check)
-                        self.exp_reward += health_check.exp
-                        
+                for fighting_monster in States.room_monsters:
+                    if fighting_monster.health <=0:
+                        self.combat_mob_sprites.remove(fighting_monster)
+                        self.actions_ordered.remove(fighting_monster)
+                        self.exp_reward += fighting_monster.exp
                         if self.exp_reward + States.party_heroes[0].exp >= States.party_heroes[0].next_level:
-                            self.next = 'inv'
+                            self.next = 'inv' #problem if level up from last node?
                         else:
-                            #if States.current_location == 'lastnode' next = 'map'
-                            #set States.current_location to None
-                            #Same checks to end of Inv if next = 'inv' after 'lastnode'
                             self.next = 'path'
-                        States.room_monsters.remove(health_check)
+                        States.room_monsters.remove(fighting_monster)
                         if States.room_monsters == []:
                             self.done = True
 
             elif States.acting.player == False:    
-                if States.party_heroes[0].health <=0: #data["health"]
-                    self.combat_hero_sprites.remove(States.party_heroes[0])
-                    self.actions_ordered.remove(States.party_heroes[0])
-                    States.party_heroes.remove(States.party_heroes[0])
-                    if States.party_heroes == []: #do loss screen
-                        States.current_location = None
-                        self.next = 'menu'
-                        self.done = True
-                        #clear lists?
+                for fighting_hero in States.party_heroes:
+                    if fighting_hero.health <=0:
+                        self.combat_hero_sprites.remove(fighting_hero)
+                        self.actions_ordered.remove(fighting_hero)
+                        States.party_heroes.remove(fighting_hero)
+                        if States.party_heroes == []: #do loss screen
+                            States.current_location = None
+                            self.next = 'menu'
+                            self.done = True

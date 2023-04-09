@@ -43,7 +43,7 @@ class Stab(pg.sprite.Sprite): #Groupsingle
 				self.attack_animation = False
 				self.image = self.weapon_sprites[int(self.current_sprite)]
 				States.acting.melee_attack(States.room_monsters[0])
-				return True
+				return True #return melee/spell?
 		self.pos_y -= 3
 		self.image = self.weapon_sprites[int(self.current_sprite)]
 		self.rect = self.image.get_rect()
@@ -120,7 +120,7 @@ class Slash(pg.sprite.Sprite):
 				self.current_sprite = 0
 				self.attack_animation = False
 				self.image = self.claw_sprites[int(self.current_sprite)]
-				States.acting.melee_attack(States.party_heroes[0])
+				States.acting.melee_attack() #States.party_heroes[0]
 				return True
 
 		self.image = self.claw_sprites[int(self.current_sprite)]
@@ -167,7 +167,7 @@ class Smash(pg.sprite.Sprite):
 			if self.rotation_remaining <= 0:
 				self.attack_animation = False
 				self.image = pg.transform.rotozoom(self.club, np.degrees(self.rotation), 1)
-				States.acting.melee_attack(States.party_heroes[0])
+				States.acting.melee_attack() #States.party_heroes[0]
 				return True
 		
 		XOFFSET, YOFFSET = np.cos(self.rotation) * self.offset, -np.sin(self.rotation) * self.offset
