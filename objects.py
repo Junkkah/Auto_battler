@@ -34,6 +34,7 @@ class Hero(pg.sprite.Sprite):
             setattr(self, name, value)
         self.spells = []
         self.talents = []
+        self.damage_numbers = pg.sprite.Group()
         #done before creating animation object
         #set acting, run eval, create animation object
     #def eval_attack_type(self): uncertainty
@@ -41,22 +42,35 @@ class Hero(pg.sprite.Sprite):
         #if spell in spells compare melee, spell
             #if spell compare spells, healing?
     def get_target(self):
-        pass
+        total_menace = sum(monster.menace for monster in States.room_monsters)
+        prob = [monster.menace/total_menace for monster in States.room_monsters]
+        target = np.random.choice(States.room_monsters, p=prob)
+        return target
     
-    def melee_attack(self, target):
+    def melee_attack(self):
+        target = self.get_target()
         self.animation = False
         DAMAGE = self.damage - target.armor
         target.health -= DAMAGE
         DAMAGE_NUMBER_OBJ = DamageNumber(DAMAGE, target.pos_x, target.pos_y)
         target.damage_numbers.add(DAMAGE_NUMBER_OBJ)
 
-    def spell_attack(self, target, spell):
+    def spell_attack(self, spell):
         self.animation = False
+        DAMAGE = spell["damage"]
         if spell["area"] == 1:
             for target_mob in States.room_monsters:
-                target_mob.health -= spell["damage"]
+                target_mob.health -= DAMAGE
+                DAMAGE_NUMBER_OBJ = DamageNumber(DAMAGE, target_mob.pos_x, target_mob.pos_y)
+                target_mob.damage_numbers.add(DAMAGE_NUMBER_OBJ)
         else:
-            target.health -= spell["damage"]
+            target = self.get_target()
+            target.health -= DAMAGE
+            DAMAGE_NUMBER_OBJ = DamageNumber(DAMAGE, target.pos_x, target.pos_y)
+            target.damage_numbers.add(DAMAGE_NUMBER_OBJ)
+        #elif spell["area"] == 0 single target attack
+        #elif spell["area"] == 2 heal spell
+        #elif buff elif debuff
 
 class Monster(pg.sprite.Sprite):
     def __init__(self, pos, groups, type: str):
@@ -92,10 +106,13 @@ class Monster(pg.sprite.Sprite):
         target = np.random.choice(States.party_heroes, p=prob)
         return target
 
-    def melee_attack(self): #target
+    def melee_attack(self):
         target = self.get_target()
         self.animation = False
-        target.health -= (self.damage - target.armor)
+        DAMAGE = self.damage - target.armor
+        target.health -= DAMAGE
+        DAMAGE_NUMBER_OBJ = DamageNumber(DAMAGE, target.pos_x, target.pos_y)
+        target.damage_numbers.add(DAMAGE_NUMBER_OBJ)
 
 class Adventure(pg.sprite.Sprite):
     def __init__(self, pos, groups, desc: str, name: str):

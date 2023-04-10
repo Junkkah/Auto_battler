@@ -25,8 +25,10 @@ class Combat(States):
         self.actions_unordered = []
         self.temp_stats = []
         States.room_monsters = []
-        for ehero in States.party_heroes:
-            ehero.exp += self.exp_reward 
+        for cleanup_hero in States.party_heroes:
+            cleanup_hero.exp += self.exp_reward 
+            cleanup_hero.damage_numbers.empty()
+            #empty or keep numbers to show wounded status
         self.exp_reward = 0
         #Victory screen
         #loot here
@@ -129,6 +131,9 @@ class Combat(States):
 
         for wounded_mob in States.room_monsters:
             wounded_mob.damage_numbers.draw(self.screen)
+
+        for wounded_hero in States.party_heroes:
+            wounded_hero.damage_numbers.draw(self.screen)
         
         if States.acting.animation == True: 
             self.animation_sprites.draw(screen)

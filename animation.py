@@ -42,7 +42,7 @@ class Stab(pg.sprite.Sprite): #Groupsingle
 				self.current_sprite = 0
 				self.attack_animation = False
 				self.image = self.weapon_sprites[int(self.current_sprite)]
-				States.acting.melee_attack(States.room_monsters[0])
+				States.acting.melee_attack()
 				return True #return melee/spell?
 		self.pos_y -= 3
 		self.image = self.weapon_sprites[int(self.current_sprite)]
@@ -85,7 +85,7 @@ class Blast(pg.sprite.Sprite):
 				self.current_sprite = 0
 				self.attack_animation = False
 				self.image = self.spell_sprites[int(self.current_sprite)]
-				States.acting.spell_attack(States.room_monsters[0], self.attack_spell)
+				States.acting.spell_attack(self.attack_spell)
 				return True
 
 		self.image = self.spell_sprites[int(self.current_sprite)]
@@ -167,7 +167,7 @@ class Smash(pg.sprite.Sprite):
 			if self.rotation_remaining <= 0:
 				self.attack_animation = False
 				self.image = pg.transform.rotozoom(self.club, np.degrees(self.rotation), 1)
-				States.acting.melee_attack() #States.party_heroes[0]
+				States.acting.melee_attack()
 				return True
 		
 		XOFFSET, YOFFSET = np.cos(self.rotation) * self.offset, -np.sin(self.rotation) * self.offset
