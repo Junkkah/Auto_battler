@@ -1,4 +1,5 @@
 import pygame as pg
+import csv
 from csv import DictReader
 from states import States
 import json
@@ -19,6 +20,12 @@ class Data:
             hero_stats = list(hero_reader)
             hdata = {hero["class"]: hero for hero in hero_stats}
             return hdata
+    
+    def name_data():
+        with open('./ab_data/names.csv', "r") as name:
+            name_reader = csv.reader(name)
+            name_stats = list(tuple(row) for row in name_reader)
+            return name_stats 
 
     def talent_data(type):
         with open('./ab_data/talents/' + type + '_talents.csv', "r") as talent:
@@ -67,6 +74,7 @@ class Stats():
         self.level_health = {"bard": 2, "cleric": 4, "barbarian": 5, "ranger": 4, "thief": 3, "paladin": 4, "warrior": 5, "wizard": 2}
         self.monsters = Data.monster_data()
         self.heroes = Data.hero_data()
+        self.names = Data.name_data()
         self.map = Data.map_data()
         self.spells = Data.spell_data()
         #self.talents = Data.talent_data(type)

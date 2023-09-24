@@ -43,13 +43,8 @@ class Combat(States):
            phero.pos_x = HEROPOS_X
            phero.pos_y = HEROPOS_Y
            HEROPOS_X += HERO_GAP
-        
-    def startup(self):
-        self.screen.fill((self.white))
-        self.screen.blit(self.ground, (0,0))
-        DELAY_AT_START = 400 #milliseconds
-
-        self.position_heroes(States.party_heroes)
+    
+    def create_monsters(self):
         MONSTER_COUNT = len(States.room_monsters)
         MONSTER_NAMES = []
         MONSTER_NAMES.extend(States.room_monsters)
@@ -71,6 +66,20 @@ class Combat(States):
             self.monster3 = Monster(THREE_MONSTERS_COORDS[2], self.monster_sprites, MONSTER_NAMES[2])
             States.room_monsters = [self.monster1, self.monster2, self.monster3]
 
+    #tie breaker, first in hero/mob list > lower, hero > mob, class prios
+    def order_sort(self, incombat: list):
+        def speed_order(par: object): 
+            return par.speed
+        return sorted(incombat, key=speed_order, reverse=True)
+        
+    def startup(self):
+        self.screen.fill((self.white))
+        self.screen.blit(self.ground, (0,0))
+        DELAY_AT_START = 400 #milliseconds
+
+        self.position_heroes(States.party_heroes)
+        self.create_monsters()
+
         for room_monster in States.room_monsters:
             self.combat_mob_sprites.add(room_monster)
             self.actions_unordered.append(room_monster)
@@ -90,12 +99,7 @@ class Combat(States):
         pg.display.update()
         pg.time.delay(DELAY_AT_START)
         
-        #tie breaker, first in hero/mob list > lower, hero > mob, class prios
-        def order_sort(incombat: list):
-            def speed_order(par: object): 
-                return par.speed
-            return sorted(incombat, key=speed_order, reverse=True)
-        self.actions_ordered = order_sort(self.actions_unordered)
+        self.actions_ordered = self.order_sort(self.actions_unordered)
 
     def get_event(self, event):
         if event.type == pg.KEYDOWN:

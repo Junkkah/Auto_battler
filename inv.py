@@ -2,11 +2,11 @@ import pygame as pg
 import sys
 import random
 from states import States
-from stats import Data,Stats
+from stats import Data, Stats
 from objects import TalentInfo, TalentName
 from combat import Combat
 
-class Inv(States):
+class Inv(States): #RENAME
     def __init__(self):
         States.__init__(self)
         self.next = 'path'
