@@ -3,7 +3,7 @@ import sys
 import csv
 import random
 from states import States
-from objects import Hero
+from objects import Hero, TalentName
 from stats import Data, Stats
 from combat import Combat
 
@@ -13,7 +13,6 @@ class Simulator(States):
         self.next = 'menu'
        
     def cleanup(self):
-        #reset variables to initial values at end of loop
         self.party = []
         States.party_heroes = []
         self.simu_paths = []
@@ -40,7 +39,8 @@ class Simulator(States):
         self.simulation_sprites.empty()
         self.monster_sprites.empty()
 
-    def run_simulation(self, count: int):
+    def run_simulation(self, count: int): #Full dark forest adventure
+        simulation_results = []
         self.number_of_simulations = count
         self.party = random.sample(self.names, 3)
         #needs to be random 8, choose 3 for ml model
@@ -51,6 +51,7 @@ class Simulator(States):
             States.party_heroes.append(self.simulated_hero)
             self.simulation_sprites.add(self.simulated_hero)
         
+
         States.current_adventure = "dark_forest"
         simulation_locations = Data.location_data(States.current_adventure)
         
@@ -66,15 +67,18 @@ class Simulator(States):
         simulated_path = random.choice(self.simu_paths)
         simulated_monsters = []
 
+        simulation_results.append(simulated_path)
+        simulation_results.append(self.party)
+
         for location in simulated_path:
             monsters = []
             monsters = simulation_locations[location]['content'].split(" ")
             simulated_monsters.append(monsters)
-        
-        for monster_list in simulated_monsters:
+
+        for monster_list in simulated_monsters: #Fight monsters in four locations
             States.room_monsters = monster_list
             
-            Combat().create_monsters()
+            Combat().create_monsters() #monster objects
 
             self.actions_unordered = []
             
@@ -85,20 +89,18 @@ class Simulator(States):
 
             self.actions_ordered = Combat().order_sort(self.actions_unordered)
 
-            while States.party_heroes and States.room_monsters:
+            while States.party_heroes and States.room_monsters: #loop combat 
                 States.acting = self.actions_ordered[0] 
                 if States.acting.player == True:
                     if States.acting.attack_type == "weapon" or not States.acting.spells:
                         States.acting.melee_attack()
                     else:
-                        spell_attack(States.acting.spells[0]) #passing 1st spell
+                        States.acting.spell_attack(States.acting.spells[0]) #passing 1st spell
                     
                     for fighting_monster in States.room_monsters:
                         if fighting_monster.health <=0:
                             self.actions_ordered.remove(fighting_monster)
                             self.exp_reward += fighting_monster.exp
-                            if self.exp_reward + States.party_heroes[0].exp >= States.party_heroes[0].next_level:
-                                pass #do levelup
 
                             States.room_monsters.remove(fighting_monster)
                 elif States.acting.player == False:
@@ -109,22 +111,47 @@ class Simulator(States):
                             States.party_heroes.remove(fighting_hero)
 
                 self.actions_ordered.append(self.actions_ordered.pop(0))
-        self.reset_variables #cleanup
-        #Not running multiple times, cleanup problem?    
-    if States.party_heroes:
-        print("Win")
-    else:
-        print("Loss")
-    
-        #after each fight, check exp, goto inv if level
+
+            if States.party_heroes and self.exp_reward + States.party_heroes[0].exp >= States.party_heroes[0].next_level:
+                for leveling_hero in States.party_heroes:
+                    Stats().levelup(leveling_hero)
+
+                self.talent_lists = [Data.talent_data(thero.type) for thero in States.party_heroes]
+                self.numer_of_heroes = len(States.party_heroes)
+                samples = [random.sample(t.items(), 2) for t in self.talent_lists]
+                talents = []
+
+                for i in range(self.numer_of_heroes):
+                    SAMPLES_POS_X = (self.width * 0.3), (self.width * 0.5), (self.width * 0.7) #useless
+                    NAME_POS_Y1Y2 = (self.height * 0.15), (self.height * 0.30) #useless
+                    sample = samples[i]
+                    hero = States.party_heroes[i] 
+                    name_value = TalentName(sample, SAMPLES_POS_X[i], NAME_POS_Y1Y2, self.info_font, hero)
+                    talents.append(name_value)
+
+                for s_talent in talents: #always adds a talents - randomize between a and b
+                    Stats().add_talent(s_talent.hero, s_talent.a_name, s_talent.a_type)
+
+        #result
+        if States.party_heroes:
+            simulation_results.append(
+                'True')
+        else:
+            simulation_results.append(
+                'False')
+
+        with open('simulation_results.csv', 'a', newline='') as sim_data:
+            writer = csv.writer(sim_data)
+            writer.writerow(simulation_results)
+
+        self.reset_variables #cleanup  
         #reduce self.number_of_simualtions =- 1
-        #do cleanup
 
     def update(self, screen, dt):
         self.draw(screen)
     def draw(self, screen):
         screen.fill(self.white)
-
+        #display simulation results
         SIMULATION_FONT_NAME = "Arial"
         simu_big_font = pg.font.SysFont(SIMULATION_FONT_NAME, self.big_font_size)
         MIDDLE = self.width * 0.50
@@ -139,9 +166,8 @@ class Simulator(States):
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_ESCAPE:
                 self.done = True
-        elif event.type == pg.MOUSEBUTTONDOWN:
+        elif event.type == pg.MOUSEBUTTONDOWN: #add button press effect
             if self.start_rect.collidepoint(pg.mouse.get_pos()):
                 self.run_simulation(1) #number of simulations as argument
             else:
                 pass
-    #save simulation result
