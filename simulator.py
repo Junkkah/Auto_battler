@@ -34,14 +34,13 @@ class Simulator(States):
         States.party_heroes = []
         self.simu_paths = []
         self.party_exp = 0
-        self.party_exp = 0
         self.exp_reward = 0
         self.simulation_sprites.empty()
         self.monster_sprites.empty()
 
     def run_simulation(self, count: int): #Full dark forest adventure
         simulation_results = []
-        self.number_of_simulations = count
+        self.runs = count
         self.party = random.sample(self.names, 3)
         #needs to be random 8, choose 3 for ml model
         for simulated_hero in range(self.party_size):
@@ -51,7 +50,6 @@ class Simulator(States):
             States.party_heroes.append(self.simulated_hero)
             self.simulation_sprites.add(self.simulated_hero)
         
-
         States.current_adventure = "dark_forest"
         simulation_locations = Data.location_data(States.current_adventure)
         
@@ -69,6 +67,13 @@ class Simulator(States):
 
         simulation_results.append(simulated_path)
         simulation_results.append(self.party)
+        
+        talent_dicts = {}
+        for p in range(self.party_size):
+            #talent_dicts.append({simulation_results[1][p][0]: []})
+            talent_dicts[simulation_results[1][p][0]] = []
+            
+        simulation_results.append(talent_dicts)
 
         for location in simulated_path:
             monsters = []
@@ -122,12 +127,13 @@ class Simulator(States):
                 talents = []
 
                 for i in range(self.numer_of_heroes):
-                    SAMPLES_POS_X = (self.width * 0.3), (self.width * 0.5), (self.width * 0.7) #useless
-                    NAME_POS_Y1Y2 = (self.height * 0.15), (self.height * 0.30) #useless
+                    X = 1 
+                    Y = 1,1
                     sample = samples[i]
                     hero = States.party_heroes[i] 
-                    name_value = TalentName(sample, SAMPLES_POS_X[i], NAME_POS_Y1Y2, self.info_font, hero)
+                    name_value = TalentName(sample, X, Y, self.info_font, hero)
                     talents.append(name_value)
+                    simulation_results[2][hero.name].append(name_value.a_name)
 
                 for s_talent in talents: #always adds a talents - randomize between a and b
                     Stats().add_talent(s_talent.hero, s_talent.a_name, s_talent.a_type)
@@ -145,7 +151,6 @@ class Simulator(States):
             writer.writerow(simulation_results)
 
         self.reset_variables #cleanup  
-        #reduce self.number_of_simualtions =- 1
 
     def update(self, screen, dt):
         self.draw(screen)
