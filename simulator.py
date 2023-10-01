@@ -17,6 +17,7 @@ class Simulator(States):
         States.party_heroes = []
         self.simu_paths = []
         self.party_exp = 0
+        self.exp_reward = 0
 
     def startup(self):
         self.screen.fill(self.white)
@@ -33,7 +34,7 @@ class Simulator(States):
         self.party = []
         States.party_heroes = []
         self.simu_paths = []
-        self.party_exp = 0
+        self.party_exp = 0 #not used?
         self.exp_reward = 0
         self.simulation_sprites.empty()
         self.monster_sprites.empty()
@@ -139,6 +140,7 @@ class Simulator(States):
                     Stats().add_talent(s_talent.hero, s_talent.a_name, s_talent.a_type)
 
         #result
+        simulation_results.append(self.exp_reward)
         if States.party_heroes:
             simulation_results.append(
                 'True')
@@ -150,7 +152,7 @@ class Simulator(States):
             writer = csv.writer(sim_data)
             writer.writerow(simulation_results)
 
-        self.reset_variables #cleanup  
+        self.reset_variables() #cleanup  
 
     def update(self, screen, dt):
         self.draw(screen)
