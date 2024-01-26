@@ -1,8 +1,12 @@
 import pygame as pg
-from stats import Data, Stats
+from stats import Data, Stats, get_data
 from states import States
 import numpy as np
+import pandas as pd
 import random
+
+hero_data = get_data('classes')
+monster_data = get_data('monsters')
 
 class Hero(pg.sprite.Sprite):
     def __init__(self, pos, groups, name: str, type: str):
@@ -13,6 +17,7 @@ class Hero(pg.sprite.Sprite):
         face = pg.image.load('./ab_images/hero/' + name + '.png').convert_alpha()
         width = face.get_width()
         height = face.get_height() 
+        pixel_height = 150
         stats = Stats()            
         self.image = pg.transform.smoothscale(face, ((width / (height / 150)), (States.height / 7.2)))
         self.rect = self.image.get_rect(topleft = (self.pos_x, self.pos_y))
@@ -26,21 +31,26 @@ class Hero(pg.sprite.Sprite):
         self.type = type
         self.level = 1
         self.next_level = 2
-        self.data = stats.heroes[type]
-        #health,max_health,damage,speed,exp,menace,armor,attack_type
-        #self._set_data()
-        self.data = {key: int(value) if value.isdigit() else value for key, value in self.data.items()}
-        for name, value in self.data.items():
-            setattr(self, name, value)
+        #self.data = stats.heroes[type]
+        ##health,max_health,damage,speed,exp,menace,armor,attack_type
+        #self.data = {key: int(value) if value.isdigit() else value for key, value in self.data.items()}
+        #for name, value in self.data.items():
+        #    setattr(self, name, value)
+
+        self.df = hero_data[hero_data['type'] == self.type].reset_index(drop=True)
+        # Assign stats type, health, max_health, damage, speed, exp, menace, armor, attack_type
+        for stat_name in self.df.columns:
+            setattr(self, stat_name, int(self.df.at[0, stat_name]) if str(self.df.at[0, stat_name]).isdigit() else self.df.at[0, stat_name])
+        
         self.spells = []
         self.talents = []
         self.damage_numbers = pg.sprite.Group()
         #done before creating animation object
         #set acting, run eval, create animation object
-    #def eval_attack_type(self): uncertainty
-        #if song in talents do song
-        #if spell in spells compare melee, spell
-            #if spell compare spells, healing?
+        #def eval_attack_type(self): uncertainty
+            #if song in talents do song
+            #if spell in spells compare melee, spell
+                #if spell compare spells, healing?
     def get_target(self):
         total_menace = sum(monster.menace for monster in States.room_monsters)
         prob = [monster.menace/total_menace for monster in States.room_monsters]
@@ -85,10 +95,17 @@ class Monster(pg.sprite.Sprite):
         self.player = False
         self.animation = False
         self.attacked = False
-        self.data = stats.monsters[type]
-        self.data = {key: int(value) if value.isdigit() else value for key, value in self.data.items()}
-        for name, value in self.data.items():
-            setattr(self, name, value)
+
+        #self.data = stats.monsters[type]
+        #self.data = {key: int(value) if value.isdigit() else value for key, value in self.data.items()}
+        #for name, value in self.data.items():
+        #    setattr(self, name, value)
+        
+        self.df = monster_data[monster_data['name'] == self.type].reset_index(drop=True)
+        # Assign stats name, size_scalar, health, max_health, exp, damage, speed, menace, armor, weapon
+        for stat_name in self.df.columns:
+            setattr(self, stat_name, int(self.df.at[0, stat_name]) if str(self.df.at[0, stat_name]).isdigit() else self.df.at[0, stat_name])
+        
   
         self.health = min(self.health, self.max_health)
         SCALAR_W = WIDTH / self.size_scalar
@@ -120,8 +137,9 @@ class Adventure(pg.sprite.Sprite):
         scenery = pg.image.load('./ab_images/map/' + name + '.png').convert_alpha()
         height = scenery.get_height()
         width = scenery.get_width()
-        self.height = height / 9
-        self.width = width / 9
+        scenery_size_scalar = 9
+        self.height = height / scenery_size_scalar
+        self.width = width / scenery_size_scalar
         self.pos_x = States.width * float(pos[0])
         self.pos_y = States.height * float(pos[1])
         self.image = pg.transform.smoothscale(scenery, (self.width, self.height))

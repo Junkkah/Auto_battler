@@ -4,7 +4,7 @@ import csv
 import random
 from states import States
 from objects import Hero
-from stats import Stats
+from stats import Stats, get_data
 
 class Game(States):
     def __init__(self):
@@ -31,7 +31,8 @@ class Game(States):
         self.bubble_rect = self.bubble.get_rect(bottomleft=COORDS_BUBBLE)
         self.hood_rect = self.hood.get_rect(topleft=COORDS_HOOD)
 
-        self.names = Stats().names
+        names_df = get_data('Names')
+        self.names = [tuple(row) for row in names_df[['name', 'type']].values]
         self.available = random.sample(self.names, SELECTABLE_HEROES)
 
         HEROPOS_X = (self.width * 0.20)

@@ -2,7 +2,7 @@ import pygame as pg
 import sys
 import random
 from states import States
-from stats import Data, Stats
+from stats import Data, Stats, get_data
 from objects import TalentInfo, TalentName
 from combat import Combat
 
@@ -16,6 +16,7 @@ class Inv(States): #RENAME
         self.talent_lists = []
         self.name_text = []
         self.stats = Stats()
+        
 
     def cleanup(self):
         for s_talent in self.talents_selected:

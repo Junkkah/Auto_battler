@@ -4,7 +4,7 @@ from states import States
 from objects import Hero, Monster, DamageNumber
 from animation import Stab, Slash, Blast, Smash
 from path import Path
-from stats import Stats
+#from stats import Stats
 
 class Combat(States):
     def __init__(self):
@@ -115,7 +115,9 @@ class Combat(States):
                 if States.acting.attack_type == "weapon" or States.acting.spells == []:
                     self.combat_animation = Stab(States.acting.pos_x, States.acting.pos_y)
                 else:
-                    self.combat_animation = Blast(States.acting.pos_x, States.acting.pos_y, States.acting.spells[0])#passing 1st spell
+                    #hero always cast index 0 spell in self.spells
+                    #create hero method for choosing spell to cast
+                    self.combat_animation = Blast(States.acting.pos_x, States.acting.pos_y, States.acting.spells[0])
             elif States.acting.player == False:
                 self.combat_animation = Smash((States.acting.pos_x + States.acting.width), (States.acting.pos_y + States.acting.height))
                 #self.combat_animation = Slash((States.acting.pos_x + self.width * 0.1), (States.acting.pos_y + self.height * 0.1))

@@ -2,20 +2,27 @@ import pygame as pg
 import sys
 from states import States
 from objects import Adventure
-from stats import Stats
+from stats import Stats, get_data, row_to_dict
 
 class Map(States):
     def __init__(self):
         States.__init__(self)
         self.next = 'path'
-        self.stats = Stats()
+        #self.stats = Stats()
         self.map_sprites = pg.sprite.Group()
         self.error = False
     def cleanup(self):
         pass 
     def startup(self):
-        adventures = self.stats.map
-        self.map_objects = [Adventure((adv["pos_x"], adv["pos_y"]), self.map_sprites, adv["desc"], adv["name"]) for adv in adventures.values()]
+
+        map_df = get_data('world_map')
+        self.map_objects = []
+        for index, row in map_df.iterrows():
+            name = row['name']
+            coords = (row['pos_x'], row['pos_y'])
+            desc = row['desc']
+            adventure = Adventure(coords, self.map_sprites, desc, name)
+            self.map_objects.append(adventure)
 
         bubble = pg.image.load('./ab_images/map_bubble.png').convert_alpha()
         hood = pg.image.load('./ab_images/hood.png').convert_alpha()

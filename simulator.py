@@ -4,7 +4,7 @@ import csv
 import random
 from states import States
 from objects import Hero, TalentName
-from stats import Data, Stats
+from stats import Data, Stats, get_data
 from combat import Combat
 
 class Simulator(States):
@@ -27,8 +27,9 @@ class Simulator(States):
         self.exp_reward = 0
         self.party_size = 3
         self.simu_paths = []
-        self.names = Stats().names
-    #could load all data on startup and store in States
+        self.names = get_data('names')
+        #self.names = Stats().names
+        self.COUNT = 10
 
     def reset_variables(self):
         self.party = []
@@ -39,11 +40,11 @@ class Simulator(States):
         self.simulation_sprites.empty()
         self.monster_sprites.empty()
 
-    def run_simulation(self, count: int): #Full dark forest adventure
+    def run_simulation(self): #Full dark forest adventure
         simulation_results = []
-        self.runs = count
-        self.party = random.sample(self.names, 3)
-        #needs to be random 8, choose 3 for ml model
+        selection = random.sample(self.names, 8)
+        self.party = random.sample(selection, 3)
+
         for simulated_hero in range(self.party_size):
             SIMU_X = 0
             SIMU_Y = 0
@@ -52,6 +53,7 @@ class Simulator(States):
             self.simulation_sprites.add(self.simulated_hero)
         
         States.current_adventure = "dark_forest"
+        #get_data(States.current_adventure)
         simulation_locations = Data.location_data(States.current_adventure)
         
         path1 = ['tree1', 'tree2', 'bush2', 'cave']
@@ -71,7 +73,6 @@ class Simulator(States):
         
         talent_dicts = {}
         for p in range(self.party_size):
-            #talent_dicts.append({simulation_results[1][p][0]: []})
             talent_dicts[simulation_results[1][p][0]] = []
             
         simulation_results.append(talent_dicts)
@@ -120,8 +121,11 @@ class Simulator(States):
 
             if States.party_heroes and self.exp_reward + States.party_heroes[0].exp >= States.party_heroes[0].next_level:
                 for leveling_hero in States.party_heroes:
+                    #Class for leveling up
                     Stats().levelup(leveling_hero)
 
+                #talent_data = get_data('talents')
+                #self.talent_lists = get_data('talents')
                 self.talent_lists = [Data.talent_data(thero.type) for thero in States.party_heroes]
                 self.numer_of_heroes = len(States.party_heroes)
                 samples = [random.sample(t.items(), 2) for t in self.talent_lists]
@@ -139,7 +143,7 @@ class Simulator(States):
                 for s_talent in talents: #always adds a talents - randomize between a and b
                     Stats().add_talent(s_talent.hero, s_talent.a_name, s_talent.a_type)
 
-        #result
+        #write results into dataframe and store as sql table?
         simulation_results.append(self.exp_reward)
         if States.party_heroes:
             simulation_results.append(
@@ -175,6 +179,7 @@ class Simulator(States):
                 self.done = True
         elif event.type == pg.MOUSEBUTTONDOWN: #add button press effect
             if self.start_rect.collidepoint(pg.mouse.get_pos()):
-                self.run_simulation(1) #number of simulations as argument
+                for _ in range(self.COUNT):
+                    self.run_simulation()
             else:
                 pass
