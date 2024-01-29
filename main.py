@@ -1,6 +1,6 @@
 import pygame as pg
 import sys
-from menu import Menu
+from menu_ab import Menu
 from game import Game
 from map import Map
 from path_ab import Path

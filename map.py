@@ -8,12 +8,13 @@ from stats import Stats, get_data, row_to_dict
 class Map(States):
     def __init__(self):
         States.__init__(self)
-        #
         self.next = 'path'
         self.map_sprites = pg.sprite.Group()
         self.error = False
+
     def cleanup(self):
-        pass 
+        self.map_objects = []
+
     def startup(self):
         #similar method in locations
         #move to stats?
@@ -48,14 +49,15 @@ class Map(States):
                     if obj.name == "dark_forest":
                         States.current_adventure = obj.name
                         self.done = True
-                    elif obj.name == "ruins":
-                        States.current_adventure = obj.name
-                        self.done = True
+                    #elif obj.name == "ruins":
+                    #    States.current_adventure = obj.name
+                    #    self.done = True
                     else: #obj.name != "dark_forest":
                         error = "Inaccessible"
                         self.error_text = self.info_font.render((error), True, (self.red))
                         self.error_text_rect = self.error_text.get_rect(topleft=((obj.pos_x), (obj.pos_y)))
                         self.error = True
+
     def update(self, screen, dt):
         self.draw(screen)
 

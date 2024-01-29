@@ -1,7 +1,7 @@
 import pygame as pg
 #import sys
 from states import States
-from objects import Location, Loca
+from objects import Location
 from stats import Data, get_data
 import pandas as pd
 import math

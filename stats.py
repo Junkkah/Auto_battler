@@ -2,7 +2,6 @@ import pygame as pg
 import csv
 from csv import DictReader
 from states import States
-#import json
 import sqlite3
 import pandas as pd
 
@@ -25,72 +24,13 @@ def row_to_dict(dataframe, name) -> dict:
 class Data:
     def __init__(self):
         pass
-    #
-    def monster_data():
-        with open('./ab_data/monsters.csv', "r") as mobs:
-            mob_reader = DictReader(mobs)
-            monster_stats = list(mob_reader)
-            mdata = {monster["name"]: monster for monster in monster_stats}
-            return mdata       
-    #  
-    def hero_data():
-        with open('./ab_data/heroes.csv', "r") as hero:
-            hero_reader = DictReader(hero)
-            hero_stats = list(hero_reader)
-            hdata = {hero["class"]: hero for hero in hero_stats}
-            return hdata
-    #
-    def name_data():
-        with open('./ab_data/names.csv', "r") as name:
-            name_reader = csv.reader(name)
-            name_stats = list(tuple(row) for row in name_reader)
-            return name_stats 
 
-    
     def talent_data(type):
         with open('./ab_data/talents/' + type + '_talents.csv', "r") as talent:
             talent_reader = DictReader(talent)
             talent_stats = list(talent_reader)
             tdata = {talent["name"]: talent for talent in talent_stats}
             return tdata
-
-    #
-    def spell_data():
-        with open('./ab_data/spells.csv', "r") as spells:
-            spell_reader = DictReader(spells)
-            spell_stats = list(spell_reader)
-            sdata = {spell["name"]: {k: int(v) if v.isdigit() else v for k, v in spell.items()} for spell in spell_stats}
-            return sdata
-    
-    #
-    def map_data():
-        with open('./ab_data/map.csv', "r") as map:
-            map_reader = DictReader(map)
-            map_stats = list(map_reader)
-            adata = {map["name"]: map for map in map_stats}
-            return adata
-    
-    #
-    def location_data(name):
-        with open('./ab_data/' + name + '/location.csv', "r") as loc:
-            loc_reader = DictReader(loc)
-            loc_stats = list(loc_reader)
-            ldata = {loc["desc"]: loc for loc in loc_stats}
-            return ldata
-     
-    # 
-    def arrow_data(name):
-        with open('./ab_data/' + name + '/arrow.csv', "r") as arr:
-            arr_reader = DictReader(arr)
-            arr_stats = list(arr_reader)
-            rdata = {arr["name"]: arr for arr in arr_stats}
-            return rdata
-    
-    #
-    def loc_tree_data(name):
-        with open('./ab_data/' + name + '/loc_tree.json', "r") as tree:
-            loc_tree = json.load(tree)
-            return loc_tree
 
 class Stats():
     def __init__(self):

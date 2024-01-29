@@ -3,4 +3,4 @@ __pycache__/
 Auto_battler.code-workspace
 simulation_results.csv
 analysis.py
-c_data.py
+t_data.py

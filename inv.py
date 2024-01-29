@@ -6,7 +6,8 @@ from stats import Data, Stats, get_data
 from objects import TalentInfo, TalentName
 from combat import Combat
 
-class Inv(States): #RENAME
+#HERO UPDATE SCREEN
+class Inv(States): 
     def __init__(self):
         States.__init__(self)
         self.next = 'path'

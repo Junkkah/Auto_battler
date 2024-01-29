@@ -92,17 +92,11 @@ class Monster(pg.sprite.Sprite):
         self.animation = False
         self.attacked = False
 
-        #self.data = stats.monsters[type]
-        #self.data = {key: int(value) if value.isdigit() else value for key, value in self.data.items()}
-        #for name, value in self.data.items():
-        #    setattr(self, name, value)
-        
         self.df = monster_data[monster_data['name'] == self.type].reset_index(drop=True)
         # Assign stats name, size_scalar, health, max_health, exp, damage, speed, menace, armor, weapon
         for stat_name in self.df.columns:
             setattr(self, stat_name, int(self.df.at[0, stat_name]) if str(self.df.at[0, stat_name]).isdigit() else self.df.at[0, stat_name])
         
-  
         self.health = min(self.health, self.max_health)
         SCALAR_W = WIDTH / self.size_scalar
         SCALAR_H = HEIGHT / self.size_scalar
@@ -138,15 +132,14 @@ class Adventure(pg.sprite.Sprite):
         self.width = width / scenery_size_scalar
         self.pos_x = States.width * float(pos[0])
         self.pos_y = States.height * float(pos[1])
-        #needs list of possible monsters in locations and boss
-        #list of possible stuff in shops
+        #needs list of monsters in locations and boss
+        #list of stuff in shops
 
         self.image = pg.transform.smoothscale(scenery, (self.width, self.height))
         self.rect = self.image.get_rect(topleft = (self.pos_x, self.pos_y))
         self.desc = desc
         self.name = name
         
-        #shop object
 
 class Location(pg.sprite.Sprite):
     def __init__(self, groups, df):
@@ -164,12 +157,12 @@ class Location(pg.sprite.Sprite):
         self.pos_y = States.height * float(self.y_coord)
         self.pos = (self.pos_x, self.pos_y)
     
-
         self.image = pg.transform.smoothscale(scenery, ((self.width / self.size_scalar), (self.height / self.size_scalar)))
         self.rect = self.image.get_rect(center = (self.pos_x, self.pos_y))
 
         #define tiers for locations and do random content
         #random amount of gold / items depending on tier
+        #shop object information and screen
         self.treasure = []
 
 class Button(States, pg.sprite.Sprite):
@@ -239,45 +232,3 @@ class DamageNumber(pg.sprite.Sprite):
         SCATTER_MIN = 15
         SCATTER_MAX = 110
         self.rect.center = (pos_x + random.randint(SCATTER_MIN, SCATTER_MAX), pos_y + random.randint(SCATTER_MIN, SCATTER_MAX))
-
-#NOT NEEDED
-class Loca(pg.sprite.Sprite):
-    def __init__(self, pos, groups, desc, name, content):
-        super().__init__(groups)
-        scenery = pg.image.load('./ab_images/location/' + name + '.png').convert_alpha()
-        self.height = scenery.get_height()
-        self.width = scenery.get_width()
-        self.pos_x = States.width * float(pos[0])
-        self.pos_y = States.height * float(pos[1])
-        self.left = None
-        self.right = None
-        self.desc = desc
-        self.size_scalar = 10
-        self.image = pg.transform.smoothscale(scenery, ((self.width / self.size_scalar), (self.height / self.size_scalar)))
-        self.rect = self.image.get_rect(center = (self.pos_x, self.pos_y))
-        self.name = name
-        #define tiers for locations and do random content
-        self.content = content.split(" ")
-        #random amount of gold / items depending on tier
-        self.treasure = []
-        #self.terrain
-        #self.modifier
-
-#NOT NEEDED
-class Arrow(pg.sprite.Sprite):
-    def __init__(self, pos, angle: int, groups, destination: object):
-        super().__init__(groups)
-        w_picture = pg.image.load('./ab_images/w_arrow.png').convert_alpha()
-        r_picture = pg.image.load('./ab_images/r_arrow.png').convert_alpha()
-        self.height = w_picture.get_height()
-        self.width = w_picture.get_width()
-        w_arrow = pg.transform.smoothscale(w_picture, ((self.width / 12), (self.height / 12)))
-        r_arrow = pg.transform.smoothscale(r_picture, ((self.width / 12), (self.height / 12)))
-        self.angle = int(angle)
-        self.r_image = pg.transform.rotozoom(r_arrow, self.angle, 1)
-        self.w_image = pg.transform.rotozoom(w_arrow, self.angle, 1)
-        self.image = self.w_image
-        self.pos_x = States.width * float(pos[0])
-        self.pos_y = States.height * float(pos[1])
-        self.rect = self.image.get_rect(center = (self.pos_x, self.pos_y))
-        self.dest = destination
