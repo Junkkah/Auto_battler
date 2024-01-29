@@ -4,6 +4,7 @@ from states import States
 import numpy as np
 import pandas as pd
 import random
+import sys
 
 hero_data = get_data('classes')
 monster_data = get_data('monsters')
@@ -170,6 +171,29 @@ class Location(pg.sprite.Sprite):
         #define tiers for locations and do random content
         #random amount of gold / items depending on tier
         self.treasure = []
+
+class Button(States, pg.sprite.Sprite):
+    def __init__(self, groups, text, font, font_size, color, center):
+        super().__init__() 
+        pg.sprite.Sprite.__init__(self, groups) 
+
+        self.text = text
+        self.font = pg.font.SysFont(font, font_size)
+        self.color = color
+        text_surface = self.font.render(self.text, True, self.color)
+        text_rect = text_surface.get_rect()
+        padding_x = 20 
+        padding_y = 10
+        self.image = pg.Surface((text_rect.width + 2 * padding_x, text_rect.height + 2 * padding_y), pg.SRCALPHA)
+        self.image.fill((0, 0, 0, 0))
+        self.image.blit(text_surface, (padding_x, padding_y))
+        self.rect = self.image.get_rect(center=center)
+        self.border_width = 2
+        self.border_color = (self.black)
+        self.draw_border()
+
+    def draw_border(self):
+        pg.draw.rect(self.image, self.border_color, self.image.get_rect(), self.border_width)
 
 class TalentName():
     def __init__(self, sample, pos_x, pos_y, font, hero):

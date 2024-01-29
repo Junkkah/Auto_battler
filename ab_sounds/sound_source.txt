@@ -1,0 +1,25 @@
+https://mixkit.co/free-sound-effects/
+
+Sword_swing:
+Fast sword whoosh
+mixkit-fast-sword-whoosh-2792
+
+Forest:
+European spring forest ambience
+mixkit-european-spring-forest-ambience-1219
+
+Fire:
+Fire woosh
+mixkit-fire-woosh-1348
+
+Click:
+Gate latch click
+mixkit-gate-latch-click-1924
+
+Thunder:
+Cinematic impact thunder 
+mixkit-cinematic-impact-thunder-1286
+
+Error:
+Negative tone interface tap
+mixkit-negative-tone-interface-tap-2569

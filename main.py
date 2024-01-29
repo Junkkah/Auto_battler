@@ -3,7 +3,7 @@ import sys
 from menu import Menu
 from game import Game
 from map import Map
-from ab_path import Path
+from path_ab import Path
 from combat import Combat
 from states import States
 from inv import Inv
@@ -61,9 +61,10 @@ state_dict = {
     'path': Path(),
     'combat': Combat(),
     'inv': Inv(),
-    'simu': Simulator()
+    'simulator': Simulator()
 }
 app.setup_states(state_dict, 'menu') 
+app.state.startup()
 app.main_game_loop()
 pg.quit()
 sys.exit()

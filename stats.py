@@ -2,7 +2,7 @@ import pygame as pg
 import csv
 from csv import DictReader
 from states import States
-import json
+#import json
 import sqlite3
 import pandas as pd
 
