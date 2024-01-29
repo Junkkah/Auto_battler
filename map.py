@@ -4,20 +4,22 @@ from states import States
 from objects import Adventure
 from stats import Stats, get_data, row_to_dict
 
+#fetch monster list based on adventure and pass to path
 class Map(States):
     def __init__(self):
         States.__init__(self)
+        #
         self.next = 'path'
-        #self.stats = Stats()
         self.map_sprites = pg.sprite.Group()
         self.error = False
     def cleanup(self):
         pass 
     def startup(self):
-
-        map_df = get_data('world_map')
+        #similar method in locations
+        #move to stats?
+        map_data = get_data('world_map')
         self.map_objects = []
-        for index, row in map_df.iterrows():
+        for index, row in map_data.iterrows():
             name = row['name']
             coords = (row['pos_x'], row['pos_y'])
             desc = row['desc']
@@ -56,6 +58,7 @@ class Map(States):
                         self.error = True
     def update(self, screen, dt):
         self.draw(screen)
+
     def draw(self, screen):
         self.screen.blit(self.ground, (0,0))
         self.map_sprites.draw(self.screen)

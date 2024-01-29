@@ -31,11 +31,6 @@ class Hero(pg.sprite.Sprite):
         self.type = type
         self.level = 1
         self.next_level = 2
-        #self.data = stats.heroes[type]
-        ##health,max_health,damage,speed,exp,menace,armor,attack_type
-        #self.data = {key: int(value) if value.isdigit() else value for key, value in self.data.items()}
-        #for name, value in self.data.items():
-        #    setattr(self, name, value)
 
         self.df = hero_data[hero_data['type'] == self.type].reset_index(drop=True)
         # Assign stats type, health, max_health, damage, speed, exp, menace, armor, attack_type
@@ -142,47 +137,39 @@ class Adventure(pg.sprite.Sprite):
         self.width = width / scenery_size_scalar
         self.pos_x = States.width * float(pos[0])
         self.pos_y = States.height * float(pos[1])
+        #needs list of possible monsters in locations and boss
+        #list of possible stuff in shops
+
         self.image = pg.transform.smoothscale(scenery, (self.width, self.height))
         self.rect = self.image.get_rect(topleft = (self.pos_x, self.pos_y))
         self.desc = desc
         self.name = name
         
+        #shop object
+
 class Location(pg.sprite.Sprite):
-    def __init__(self, pos, groups, desc, name, content):
+    def __init__(self, groups, df):
         super().__init__(groups)
-        scenery = pg.image.load('./ab_images/location/' + name + '.png').convert_alpha()
+
+        # Assign id, name, type, y_coord, size_scalar, tier, depth, desc, image_name, parent1, parent2, child1, child2
+        for stat_name in df.index:
+            setattr(self, stat_name, int(df[stat_name]) if str(df[stat_name]).isdigit() else df[stat_name])
+
+        scenery = pg.image.load('./ab_images/location/' + self.image_name + '.png').convert_alpha()
         self.height = scenery.get_height()
         self.width = scenery.get_width()
-        self.pos_x = States.width * float(pos[0])
-        self.pos_y = States.height * float(pos[1])
-        self.left = None
-        self.right = None
-        self.desc = desc
-        self.image = pg.transform.smoothscale(scenery, ((self.width / 5), (self.height / 5)))
-        self.rect = self.image.get_rect(center = (self.pos_x, self.pos_y))
-        self.name = name
-        self.content = content.split(" ")
-        self.treasure = []
-        #self.terrain
-        #self.modifier
 
-class Arrow(pg.sprite.Sprite):
-    def __init__(self, pos, angle: int, groups, destination: object):
-        super().__init__(groups)
-        w_picture = pg.image.load('./ab_images/w_arrow.png').convert_alpha()
-        r_picture = pg.image.load('./ab_images/r_arrow.png').convert_alpha()
-        self.height = w_picture.get_height()
-        self.width = w_picture.get_width()
-        w_arrow = pg.transform.smoothscale(w_picture, ((self.width / 12), (self.height / 12)))
-        r_arrow = pg.transform.smoothscale(r_picture, ((self.width / 12), (self.height / 12)))
-        self.angle = int(angle)
-        self.r_image = pg.transform.rotozoom(r_arrow, self.angle, 1)
-        self.w_image = pg.transform.rotozoom(w_arrow, self.angle, 1)
-        self.image = self.w_image
-        self.pos_x = States.width * float(pos[0])
-        self.pos_y = States.height * float(pos[1])
+        self.pos_x = States.width * (0.07 * self.depth)
+        self.pos_y = States.height * float(self.y_coord)
+        self.pos = (self.pos_x, self.pos_y)
+    
+
+        self.image = pg.transform.smoothscale(scenery, ((self.width / self.size_scalar), (self.height / self.size_scalar)))
         self.rect = self.image.get_rect(center = (self.pos_x, self.pos_y))
-        self.dest = destination
+
+        #define tiers for locations and do random content
+        #random amount of gold / items depending on tier
+        self.treasure = []
 
 class TalentName():
     def __init__(self, sample, pos_x, pos_y, font, hero):
@@ -228,3 +215,45 @@ class DamageNumber(pg.sprite.Sprite):
         SCATTER_MIN = 15
         SCATTER_MAX = 110
         self.rect.center = (pos_x + random.randint(SCATTER_MIN, SCATTER_MAX), pos_y + random.randint(SCATTER_MIN, SCATTER_MAX))
+
+#NOT NEEDED
+class Loca(pg.sprite.Sprite):
+    def __init__(self, pos, groups, desc, name, content):
+        super().__init__(groups)
+        scenery = pg.image.load('./ab_images/location/' + name + '.png').convert_alpha()
+        self.height = scenery.get_height()
+        self.width = scenery.get_width()
+        self.pos_x = States.width * float(pos[0])
+        self.pos_y = States.height * float(pos[1])
+        self.left = None
+        self.right = None
+        self.desc = desc
+        self.size_scalar = 10
+        self.image = pg.transform.smoothscale(scenery, ((self.width / self.size_scalar), (self.height / self.size_scalar)))
+        self.rect = self.image.get_rect(center = (self.pos_x, self.pos_y))
+        self.name = name
+        #define tiers for locations and do random content
+        self.content = content.split(" ")
+        #random amount of gold / items depending on tier
+        self.treasure = []
+        #self.terrain
+        #self.modifier
+
+#NOT NEEDED
+class Arrow(pg.sprite.Sprite):
+    def __init__(self, pos, angle: int, groups, destination: object):
+        super().__init__(groups)
+        w_picture = pg.image.load('./ab_images/w_arrow.png').convert_alpha()
+        r_picture = pg.image.load('./ab_images/r_arrow.png').convert_alpha()
+        self.height = w_picture.get_height()
+        self.width = w_picture.get_width()
+        w_arrow = pg.transform.smoothscale(w_picture, ((self.width / 12), (self.height / 12)))
+        r_arrow = pg.transform.smoothscale(r_picture, ((self.width / 12), (self.height / 12)))
+        self.angle = int(angle)
+        self.r_image = pg.transform.rotozoom(r_arrow, self.angle, 1)
+        self.w_image = pg.transform.rotozoom(w_arrow, self.angle, 1)
+        self.image = self.w_image
+        self.pos_x = States.width * float(pos[0])
+        self.pos_y = States.height * float(pos[1])
+        self.rect = self.image.get_rect(center = (self.pos_x, self.pos_y))
+        self.dest = destination

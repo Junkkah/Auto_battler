@@ -6,26 +6,21 @@ import json
 import sqlite3
 import pandas as pd
 
-#db = sqlite3.connect('./ma_data/stats.db')
-##db.isolation_level = None
-#cursor = db.cursor()
-
-
 # Query and return data
 def get_data(table: str) -> pd.DataFrame:
-        db = sqlite3.connect('./ab_data/stats.db')
-        db.isolation_level = None
-        # "SELECT * FROM Monsters WHERE name IN ('goblin', 'orc')"
-        query = "SELECT * FROM " + table
-        df = pd.read_sql_query(query, db)
-        db.close()
-        return df
+    db = sqlite3.connect('./ab_data/stats.db')
+    db.isolation_level = None
+    # "SELECT * FROM Monsters WHERE name IN ('goblin', 'orc')"
+    query = "SELECT * FROM " + table
+    df = pd.read_sql_query(query, db)
+    db.close()
+    return df
 
 def row_to_dict(dataframe, name) -> dict:
     name_index_df = dataframe.set_index('name')
     row_dict = name_index_df.loc[name].to_dict()
-
     return row_dict
+
 
 class Data:
     def __init__(self):
@@ -75,6 +70,7 @@ class Data:
             adata = {map["name"]: map for map in map_stats}
             return adata
     
+    #
     def location_data(name):
         with open('./ab_data/' + name + '/location.csv', "r") as loc:
             loc_reader = DictReader(loc)
@@ -82,6 +78,7 @@ class Data:
             ldata = {loc["desc"]: loc for loc in loc_stats}
             return ldata
      
+    # 
     def arrow_data(name):
         with open('./ab_data/' + name + '/arrow.csv', "r") as arr:
             arr_reader = DictReader(arr)
@@ -89,6 +86,7 @@ class Data:
             rdata = {arr["name"]: arr for arr in arr_stats}
             return rdata
     
+    #
     def loc_tree_data(name):
         with open('./ab_data/' + name + '/loc_tree.json', "r") as tree:
             loc_tree = json.load(tree)
@@ -99,12 +97,7 @@ class Stats():
         self.level_cost = {1: "2", 2: "15", 3: "30", 4: "50", 5: "75"} #current level and exp needed for next
         self.abilities = {"bard": {}, "cleric": {}, "barbarian": {}, "ranger": {}, "thief": {}, "paladin": {}, "warrior": {}, "wizard": {}}
         self.level_health = {"bard": 2, "cleric": 4, "barbarian": 5, "ranger": 4, "thief": 3, "paladin": 4, "warrior": 5, "wizard": 2}
-        #self.monsters = Data.monster_data()
-        #self.heroes = Data.hero_data()
-        #self.names = Data.name_data()
-        #self.map = Data.map_data()
-        #self.spells = Data.spell_data()
-        #self.talents = Data.talent_data(type)
+
         self.spells = get_data('spells')
         
     #move to hero methods 

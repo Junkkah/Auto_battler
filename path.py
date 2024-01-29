@@ -4,7 +4,7 @@ from states import States
 from objects import Location, Arrow
 from stats import Data
 
-class Path(States):
+class PathA(States):
     def __init__(self):
         States.__init__(self)
         self.next = 'combat'

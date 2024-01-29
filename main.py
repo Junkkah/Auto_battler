@@ -3,7 +3,7 @@ import sys
 from menu import Menu
 from game import Game
 from map import Map
-from path import Path
+from ab_path import Path
 from combat import Combat
 from states import States
 from inv import Inv

@@ -3,7 +3,7 @@ import sys
 from states import States
 from objects import Hero, Monster, DamageNumber
 from animation import Stab, Slash, Blast, Smash
-from path import Path
+from ab_path import Path
 #from stats import Stats
 
 class Combat(States):
