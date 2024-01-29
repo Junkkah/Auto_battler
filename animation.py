@@ -22,7 +22,7 @@ class Stab(pg.sprite.Sprite): #Groupsingle
 		pos_y += POS_Y_ADJUST
 		self.pos_y = pos_y
 		self.pos_x = pos_x
-		self.stab_speed = 3 #too many speed values, redundancy somehwre
+		self.stab_speed = 3 
 
 		for i in range(0, 10):
 			self.weapon_sprites.append(pg.transform.smoothscale(weapon_image, (SCALED_WIDTH, SCALED_HEIGHT)))

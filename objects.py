@@ -9,18 +9,20 @@ import sys
 hero_data = get_data('classes')
 monster_data = get_data('monsters')
 
-class Hero(pg.sprite.Sprite):
-    def __init__(self, pos, groups, name: str, type: str):
-        super().__init__(groups)
+
+class Hero(States, pg.sprite.Sprite):
+    def __init__(self, groups, pos, name: str, type: str):
+        super().__init__()
+        pg.sprite.Sprite.__init__(self, groups) 
+
         self.pos = pos
         self.pos_x = pos[0]
         self.pos_y = pos[1]
         face = pg.image.load('./ab_images/hero/' + name + '.png').convert_alpha()
         width = face.get_width()
         height = face.get_height() 
-        pixel_height = 150
-        stats = Stats()            
-        self.image = pg.transform.smoothscale(face, ((width / (height / 150)), (States.height / 7.2)))
+        desired_height = self.screen_height / 7.2 #150
+        self.image = pg.transform.smoothscale(face, ((width / (height / desired_height)), desired_height))
         self.rect = self.image.get_rect(topleft = (self.pos_x, self.pos_y))
         self.width = self.image.get_width()
         self.height = self.image.get_height()
@@ -40,7 +42,6 @@ class Hero(pg.sprite.Sprite):
         
         self.spells = []
         self.talents = []
-        self.damage_numbers = pg.sprite.Group()
         #done before creating animation object
         #set acting, run eval, create animation object
         #def eval_attack_type(self): uncertainty
@@ -58,8 +59,6 @@ class Hero(pg.sprite.Sprite):
         self.animation = False
         DAMAGE = self.damage - target.armor
         target.health -= DAMAGE
-        DAMAGE_NUMBER_OBJ = DamageNumber(DAMAGE, target.pos_x, target.pos_y)
-        target.damage_numbers.add(DAMAGE_NUMBER_OBJ)
 
     def spell_attack(self, spell):
         self.animation = False
@@ -67,24 +66,36 @@ class Hero(pg.sprite.Sprite):
         if spell["area"] == 1:
             for target_mob in States.room_monsters:
                 target_mob.health -= DAMAGE
-                DAMAGE_NUMBER_OBJ = DamageNumber(DAMAGE, target_mob.pos_x, target_mob.pos_y)
-                target_mob.damage_numbers.add(DAMAGE_NUMBER_OBJ)
         else:
             target = self.get_target()
             target.health -= DAMAGE
-            DAMAGE_NUMBER_OBJ = DamageNumber(DAMAGE, target.pos_x, target.pos_y)
-            target.damage_numbers.add(DAMAGE_NUMBER_OBJ)
         #elif spell["area"] == 0 single target attack
         #elif spell["area"] == 2 heal spell
         #elif buff elif debuff
+    
+    def draw_health_bar(self, width=100, height=10):
+        health_ratio = self.health / self.max_health
+        bar_width = int(width * health_ratio)
+        pg.draw.rect(self.screen, self.red, [self.pos_x, (self.pos_y + self.height + 10), bar_width, height])
 
-class Monster(pg.sprite.Sprite):
-    def __init__(self, pos, groups, type: str):
-        super().__init__(groups)
+    def draw_health_bar(self, width=100, height=10, border_width_factor=0.01):
+
+        health_ratio = self.health / self.max_health
+        bar_width = int(width * health_ratio)
+        border_width = int(width * border_width_factor)
+
+        pg.draw.rect(self.screen, self.black, [self.pos_x - border_width, self.pos_y + self.height + 10 - border_width, width + 2 * border_width, height + 2 * border_width])
+        pg.draw.rect(self.screen, self.red, [self.pos_x, self.pos_y +self.height + 10, bar_width, height])
+
+
+class Monster(States, pg.sprite.Sprite):
+    def __init__(self, groups, pos, type: str):
+        super().__init__()
+        pg.sprite.Sprite.__init__(self, groups) 
+
         mob = pg.image.load('./ab_images/monster/' + type + '.png').convert_alpha()
         HEIGHT = mob.get_height()
         WIDTH = mob.get_width()
-        stats = Stats()
         self.pos_x = pos[0]
         self.pos_y = pos[1]
         self.type = type
@@ -105,7 +116,6 @@ class Monster(pg.sprite.Sprite):
         self.height = self.image.get_height()
         self.rect = self.image.get_rect(topleft = (self.pos_x, self.pos_y))
         #self.abilities = ["regenerating": True/False]
-        self.damage_numbers = pg.sprite.Group()
     
     def get_target(self):
         total_menace = sum(hero.menace for hero in States.party_heroes)
@@ -118,8 +128,15 @@ class Monster(pg.sprite.Sprite):
         self.animation = False
         DAMAGE = self.damage - target.armor
         target.health -= DAMAGE
-        DAMAGE_NUMBER_OBJ = DamageNumber(DAMAGE, target.pos_x, target.pos_y)
-        target.damage_numbers.add(DAMAGE_NUMBER_OBJ)
+    
+    def draw_health_bar(self, width=100, height=10, border_width_factor=0.01):
+
+        health_ratio = self.health / self.max_health
+        bar_width = int(width * health_ratio)
+        border_width = int(width * border_width_factor)
+
+        pg.draw.rect(self.screen, self.black, [self.pos_x - border_width, self.pos_y - 10 - border_width, width + 2 * border_width, height + 2 * border_width])
+        pg.draw.rect(self.screen, self.red, [self.pos_x, self.pos_y - 10, bar_width, height])
 
 class Adventure(pg.sprite.Sprite):
     def __init__(self, pos, groups, desc: str, name: str):
@@ -222,13 +239,3 @@ class MagicItem():
         self.desc_text = desc
         self.effect = effect
         self.type = type
-
-class DamageNumber(pg.sprite.Sprite):
-    def __init__(self, damage, pos_x, pos_y):
-        super().__init__()
-        self.damage = damage
-        self.image = pg.font.SysFont("Arial", 30).render(str(damage), True, (255, 0, 0))
-        self.rect = self.image.get_rect()
-        SCATTER_MIN = 15
-        SCATTER_MAX = 110
-        self.rect.center = (pos_x + random.randint(SCATTER_MIN, SCATTER_MAX), pos_y + random.randint(SCATTER_MIN, SCATTER_MAX))

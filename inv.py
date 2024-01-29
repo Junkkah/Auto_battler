@@ -37,7 +37,7 @@ class Inv(States):
         continue_font = pg.font.SysFont("Arial", self.big_font_size)
         self.continue_text = continue_font.render("CONTINUE", True, self.grey)
         self.ready_text = continue_font.render("CONTINUE", True, self.black)
-        COORDS_CONTINUE = (self.width * 0.75, self.height * 0.88)
+        COORDS_CONTINUE = (self.screen_width * 0.75, self.screen_height * 0.88)
         self.continue_rect = self.continue_text.get_rect(center=COORDS_CONTINUE)
 
         combat_instance = Combat()
@@ -50,12 +50,12 @@ class Inv(States):
         self.numer_of_heroes = len(States.party_heroes)
         samples = [random.sample(t.items(), 2) for t in self.talent_lists]
     
-        SAMPLE1_POS_X = (self.width * 0.3)
-        SAMPLE2_POS_X = (self.width * 0.5)
-        SAMPLE3_POS_X = (self.width * 0.7)
-        SAMPLES_POS_X = (self.width * 0.3), (self.width * 0.5), (self.width * 0.7)
-        NAME_POS_Y1Y2 = (self.height * 0.15), (self.height * 0.30)
-        INFO_POS_Y1Y2 = (self.height * 0.20), (self.height * 0.35)
+        SAMPLE1_POS_X = (self.screen_width * 0.3)
+        SAMPLE2_POS_X = (self.screen_width * 0.5)
+        SAMPLE3_POS_X = (self.screen_width * 0.7)
+        SAMPLES_POS_X = (self.screen_width * 0.3), (self.screen_width * 0.5), (self.screen_width * 0.7)
+        NAME_POS_Y1Y2 = (self.screen_height * 0.15), (self.screen_height * 0.30)
+        INFO_POS_Y1Y2 = (self.screen_height * 0.20), (self.screen_height * 0.35)
 
         for i in range(self.numer_of_heroes):
             sample = samples[i]

@@ -1,7 +1,7 @@
 import pygame as pg
 import sys
 from states import States
-from objects import Hero, Monster, DamageNumber
+from objects import Hero, Monster
 from animation import Stab, Slash, Blast, Smash
 #from path_ab import Path
 #from stats import Stats
@@ -16,6 +16,7 @@ class Combat(States):
         self.animation_sprites = pg.sprite.Group()
         self.exp_reward = 0
         self.temp_stats = [] #buffs etc
+        #adjust in settings
         self.animation_speed = 0.3
  
     def cleanup(self):
@@ -27,17 +28,15 @@ class Combat(States):
         States.room_monsters = []
         for cleanup_hero in States.party_heroes:
             cleanup_hero.exp += self.exp_reward 
-            cleanup_hero.damage_numbers.empty()
-            #empty or keep numbers to show wounded status
         self.exp_reward = 0
         #Victory screen
         #loot here
         #pg.time.wait(2000)
 
     def position_heroes(self, heroes: list):
-        HEROPOS_X = (self.width * 0.3)
-        HEROPOS_Y = (self.height * 0.6)
-        HERO_GAP = (self.width * 0.2)
+        HEROPOS_X = (self.screen_width * 0.3)
+        HEROPOS_Y = (self.screen_height * 0.6)
+        HERO_GAP = (self.screen_width * 0.2)
         for phero in States.party_heroes:
            phero.rect = phero.image.get_rect(topleft = (HEROPOS_X, HEROPOS_Y)) 
            phero.pos_x = HEROPOS_X
@@ -48,22 +47,22 @@ class Combat(States):
         MONSTER_COUNT = len(States.room_monsters)
         MONSTER_NAMES = []
         MONSTER_NAMES.extend(States.room_monsters)
-        MONSTERPOS_Y = self.height * 0.2
-        ONE_MONSTER_COORDS = (self.width * 0.5, MONSTERPOS_Y)
-        TWO_MONSTERS_COORDS = ((self.width * 0.33, MONSTERPOS_Y), (self.width * 0.66, MONSTERPOS_Y))
-        THREE_MONSTERS_COORDS = ((self.width * 0.25, MONSTERPOS_Y), (self.width * 0.50, MONSTERPOS_Y), (self.width * 0.75, MONSTERPOS_Y))
+        MONSTERPOS_Y = self.screen_height * 0.2
+        ONE_MONSTER_COORDS = (self.screen_width * 0.5, MONSTERPOS_Y)
+        TWO_MONSTERS_COORDS = ((self.screen_width * 0.33, MONSTERPOS_Y), (self.screen_width * 0.66, MONSTERPOS_Y))
+        THREE_MONSTERS_COORDS = ((self.screen_width * 0.25, MONSTERPOS_Y), (self.screen_width * 0.50, MONSTERPOS_Y), (self.screen_width * 0.75, MONSTERPOS_Y))
 
         if MONSTER_COUNT == 1:
-            self.monster1 = Monster(ONE_MONSTER_COORDS, self.monster_sprites, MONSTER_NAMES[0]) 
+            self.monster1 = Monster(self.monster_sprites, ONE_MONSTER_COORDS, MONSTER_NAMES[0]) 
             States.room_monsters = [self.monster1]
         elif MONSTER_COUNT == 2:
-            self.monster1 = Monster(TWO_MONSTERS_COORDS[0], self.monster_sprites, MONSTER_NAMES[0]) 
-            self.monster2 = Monster(TWO_MONSTERS_COORDS[1], self.monster_sprites, MONSTER_NAMES[1])
+            self.monster1 = Monster(self.monster_sprites, TWO_MONSTERS_COORDS[0], MONSTER_NAMES[0]) 
+            self.monster2 = Monster(self.monster_sprites, TWO_MONSTERS_COORDS[1], MONSTER_NAMES[1])
             States.room_monsters = [self.monster1, self.monster2]
         elif MONSTER_COUNT == 3:
-            self.monster1 = Monster(THREE_MONSTERS_COORDS[0], self.monster_sprites, MONSTER_NAMES[0]) 
-            self.monster2 = Monster(THREE_MONSTERS_COORDS[1], self.monster_sprites, MONSTER_NAMES[1])
-            self.monster3 = Monster(THREE_MONSTERS_COORDS[2], self.monster_sprites, MONSTER_NAMES[2])
+            self.monster1 = Monster(self.monster_sprites, THREE_MONSTERS_COORDS[0], MONSTER_NAMES[0]) 
+            self.monster2 = Monster(self.monster_sprites, THREE_MONSTERS_COORDS[1], MONSTER_NAMES[1])
+            self.monster3 = Monster(self.monster_sprites, THREE_MONSTERS_COORDS[2], MONSTER_NAMES[2])
             States.room_monsters = [self.monster1, self.monster2, self.monster3]
 
     #tie breaker, first in hero/mob list > lower, hero > mob, class prios
@@ -90,14 +89,15 @@ class Combat(States):
         MONSTERS_NAMES = [monster.type.capitalize() for monster in States.room_monsters]
         MONSTERS_TEXT = "Enemies: " + ", ".join(MONSTERS_NAMES)
         self.MONSTERS_TEXT = self.info_font.render(MONSTERS_TEXT, True, self.black)
-        COORDS_MONSTERS_TEXT = (self.width * 0.50, self.height * 0.45)
+        COORDS_MONSTERS_TEXT = (self.screen_width * 0.50, self.screen_height * 0.45)
         self.MONSTERS_RECT = self.MONSTERS_TEXT.get_rect(topleft=COORDS_MONSTERS_TEXT)
 
         self.combat_hero_sprites.draw(self.screen)
         self.combat_mob_sprites.draw(self.screen)
         self.screen.blit(self.MONSTERS_TEXT, self.MONSTERS_RECT)
         pg.display.update()
-        pg.time.delay(DELAY_AT_START)
+        #Use pg.time.wait(DELAY_AT_START)
+        #pg.time.delay(DELAY_AT_START)
         
         self.actions_ordered = self.order_sort(self.actions_unordered)
 
@@ -109,6 +109,9 @@ class Combat(States):
             pass
 
     def update(self, screen, dt):
+
+        #self.paused = True until press start button
+
         States.acting = self.actions_ordered[0]
         if States.acting.animation == False: #animation hasn't started yet
             if States.acting.player == True: #Attacker is hero
@@ -120,7 +123,7 @@ class Combat(States):
                     self.combat_animation = Blast(States.acting.pos_x, States.acting.pos_y, States.acting.spells[0])
             elif States.acting.player == False:
                 self.combat_animation = Smash((States.acting.pos_x + States.acting.width), (States.acting.pos_y + States.acting.height))
-                #self.combat_animation = Slash((States.acting.pos_x + self.width * 0.1), (States.acting.pos_y + self.height * 0.1))
+                #self.combat_animation = Slash((States.acting.pos_x + self.screen_width * 0.1), (States.acting.pos_y + self.screen_height * 0.1))
             else:
                 pass
             self.animation_sprites.add(self.combat_animation)
@@ -135,16 +138,17 @@ class Combat(States):
         self.combat_hero_sprites.draw(self.screen)
         self.combat_mob_sprites.draw(self.screen)
 
-        for wounded_mob in States.room_monsters:
-            wounded_mob.damage_numbers.draw(self.screen)
+        for live_monster in States.room_monsters:
+            live_monster.draw_health_bar()
 
-        for wounded_hero in States.party_heroes:
-            wounded_hero.damage_numbers.draw(self.screen)
-        
+        for live_hero in States.party_heroes:
+            live_hero.draw_health_bar()
+
         if States.acting.animation == True: 
             self.animation_sprites.draw(screen)
 
-        if self.combat_animation.animate(self.animation_speed) == True: #Advance animation
+        #move to update
+        if self.combat_animation.animate(self.animation_speed) == True:
             #States.acting.melee_attack(States.room_monsters[0]) way to be correct attack type?
             self.animation_sprites.remove(self.combat_animation)
             self.actions_ordered.append(self.actions_ordered.pop(0))

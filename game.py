@@ -10,8 +10,12 @@ class Game(States):
     def __init__(self):
         States.__init__(self)
         self.next = 'map'
+
     def cleanup(self):
         self.names = []
+        self.selection = []
+        self.selection_sprites.empty()
+
     def startup(self):
         self.screen.fill(self.white)
         self.screen.blit(self.ground, (0,0))
@@ -21,8 +25,8 @@ class Game(States):
         
         bubble = pg.image.load('./ab_images/menu_bubble.png').convert_alpha()
         hood = pg.image.load('./ab_images/hood.png').convert_alpha()
-        COORDS_BUBBLE  = (self.width * 0.12, self.height * 0.85)
-        COORDS_HOOD = (self.width * 0.05, self.height * 0.80)
+        COORDS_BUBBLE  = (self.screen_width * 0.12, self.screen_height * 0.85)
+        COORDS_HOOD = (self.screen_width * 0.05, self.screen_height * 0.80)
         SCALAR_BUBBLE = ((bubble.get_width() / 8), (bubble.get_height() / 8))
         SCALAR_HOOD = ((hood.get_width() / 8), (hood.get_height() / 8))
         
@@ -35,18 +39,18 @@ class Game(States):
         self.names = [tuple(row) for row in names_df[['name', 'type']].values]
         self.available = random.sample(self.names, SELECTABLE_HEROES)
 
-        HEROPOS_X = (self.width * 0.20)
-        HEROPOS_Y_ROW1 = (self.height * 0.20)
-        HEROPOS_Y_ROW2 = (self.height * 0.50)
-        HERO_GAP = (self.width * 0.15)
-        HERO_ROW_LENGTH = (self.width * 0.60)
+        HEROPOS_X = (self.screen_width * 0.20)
+        HEROPOS_Y_ROW1 = (self.screen_height * 0.20)
+        HEROPOS_Y_ROW2 = (self.screen_height * 0.50)
+        HERO_GAP = (self.screen_width * 0.15)
+        HERO_ROW_LENGTH = (self.screen_width * 0.60)
         NEXT_ROW = 3
 
         for spot_hero in range(SELECTABLE_HEROES):
             HEROPOS_Y = HEROPOS_Y_ROW1
             if spot_hero > NEXT_ROW: 
                 HEROPOS_Y = HEROPOS_Y_ROW2
-            self.spot_hero = Hero((HEROPOS_X, HEROPOS_Y), self.hero_sprites, self.available[spot_hero][0], self.available[spot_hero][1])
+            self.spot_hero = Hero(self.hero_sprites, (HEROPOS_X, HEROPOS_Y), self.available[spot_hero][0], self.available[spot_hero][1])
             self.selection.append(self.spot_hero)
             self.selection_sprites.add(self.spot_hero)
             if spot_hero == NEXT_ROW:
@@ -56,7 +60,7 @@ class Game(States):
         CONTINUE_FONT = pg.font.SysFont("Arial", self.big_font_size)
         self.continue_text = CONTINUE_FONT.render("CONTINUE", True, self.grey)
         self.ready_text = CONTINUE_FONT.render("CONTINUE", True, self.black)
-        COORDS_CONTINUE = (self.width * 0.75, self.height * 0.88)
+        COORDS_CONTINUE = (self.screen_width * 0.75, self.screen_height * 0.88)
         self.continue_rect = self.continue_text.get_rect(center=COORDS_CONTINUE)
         
     def get_event(self, event):
@@ -94,7 +98,7 @@ class Game(States):
         
         for shero in self.selection:
             if shero.rect.collidepoint(pg.mouse.get_pos()):
-                COORDS_INFO = ((shero.pos_x), (shero.pos_y + (self.height / 7.1)))
+                COORDS_INFO = ((shero.pos_x), (shero.pos_y + (self.screen_height / 7.1)))
                 info = shero.name.capitalize() + ", " + shero.type.capitalize()
                 info_text = self.info_font.render(info, True, self.black)
                 info_text_rect = info_text.get_rect(topleft=COORDS_INFO)

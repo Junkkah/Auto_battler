@@ -9,11 +9,11 @@ class Map(States):
     def __init__(self):
         States.__init__(self)
         self.next = 'path'
-        self.map_sprites = pg.sprite.Group()
         self.error = False
 
     def cleanup(self):
         self.map_objects = []
+        self.map_sprites.empty()
 
     def startup(self):
         #similar method in locations
@@ -29,8 +29,8 @@ class Map(States):
 
         bubble = pg.image.load('./ab_images/map_bubble.png').convert_alpha()
         hood = pg.image.load('./ab_images/hood.png').convert_alpha()
-        COORDS_BUBBLE  = (self.width * 0.12, self.height * 0.85)
-        COORDS_HOOD = (self.width * 0.05, self.height * 0.80)
+        COORDS_BUBBLE  = (self.screen_width * 0.12, self.screen_height * 0.85)
+        COORDS_HOOD = (self.screen_width * 0.05, self.screen_height * 0.80)
         SCALAR_BUBBLE = ((bubble.get_width() / 7), (bubble.get_height() / 7))
         SCALAR_HOOD = ((hood.get_width() / 8), (hood.get_height() / 8))
 

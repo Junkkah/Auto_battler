@@ -16,8 +16,8 @@ class Menu(States):
     def startup(self):
         self.menu_buttons = []
 
-        MENU_BUTTON_XPOS = self.width * 0.50
-        MENU_BUTTON_YPOS = self.height * 0.16
+        MENU_BUTTON_XPOS = self.screen_width * 0.50
+        MENU_BUTTON_YPOS = self.screen_height * 0.16
         MENU_FONT = self.default_font_name
 
         COORDS_TITLE = (MENU_BUTTON_XPOS, MENU_BUTTON_YPOS)

@@ -14,9 +14,9 @@ class States(object):
         self.quit = False
         self.previous = None
 
-        self.width = 1920
-        self.height = 1080
-        self.screen = pg.display.set_mode((self.width, self.height))
+        self.screen_width = 1920
+        self.screen_height = 1080
+        self.screen = pg.display.set_mode((self.screen_width, self.screen_height))
 
         self.hero_sprites = pg.sprite.Group()
         self.monster_sprites = pg.sprite.Group()
@@ -24,6 +24,7 @@ class States(object):
         self.map_sprites = pg.sprite.Group()
         self.path_sprites = pg.sprite.Group()
         self.menu_button_sprites = pg.sprite.Group()
+        
         self.ground = pg.image.load('./ab_images/game_bg.png').convert()
         self.red = (255, 0, 0)
         self.black = (0, 0, 0)
