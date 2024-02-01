@@ -1,9 +1,6 @@
-name,desc,effect,type
-Iron Skin,Take less damage,armor 1,stat
-Intimidating Presence,Get attacked more often,menace 2,stat
-Primal Brutality,Deal more damage,damage 2,stat
-Naturally Hardy,Gain more health,health+ per level,special
-Rage,Dangerous when damaged,[rage]if self.health <= self.max_health speed damage menace,special
-Savage,Deal more damage,damage 2,stat
-Violent Nature,Get attacked more often,menace 2,stat
-
+name,desc,effect,type
+Iron Skin,Take less damage,armor 1,stat
+Intimidating Presence,Get attacked more often,menace 2,stat
+Primal Brutality,Deal more damage,damage 2,stat
+Naturally Hardy,Gain more health,health+ per level,special
+Rage,Dangerous when damaged,[rage]if self.health <= self.max_health speed damage menace,specialSavage,Deal more damage,damage 2,statViolent Nature,Get attacked more often,menace 2,stat

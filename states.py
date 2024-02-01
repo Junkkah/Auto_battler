@@ -1,5 +1,6 @@
 import pygame as pg
 
+#class (Game)Configuration
 class States(object):
     party_heroes = []
     room_monsters = []
@@ -24,6 +25,7 @@ class States(object):
         self.map_sprites = pg.sprite.Group()
         self.path_sprites = pg.sprite.Group()
         self.menu_button_sprites = pg.sprite.Group()
+
         
         self.ground = pg.image.load('./ab_images/game_bg.png').convert()
         self.red = (255, 0, 0)
@@ -32,9 +34,13 @@ class States(object):
         self.blue = (0, 0, 255)
         self.grey = (127, 127, 127)
 
+
+        self.default_font = "Arial"
+        self.default_font_size = 20
+        self.medium_font_size = 30
+
         self.info_font_size = 20
         INFO_FONT_NAME = "Arial"
-        self.default_font_name = "Arial"
         self.info_font = pg.font.SysFont(INFO_FONT_NAME, self.info_font_size)
 
         self.big_font_size = 50

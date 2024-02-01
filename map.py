@@ -2,7 +2,7 @@ import pygame as pg
 import sys
 from states import States
 from objects import Adventure
-from stats import Stats, get_data, row_to_dict
+from data_ab import get_data, row_to_dict
 
 #fetch monster list based on adventure and pass to path
 class Map(States):

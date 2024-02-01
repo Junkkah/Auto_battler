@@ -1,5 +1,5 @@
 import pygame as pg
-from stats import Data, Stats, get_data
+from data_ab import get_data
 from states import States
 import numpy as np
 import pandas as pd
@@ -9,7 +9,7 @@ import sys
 hero_data = get_data('classes')
 monster_data = get_data('monsters')
 
-
+#
 class Hero(States, pg.sprite.Sprite):
     def __init__(self, groups, pos, name: str, type: str):
         super().__init__()
@@ -205,33 +205,50 @@ class Button(States, pg.sprite.Sprite):
     def draw_border(self):
         pg.draw.rect(self.image, self.border_color, self.image.get_rect(), self.border_width)
 
-class TalentName():
-    def __init__(self, sample, pos_x, pos_y, font, hero):
-        self.font = font
-        self.a_name = sample[0][1]['name']
-        self.a_text = self.font.render(self.a_name + ":", True, (0,0,0))
-        self.b_name = sample[1][1]['name']
-        self.b_text = self.font.render(self.b_name + ":", True, (0,0,0))
-        self.a_rect = self.a_text.get_rect(topleft=(pos_x, pos_y[0]))
-        self.b_rect = self.b_text.get_rect(topleft=(pos_x, pos_y[1]))
-        self.a_selected = False
-        self.b_selected = False
-        self.hero = hero
-        self.pos = pos_x
-        self.a_type = sample[0][1]['type']
-        self.b_type = sample[1][1]['type']
 
-class TalentInfo():
-    def __init__(self, sample, pos_x, pos_y, font):
-        self.font = font  
-        self.a_info = sample[0][1]['desc']
-        self.a_text = self.font.render(self.a_info, True, (0,0,0))
-        self.b_info = sample[1][1]['desc']
-        self.b_text = self.font.render(self.b_info, True, (0,0,0))
-        self.a_rect = self.a_text.get_rect(topleft=(pos_x, pos_y[0]))
-        self.b_rect = self.b_text.get_rect(topleft=(pos_x, pos_y[1]))
-        self.a_selected = False
-        self.b_selected = False
+class TalentCard(States, pg.sprite.Sprite):
+    def __init__(self, groups, df, pos_x, pos_y, hero, font):
+        super().__init__() 
+        pg.sprite.Sprite.__init__(self, groups) 
+
+        self.name = df.at[0, 'name']
+        self.type = df.at[0, 'type']
+        self.desc = df.at[0, 'desc']
+
+        self.selected = False
+        self.font = font
+        self.hero = hero
+        self.pos_x = pos_x
+        self.pos_y = pos_y
+        self.pos = (self.pos_x, self.pos_y)
+
+        self.image = self.render_texts()
+        self.rect = self.image.get_rect(topleft=self.pos) #position
+        self.height = self.image.get_height()
+        #inflate rect
+        #draw border
+        self.border_width = 2
+        self.border_color = (self.black)
+        self.draw_border()
+
+    def draw_border(self):
+        pg.draw.rect(self.image, self.border_color, self.image.get_rect(), self.border_width)
+
+    def render_texts(self):
+        name_surface = self.font.render(self.name + ":", True, self.black)
+        desc_surface = self.font.render(self.desc, True, self.black)
+        #add padding to width and heights
+        padding_x = 10 
+        padding_y = 5
+        combined_width = max(name_surface.get_width(), desc_surface.get_width()) + padding_x
+        combined_height = name_surface.get_height() + desc_surface.get_height() + padding_y
+        combined_surface = pg.Surface((combined_width, combined_height), pg.SRCALPHA)
+        #combined_surface.fill(self.white)
+        combined_surface.blit(name_surface, (5, 0))
+        combined_surface.blit(desc_surface, (5, name_surface.get_height()))
+
+        return combined_surface
+
 
 class MagicItem(): 
     def __init__(self, name: str, desc: str, effect: str, type: str):

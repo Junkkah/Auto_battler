@@ -1,10 +1,9 @@
 import pygame as pg
-import sys
 from states import States
-from objects import Hero, Monster
+from hero_ab import Hero
+from objects import Monster
 from animation import Stab, Slash, Blast, Smash
-#from path_ab import Path
-#from stats import Stats
+
 
 class Combat(States):
     def __init__(self):
@@ -33,7 +32,13 @@ class Combat(States):
         #loot here
         #pg.time.wait(2000)
 
+    #gets called from inv
+    #create helper functio in helpers.py
+    #or hero method, get len(States.party_heroes), check find self.name position in States.party
+    #for i in range len(S.party): S.party[i].get_into_position(i + 1) pos1,2,3,4
     def position_heroes(self, heroes: list):
+
+        #adjust for variable hero count
         HEROPOS_X = (self.screen_width * 0.3)
         HEROPOS_Y = (self.screen_height * 0.6)
         HERO_GAP = (self.screen_width * 0.2)
@@ -44,6 +49,8 @@ class Combat(States):
            HEROPOS_X += HERO_GAP
     
     def create_monsters(self):
+
+        #define monster spots as function of n
         MONSTER_COUNT = len(States.room_monsters)
         MONSTER_NAMES = []
         MONSTER_NAMES.extend(States.room_monsters)
@@ -160,7 +167,7 @@ class Combat(States):
                         self.actions_ordered.remove(fighting_monster)
                         self.exp_reward += fighting_monster.exp
                         if self.exp_reward + States.party_heroes[0].exp >= States.party_heroes[0].next_level:
-                            self.next = 'inv' #problem if level up from last node?
+                            self.next = 'levelup' #problem if level up from last node?
                         else:
                             self.next = 'path'
                         States.room_monsters.remove(fighting_monster)

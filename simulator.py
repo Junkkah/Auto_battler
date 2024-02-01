@@ -3,8 +3,9 @@ import sys
 import csv
 import random
 from states import States
-from objects import Hero, TalentName
-from stats import Data, Stats, get_data
+from hero_ab import Hero
+from objects import TalentCard
+from data_ab import get_data
 from combat import Combat
 
 class Simulator(States):
@@ -53,9 +54,9 @@ class Simulator(States):
             self.simulation_sprites.add(self.simulated_hero)
         
         States.current_adventure = "dark_forest"
-        #get_data(States.current_adventure)
-        simulation_locations = Data.location_data(States.current_adventure)
-        
+        simulation_locations = get_data(States.current_adventure)
+
+        #old paths
         path1 = ['tree1', 'tree2', 'bush2', 'cave']
         path2 = ['tree1', 'bush2', 'bush3', 'cave']
         path3 = ['bush1', 'tree3', 'bush4', 'cave']
@@ -82,7 +83,7 @@ class Simulator(States):
             monsters = simulation_locations[location]['content'].split(" ")
             simulated_monsters.append(monsters)
 
-        for monster_list in simulated_monsters: #Fight monsters in four locations
+        for monster_list in simulated_monsters:
             States.room_monsters = monster_list
             
             Combat().create_monsters() #monster objects
@@ -125,10 +126,15 @@ class Simulator(States):
                     Stats().levelup(leveling_hero)
 
                 #talent_data = get_data('talents')
-                #self.talent_lists = get_data('talents')
-                self.talent_lists = [Data.talent_data(thero.type) for thero in States.party_heroes]
+                self.talent_lists = get_data('talents')
+                #self.talent_lists = [Data.talent_data(thero.type) for thero in States.party_heroes]
                 self.numer_of_heroes = len(States.party_heroes)
-                samples = [random.sample(t.items(), 2) for t in self.talent_lists]
+                #samples = [random.sample(t.items(), 2) for t in self.talent_lists]
+                samples = []
+                for talent_df in self.talent_dfs:
+                    random_rows = talent_df.sample(n=2)
+                    new_df = pd.DataFrame(random_rows)
+                    samples.append(new_df)
                 talents = []
 
                 for i in range(self.numer_of_heroes):
@@ -143,7 +149,7 @@ class Simulator(States):
                 for s_talent in talents: #always adds a talents - randomize between a and b
                     Stats().add_talent(s_talent.hero, s_talent.a_name, s_talent.a_type)
 
-        #write results into dataframe and store as sql table?
+        #write results into dataframe
         simulation_results.append(self.exp_reward)
         if States.party_heroes:
             simulation_results.append(

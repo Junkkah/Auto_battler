@@ -1,6 +1,7 @@
 import pygame as pg, sys
 from states import States
-from objects import Hero, Monster
+from hero_ab import Hero
+from objects import Monster
 import numpy as np
 
 #Stab, Slash and Blast class code adapted from
@@ -90,6 +91,8 @@ class Blast(pg.sprite.Sprite):
 
 		self.image = self.spell_sprites[int(self.current_sprite)]
 
+#animation not working properly
+#black screen blink in combat start
 class Slash(pg.sprite.Sprite):
 	def __init__(self, pos_x, pos_y):
 		super().__init__()
@@ -132,9 +135,12 @@ class Smash(pg.sprite.Sprite):
 		self.attack_animation = False
 		self.pos_x = pos_x
 		self.pos_y = pos_y
-		CLUB_IMAGE = pg.image.load('./ab_images/club.png').convert_alpha()
+		CLUB_IMAGE = pg.image.load('./ab_images/claw.png').convert_alpha()
+		#CLUB_IMAGE = pg.image.load('./ab_images/club.png').convert_alpha()
 		WIDTH, HEIGHT = CLUB_IMAGE.get_size()
-		SIZE_SCALAR = 5
+		#claw skalar
+		SIZE_SCALAR = 15
+		#SIZE_SCALAR = 5
 		SCALED_WIDTH = WIDTH / SIZE_SCALAR
 		SCALED_HEIGHT = HEIGHT / SIZE_SCALAR
 		INITIAL_ANGLE = 150

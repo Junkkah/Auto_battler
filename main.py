@@ -6,7 +6,7 @@ from map import Map
 from path_ab import Path
 from combat import Combat
 from states import States
-from inv import Inv
+from levelup_ab import LevelUp
 from simulator import Simulator
 
 #Control and States class state machine code from
@@ -60,7 +60,7 @@ state_dict = {
     'map': Map(),
     'path': Path(),
     'combat': Combat(),
-    'inv': Inv(),
+    'levelup': LevelUp(),
     'simulator': Simulator()
 }
 app.setup_states(state_dict, 'menu') 

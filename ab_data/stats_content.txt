@@ -12,28 +12,33 @@ Columns:
 - armor: Armor value, reducing incoming damage.
 - exp: Experience points awarded when the monster is defeated.
 
-# id, type,health,max_health,damage,speed,exp,menace,armor,attack_type
+
 Table: Classes
 - Attributes for different hero classes.
 Columns:
-#- id: Unique identifier for each class.
-- class: Name of the class.
+- id: Unique identifier for each class.
+- type: Name of the class.
 - health: Health points (HP) of the class.
 - max_health: Maximum health points
 - damage: Amount of damage the class can deal.
-- armor: Armor value, reducing incoming damage.
+- speed:
 - exp: Current experience points of character.
+- menace:
+- armor: Armor value, reducing incoming damage.
+- attack_type:
+- level_health:
 
 Table: Names
 Columns:
-- id:
-- name:
-- type:
+- id: Unique identifier for each hero.
+- name: Name of the hero.
+- type: Class of the hero
+#should have foreign key reference, classes(id)
 
 Table: Spells
 Columns:
-- id:
-- name:
+- id: Unique identifier for each spell.
+- name: Name of the spell.
 - damage:
 - speed:
 - type:
@@ -43,7 +48,7 @@ Table: World_Map
 - Attributes for adventure locations
 Columns:
 - id: Unique identifier for each location.
-- name: String name of the location.
+- name: Name of the adventure.
 - pos_x: Locations x-coordinate relative to screen width.
 - pos_y: Locations y-coordinate relative to screen height.
 - desc: Description of the location displayed in game.
@@ -53,7 +58,7 @@ Table: dark_forest
 - Attributes for adventure dark_forest locations
 Columns:
 - id: Unique identifier for each location.
-- name: String name of the location.
+- name: Name of the location.
 - type: Location type can be fight, shop or boss.
 - y_coord: Locations y-coordinate relative to screen height.
 - size_scalar: Scalar for resizing image.
@@ -65,3 +70,23 @@ Columns:
 - parent2: Parent node of the location.
 - child1: Child node of the location.
 - child2: Child node of the location.
+
+Table: talents
+- Talent information and effects for all classes.
+Columns:
+- id: Unique identifier for each talent.
+- name: Name of the talent.
+- desc:
+- effect: 
+- type:
+- min_level: 
+- req1: 
+- req2: 
+- class_id: 
+
+Table: Experience
+-
+Columns:
+- id:
+- level:
+- exp:

@@ -2,7 +2,7 @@ import pygame as pg
 #import sys
 from states import States
 from objects import Location
-from stats import Data, get_data
+from data_ab import get_data
 import pandas as pd
 import math
 

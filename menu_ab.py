@@ -18,7 +18,7 @@ class Menu(States):
 
         MENU_BUTTON_XPOS = self.screen_width * 0.50
         MENU_BUTTON_YPOS = self.screen_height * 0.16
-        MENU_FONT = self.default_font_name
+        MENU_FONT = self.default_font
 
         COORDS_TITLE = (MENU_BUTTON_XPOS, MENU_BUTTON_YPOS)
         COORDS_PLAY = (MENU_BUTTON_XPOS, MENU_BUTTON_YPOS * 2)

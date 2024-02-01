@@ -1,11 +1,13 @@
 import pygame as pg
 import sys
-import csv
 import random
 from states import States
-from objects import Hero
-from stats import Stats, get_data
+from hero_ab import Hero
+from objects import Button
+from data_ab import get_data
+from sounds_ab import sound_effect
 
+#class Selection / HeroHire / Shop
 class Game(States):
     def __init__(self):
         States.__init__(self)
@@ -14,12 +16,16 @@ class Game(States):
     def cleanup(self):
         self.names = []
         self.selection = []
+        self.selection_buttons = []
         self.selection_sprites.empty()
+        self.selection_button_sprites.empty()
 
     def startup(self):
         self.screen.fill(self.white)
         self.screen.blit(self.ground, (0,0))
+        self.selection_button_sprites = pg.sprite.Group()
         self.selection_sprites = pg.sprite.Group()
+        self.selection_buttons = []
         self.selection = []
         SELECTABLE_HEROES = 8
         
@@ -56,21 +62,28 @@ class Game(States):
             if spot_hero == NEXT_ROW:
                 HEROPOS_X -= HERO_ROW_LENGTH
             HEROPOS_X += HERO_GAP
+
+        CONT_TEXT = "CONTINUE"
+        CONT_FONT = self.default_font
+        CONT_SIZE = self.big_font_size
+        CONT_COL = self.black
+        COORDS_CONT = (self.screen_width * 0.75, self.screen_height * 0.88)
+
+        self.continue_button = Button(self.selection_button_sprites, CONT_TEXT, CONT_FONT, CONT_SIZE, CONT_COL, COORDS_CONT)
+        self.selection_buttons.append(self.continue_button)
         
-        CONTINUE_FONT = pg.font.SysFont("Arial", self.big_font_size)
-        self.continue_text = CONTINUE_FONT.render("CONTINUE", True, self.grey)
-        self.ready_text = CONTINUE_FONT.render("CONTINUE", True, self.black)
-        COORDS_CONTINUE = (self.screen_width * 0.75, self.screen_height * 0.88)
-        self.continue_rect = self.continue_text.get_rect(center=COORDS_CONTINUE)
-        
+
     def get_event(self, event):
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_ESCAPE:
                 exit()
 
         elif event.type == pg.MOUSEBUTTONDOWN:
-            if self.continue_rect.collidepoint(pg.mouse.get_pos()) and len(States.party_heroes) == self.max_party_size:
+            if self.continue_button.rect.collidepoint(pg.mouse.get_pos()) and len(States.party_heroes) == self.max_party_size:
+                sound_effect('click')
                 self.done = True
+            elif self.continue_button.rect.collidepoint(pg.mouse.get_pos()):
+                sound_effect('error')
 
             for selected_hero in self.selection:
                 if selected_hero.rect.collidepoint(pg.mouse.get_pos()):
@@ -86,15 +99,25 @@ class Game(States):
     def draw(self, screen):
         self.screen.blit(self.ground, (0,0))
         self.selection_sprites.draw(self.screen)
+        self.selection_button_sprites.draw(self.screen)
         self.screen.blit(self.bubble, self.bubble_rect)
         self.screen.blit(self.hood, self.hood_rect)
 
+        #better way
         [pg.draw.rect(self.screen, self.red, [f_hero.pos_x, f_hero.pos_y, f_hero.width, f_hero.height], 2) for f_hero in self.selection if f_hero.spot_frame == True]
         
+        
         if len(States.party_heroes) == self.max_party_size:
-            self.screen.blit(self.ready_text, self.continue_rect)    
+            self.continue_button.border_color = self.black 
+            self.continue_button.draw_border()
         else:
-            self.screen.blit(self.continue_text, self.continue_rect)
+            self.continue_button.border_color = self.grey
+            self.continue_button.draw_border()
+
+        #if len(States.party_heroes) == self.max_party_size:
+        #    self.screen.blit(self.ready_text, self.continue_rect)    
+        #else:
+        #    self.screen.blit(self.continue_text, self.continue_rect)
         
         for shero in self.selection:
             if shero.rect.collidepoint(pg.mouse.get_pos()):
