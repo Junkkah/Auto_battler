@@ -15,8 +15,22 @@ class LevelUp(States):
         self.next = 'path'
         self.levelup_hero_sprites = pg.sprite.Group()
         self.levelup_sprites = pg.sprite.Group()
+    
+    def create_talent_sample(self, hero) -> pd.DataFrame:
+        talent_df = get_talent_data(hero.type)
+        while True:
+            random_rows = talent_df.sample(n=2)
+            new_df = pd.DataFrame(random_rows)
+            req1 = new_df['req1'].iloc[0]
+            req2 = new_df['req1'].iloc[1]
+            #req3 = new_df['req2'].iloc[0]
+            #req4 = new_df['req2'].iloc[1]
+            req1_met = req1 is None or req1 in hero.talents
+            req2_met = req2 is None or req2 in hero.talents
+            if req1_met and req2_met:
+                return new_df
 
-        
+    
     def cleanup(self):
         for selected_talent in self.talents_selected:
             selected_talent.hero.add_talent(selected_talent.name, selected_talent.type)
@@ -25,10 +39,9 @@ class LevelUp(States):
         self.talent_buttons = []
         self.inv_buttons = []
         self.talents_selected = []
-
         self.levelup_hero_sprites.empty()
         self.levelup_sprites.empty()
-        
+    
     def startup(self):
         self.talent_buttons = []
         self.inv_buttons = []
@@ -52,14 +65,20 @@ class LevelUp(States):
             leveling_hero.gain_level()
 
 
-        self.talent_dfs = [get_talent_data(thero.type) for thero in States.party_heroes]
         self.numer_of_heroes = len(States.party_heroes)
         samples = []
-        for talent_df in self.talent_dfs:
-            random_rows = talent_df.sample(n=2)
-            new_df = pd.DataFrame(random_rows)
-            samples.append(new_df)
-    
+
+        #self.talent_dfs = [get_talent_data(thero.type) for thero in States.party_heroes]
+        #for talent_df in self.talent_dfs:
+        #    random_rows = talent_df.sample(n=2)
+        #    new_df = pd.DataFrame(random_rows)
+        #    samples.append(new_df)
+
+
+        for sample_hero in States.party_heroes:
+            sample = self.create_talent_sample(sample_hero)
+            samples.append(sample)
+
         TALENTCARD_POS_Y = (self.screen_height * 0.15)
         TALENTCARD_GAP = (self.screen_height * 0.15)
         INFO_FONT_NAME = self.default_font
