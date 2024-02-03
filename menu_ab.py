@@ -7,7 +7,7 @@ from objects import Button
 class Menu(States):
     def __init__(self):
         States.__init__(self)
-        self.next = 'game' 
+        self.next = 'shop' 
 
     def cleanup(self):
         self.menu_buttons = []
@@ -55,13 +55,14 @@ class Menu(States):
         
 
     def get_event(self, event):
+        mouse_pos = pg.mouse.get_pos()
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_ESCAPE:
                 exit()
 
         if event.type == pg.MOUSEMOTION:
             for menu_button in self.menu_buttons:
-                if menu_button.rect.collidepoint(pg.mouse.get_pos()):
+                if menu_button.rect.collidepoint(mouse_pos):
                     menu_button.border_color = (self.white)
                     menu_button.draw_border()
                 else:
@@ -69,22 +70,22 @@ class Menu(States):
                     menu_button.draw_border()
         
         elif event.type == pg.MOUSEBUTTONDOWN:
-            if self.play_button.rect.collidepoint(pg.mouse.get_pos()):
+            if self.play_button.rect.collidepoint(mouse_pos):
                 sound_effect('click')
-                self.next = 'game'
+                self.next = 'shop'
                 self.done = True
 
-            elif self.settings_button.rect.collidepoint(pg.mouse.get_pos()):
+            elif self.settings_button.rect.collidepoint(mouse_pos):
                 sound_effect('error')
                 pass
                 #self.next = 'settings'
                 #self.done = True
 
-            elif self.simulator_button.rect.collidepoint(pg.mouse.get_pos()):
+            elif self.simulator_button.rect.collidepoint(mouse_pos):
                 sound_effect('click')
                 self.next = 'simulator'
                 self.done = True
 
-            elif self.quit_button.rect.collidepoint(pg.mouse.get_pos()):
+            elif self.quit_button.rect.collidepoint(mouse_pos):
                 sound_effect('click')
                 exit()    

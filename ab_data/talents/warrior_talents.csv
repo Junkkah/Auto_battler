@@ -1,6 +1,0 @@
-name,desc,effect,type
-Armored,Take less damage,armor 1,stat
-Threatening,Get attacked more often,menace 2,stat
-Dangerous,Deal more damage,damage 1,stat
-Intimidating,Get attacked more often,menace 2,stat
-Well Rounded,Faster and deadlier,speed 1 damage 1,m_statPrepared,Act faster,speed 2,statOminous,Get attacked more often,menace 2,stat

@@ -17,6 +17,7 @@ class LevelUp(States):
         self.levelup_sprites = pg.sprite.Group()
     
     def create_talent_sample(self, hero) -> pd.DataFrame:
+        #not checking second requirement 
         talent_df = get_talent_data(hero.type)
         while True:
             random_rows = talent_df.sample(n=2)
@@ -48,6 +49,8 @@ class LevelUp(States):
         self.talents_selected = []
         self.talent_cards = []
 
+        #
+        TITLE_TEXT = "Choose new talents"
         CONT_TEXT = "CONTINUE"
         CONT_FONT = self.default_font
         CONT_SIZE = self.big_font_size
@@ -57,7 +60,7 @@ class LevelUp(States):
         self.continue_button = Button(self.levelup_sprites, CONT_TEXT, CONT_FONT, CONT_SIZE, CONT_COL, COORDS_CONT)
         self.inv_buttons.append(self.continue_button)
 
-        #position heroes code
+        #position heroes 
         combat_instance = Combat()
         combat_instance.position_heroes(States.party_heroes)
         for leveling_hero in States.party_heroes:
@@ -67,12 +70,6 @@ class LevelUp(States):
 
         self.numer_of_heroes = len(States.party_heroes)
         samples = []
-
-        #self.talent_dfs = [get_talent_data(thero.type) for thero in States.party_heroes]
-        #for talent_df in self.talent_dfs:
-        #    random_rows = talent_df.sample(n=2)
-        #    new_df = pd.DataFrame(random_rows)
-        #    samples.append(new_df)
 
 
         for sample_hero in States.party_heroes:

@@ -1,7 +1,7 @@
 import pygame as pg
 import sys
 from menu_ab import Menu
-from game import Game
+from shop_ab import Shop
 from map import Map
 from path_ab import Path
 from combat import Combat
@@ -56,7 +56,7 @@ settings = {
 app = Control(**settings)
 state_dict = {
     'menu': Menu(),
-    'game': Game(),
+    'shop': Shop(),
     'map': Map(),
     'path': Path(),
     'combat': Combat(),

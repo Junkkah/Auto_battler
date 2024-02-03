@@ -113,13 +113,11 @@ class Hero(States, pg.sprite.Sprite):
         elif talent_type == "special":
             self.talents.append(talent_name)
             #check hero talent list start of combat and pull effects from data
-            #add domain bonus stats: flame menace 1, stone: max_health 5, lightning speed 1
 
         elif talent_type == "domain":
             self.talents.append(talent_name) 
             self.type = talents["effect"]
-            #bonus = talents[talent_name]["bonus"]
-            #self.add_stat(hero, bonus)
+
 
         elif talent_type == "m_stat":
             self.talents.append(talent_name)

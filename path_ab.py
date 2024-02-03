@@ -2,7 +2,7 @@ import pygame as pg
 #import sys
 from states import States
 from objects import Location
-from data_ab import get_data
+from data_ab import get_data, get_adv_monsters
 import pandas as pd
 import math
 
@@ -18,8 +18,20 @@ class Path(States):
         self.max_pulse_radius = 50
         self.pulsation_speed = 0.005
 
-        #randomize based on adventure and tier of location
+        self.adventure_monsters = get_adv_monsters(States.current_adventure)
+        #boss in adventure column or as content in cave loc
+
         self.content = ['goblin']
+
+
+    def create_content(self, location):
+        tier = location.tier
+        #tier1 fights: goblin(2), goblin + kobold(3), orc(4)
+        #tier2 fights: orc(4), orc + goblin(6), goblin + goblin(4), goblin_wizard(5)
+        #tier3
+        #tier4
+        #boss fight: troll_berserk
+
 
     def cleanup(self):
         self.path_sprites.empty()
@@ -47,6 +59,9 @@ class Path(States):
                 if pd.notna(obj_child2_name):
                     obj.child2 = next((child_obj for child_obj in self.loc_objects if child_obj.name == obj_child2_name), None)
         set_children(locations_data)
+    
+
+    #randomized paths
 
 
     def get_event(self, event):
@@ -70,8 +85,15 @@ class Path(States):
                         break 
 
             if clicked_location and clicked_location.type == 'fight':
-                States.room_monsters = self.content  # random content based on tier and adventure monster list
+                #States.room_monsters = self.create_content(clicked_location)
+                States.room_monsters = self.content  
                 self.current_location = clicked_location
+                self.next = 'combat'
+                self.done = True
+            
+            if clicked_location and clicked_location.type == 'shop':
+                self.current_location = clicked_location
+                self.next = 'shop'
                 self.done = True
 
 

@@ -8,9 +8,16 @@ from data_ab import get_data
 from sounds_ab import sound_effect
 
 #class Selection / HeroHire / Shop
-class Game(States):
+#if States.party_heroes not:
+#show bubble
+#else: coming to shop from path
+
+#needs hire buttons
+
+class Shop(States):
     def __init__(self):
         States.__init__(self)
+        #self.next = path if States.current_adventure
         self.next = 'map'
 
     def cleanup(self):
@@ -45,6 +52,7 @@ class Game(States):
         self.names = [tuple(row) for row in names_df[['name', 'type']].values]
         self.available = random.sample(self.names, SELECTABLE_HEROES)
 
+        #raise upper row to make room for hire buttons
         HEROPOS_X = (self.screen_width * 0.20)
         HEROPOS_Y_ROW1 = (self.screen_height * 0.20)
         HEROPOS_Y_ROW2 = (self.screen_height * 0.50)
@@ -96,6 +104,7 @@ class Game(States):
 
     def update(self, screen, dt):
         self.draw(screen)
+
     def draw(self, screen):
         self.screen.blit(self.ground, (0,0))
         self.selection_sprites.draw(self.screen)
@@ -103,7 +112,10 @@ class Game(States):
         self.screen.blit(self.bubble, self.bubble_rect)
         self.screen.blit(self.hood, self.hood_rect)
 
-        #better way
+        gold_text = self.create_gold_text()
+        self.screen.blit(gold_text, self.coords_gold)
+
+        #clearer
         [pg.draw.rect(self.screen, self.red, [f_hero.pos_x, f_hero.pos_y, f_hero.width, f_hero.height], 2) for f_hero in self.selection if f_hero.spot_frame == True]
         
         
@@ -114,11 +126,7 @@ class Game(States):
             self.continue_button.border_color = self.grey
             self.continue_button.draw_border()
 
-        #if len(States.party_heroes) == self.max_party_size:
-        #    self.screen.blit(self.ready_text, self.continue_rect)    
-        #else:
-        #    self.screen.blit(self.continue_text, self.continue_rect)
-        
+
         for shero in self.selection:
             if shero.rect.collidepoint(pg.mouse.get_pos()):
                 COORDS_INFO = ((shero.pos_x), (shero.pos_y + (self.screen_height / 7.1)))

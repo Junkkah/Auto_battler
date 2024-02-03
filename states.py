@@ -1,9 +1,10 @@
 import pygame as pg
 
-#class (Game)Configuration
+#class Config
 class States(object):
     party_heroes = []
     room_monsters = []
+    gold_count = 50
     current_location = None
     current_adventure = None
     acting = None
@@ -26,6 +27,7 @@ class States(object):
         self.path_sprites = pg.sprite.Group()
         self.menu_button_sprites = pg.sprite.Group()
 
+        self.max_party_size = 3
         
         self.ground = pg.image.load('./ab_images/game_bg.png').convert()
         self.red = (255, 0, 0)
@@ -33,16 +35,28 @@ class States(object):
         self.white = (255, 255, 255)
         self.blue = (0, 0, 255)
         self.grey = (127, 127, 127)
-
+        self.green = (0, 255, 0)
+        self.yellow = (255, 255, 0)
 
         self.default_font = "Arial"
         self.default_font_size = 20
         self.medium_font_size = 30
+        self.big_font_size = 50
+        self.title_font_size = 75
 
         self.info_font_size = 20
         INFO_FONT_NAME = "Arial"
         self.info_font = pg.font.SysFont(INFO_FONT_NAME, self.info_font_size)
+        self.title_font = pg.font.SysFont(INFO_FONT_NAME, self.title_font_size)
 
-        self.big_font_size = 50
-        self.title_font_size = 75
-        self.max_party_size = 3
+
+        self.coords_gold = (10, 10)
+        self.gold_font_name = 'Verdana'
+        self.gold_font_size = 25
+    
+    def create_gold_text(self):
+        gold_value = States.gold_count
+        gold = f'{gold_value :.0f} Gold coins'
+        font = pg.font.SysFont(self.gold_font_name, self.gold_font_size)
+        text_surface = font.render(gold, True, self.yellow) 
+        return text_surface

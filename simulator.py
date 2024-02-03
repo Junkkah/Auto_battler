@@ -36,12 +36,12 @@ class Simulator(States):
         self.party = []
         States.party_heroes = []
         self.simu_paths = []
-        self.party_exp = 0 #not used?
+        self.party_exp = 0 
         self.exp_reward = 0
         self.simulation_sprites.empty()
         self.monster_sprites.empty()
 
-    def run_simulation(self): #Full dark forest adventure
+    def run_simulation(self): 
         simulation_results = []
         selection = random.sample(self.names, 8)
         self.party = random.sample(selection, 3)
@@ -122,7 +122,7 @@ class Simulator(States):
 
             if States.party_heroes and self.exp_reward + States.party_heroes[0].exp >= States.party_heroes[0].next_level:
                 for leveling_hero in States.party_heroes:
-                    #Class for leveling up
+                    #use level_up method
                     Stats().levelup(leveling_hero)
 
                 #talent_data = get_data('talents')

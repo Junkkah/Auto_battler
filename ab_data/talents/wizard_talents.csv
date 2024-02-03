@@ -1,6 +1,0 @@
-name,desc,effect,type
-Fire Gush,Damaging area spell,fire_gush,spell
-Lightning Zap,Damaging spell,lightning_zap,spell
-Freezing Wind,Damaging area spell,freezing_wind,spell
-Burn,Damaging spell,burn,spell
-Icicle,Damaging spell,icicle,spellAcid Splash,Damaging area spell,acid_splash,spellStorm Child,Lightning spells deal more damage,if type lightning +dam,specialDissolver,Acid spells deal more damage,if type acid +dam,special

@@ -1,9 +1,6 @@
 import pygame as pg
 import pygame.mixer
 
-# Sound object to inherit Settings
-# -> move volumes to settings
-# Sound effect vs music for volumet settings
 
 pg.mixer.init()
 SFX_volume = 0.3
@@ -15,8 +12,6 @@ def sound_effect(effect: str):
     sound_effect.set_volume(SFX_volume)
     sound_effect.play()
 
-# if location change
-#   music.stop?
 def play_music_effect(location: str):
     music_effect = pygame.mixer.Sound('./ab_sounds/' + location + '.wav')
     music_effect.set_volume(music_volume)

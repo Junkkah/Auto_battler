@@ -20,6 +20,21 @@ def get_data(table: str) -> pd.DataFrame:
     db.close()
     return df
 
+def get_adv_monsters(adventure: str) -> pd.DataFrame:
+    db = sqlite3.connect('./ab_data/stats.db')
+
+    mob_query = """
+        SELECT m.*
+        FROM Monsters m
+        JOIN Adventure_monsters am ON m.id = am.monster_id
+        JOIN Adventures a ON a.id = am.adventure_id
+        WHERE a.name = ?
+        """
+
+    mobs_df = pd.read_sql_query(mob_query, db, params=(adventure,))
+    db.close()
+    return mobs_df
+
 def get_talent_data(hero_class: str) -> pd.DataFrame:
     db = sqlite3.connect('./ab_data/stats.db')
 

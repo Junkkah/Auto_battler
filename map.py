@@ -4,7 +4,6 @@ from states import States
 from objects import Adventure
 from data_ab import get_data, row_to_dict
 
-#fetch monster list based on adventure and pass to path
 class Map(States):
     def __init__(self):
         States.__init__(self)
@@ -17,8 +16,7 @@ class Map(States):
 
     def startup(self):
         #similar method in locations
-        #move to stats?
-        map_data = get_data('world_map')
+        map_data = get_data('adventures')
         self.map_objects = []
         for index, row in map_data.iterrows():
             name = row['name']
@@ -49,10 +47,8 @@ class Map(States):
                     if obj.name == "dark_forest":
                         States.current_adventure = obj.name
                         self.done = True
-                    #elif obj.name == "ruins":
-                    #    States.current_adventure = obj.name
-                    #    self.done = True
-                    else: #obj.name != "dark_forest":
+
+                    else:
                         error = "Inaccessible"
                         self.error_text = self.info_font.render((error), True, (self.red))
                         self.error_text_rect = self.error_text.get_rect(topleft=((obj.pos_x), (obj.pos_y)))
