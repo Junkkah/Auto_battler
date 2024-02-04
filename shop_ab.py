@@ -14,6 +14,7 @@ from sounds_ab import sound_effect
 
 #needs hire buttons
 
+#HeroManager
 class Shop(Config):
     def __init__(self):
         Config.__init__(self)
@@ -115,9 +116,9 @@ class Shop(Config):
         gold_text = self.create_gold_text()
         self.screen.blit(gold_text, self.coords_gold)
 
-        #clearer
-        [pg.draw.rect(self.screen, self.red, [f_hero.pos_x, f_hero.pos_y, f_hero.width, f_hero.height], 2) for f_hero in self.selection if f_hero.spot_frame == True]
-        
+        for frame_hero in self.selection:
+            if frame_hero.spot_frame:
+                frame_hero.draw_frame()
         
         if len(Config.party_heroes) == self.max_party_size:
             self.continue_button.border_color = self.black 
@@ -129,7 +130,7 @@ class Shop(Config):
 
         for shero in self.selection:
             if shero.rect.collidepoint(pg.mouse.get_pos()):
-                COORDS_INFO = ((shero.pos_x), (shero.pos_y + (self.screen_height / 7.1)))
+                COORDS_INFO = ((shero.pos_x), (shero.pos_y + (self.screen_height / 7.1))) # ?
                 info = shero.name.capitalize() + ", " + shero.type.capitalize()
                 info_text = self.info_font.render(info, True, self.black)
                 info_text_rect = info_text.get_rect(topleft=COORDS_INFO)

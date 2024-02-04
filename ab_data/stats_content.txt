@@ -55,12 +55,25 @@ Columns:
 - pos_y: Locations y-coordinate relative to screen height.
 - desc: Description of the location displayed in game.
 
+#replaced with Loc_Content
 Table: Adventure_monsters
 - Lists adventures where each monster can appear.
 Columns:
 - id:
 - adventure_id: 
 - monster_id: 
+
+Table: Loc_Content
+- Monster encounter distribution.
+Columns:
+- id: 
+- adventure_id: 
+- tier:
+- probability: 
+- monster1:
+- monster2: 
+- monster3: 
+- monster4:
 
 Table: dark_forest
 - Attributes for adventure dark_forest locations

@@ -29,6 +29,7 @@ class Hero(Config, pg.sprite.Sprite):
         self.animation = False
         self.attacked = False
         self.spot_frame = False
+        self.frame_width = 2
         self.name = name
         self.player = True
         self.type = type
@@ -149,3 +150,5 @@ class Hero(Config, pg.sprite.Sprite):
         pg.draw.rect(self.screen, self.black, [self.pos_x - border_width, self.pos_y + self.height + 10 - border_width, width + 2 * border_width, height + 2 * border_width])
         pg.draw.rect(self.screen, self.red, [self.pos_x, self.pos_y +self.height + 10, bar_width, height])
 
+    def draw_frame(self):
+        pg.draw.rect(self.screen, self.red, [self.pos_x, self.pos_y, self.width, self.height], self.frame_width)

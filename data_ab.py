@@ -35,6 +35,21 @@ def get_adv_monsters(adventure: str) -> pd.DataFrame:
     db.close()
     return mobs_df
 
+def get_monster_encounters(adventure: str, tier: int) -> pd.DataFrame:
+    db = sqlite3.connect('./ab_data/stats.db')
+
+    id_query = "SELECT id FROM adventures WHERE name = ?"
+    id = db.execute(id_query, (adventure,)).fetchone()[0]
+
+    mob_group_query = """
+        SELECT *
+        FROM Loc_Content 
+        WHERE Adventure_id = ? AND Tier = ?"""
+
+    mob_group_df = pd.read_sql_query(mob_group_query, db, params=(id, tier,))
+    db.close()
+    return mob_group_df
+
 def get_talent_data(hero_class: str) -> pd.DataFrame:
     db = sqlite3.connect('./ab_data/stats.db')
 

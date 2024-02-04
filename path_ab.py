@@ -1,10 +1,11 @@
 import pygame as pg
 from config_ab import Config
 from sprites_ab import Location
-from data_ab import get_data, get_adv_monsters
+from data_ab import get_data, get_monster_encounters
 from sounds_ab import play_music_effect
 import pandas as pd
 import math
+import random
 
 #create list of town names, randomly pick town name from list
 #determine buyble stuff in town for each name
@@ -18,19 +19,24 @@ class Path(Config):
         self.max_pulse_radius = 50
         self.pulsation_speed = 0.005
 
-        self.adventure_monsters = get_adv_monsters(Config.current_adventure)
-        #boss in adventure column or as content in cave loc
+        #self.content = ['goblin']
 
-        self.content = ['goblin']
-
-
-    def create_content(self, location):
+    #boss in adventure column or as content in cave loc
+    def create_content(self, location) -> list:
         tier = location.tier
+        encounters_df = get_monster_encounters(Config.current_adventure, tier)
+        probs = encounters_df['Probability'].tolist()
+        mob_lists = encounters_df.apply(lambda row: [value for value in row[4:].tolist() if value is not None], axis=1).tolist()
+        encounter = random.choices(mob_lists, weights=probs, k=1)[0]
+
+        return encounter
+
+        #tree vs bush
         #tier1 fights: goblin(2), goblin + kobold(3), orc(4)
         #tier2 fights: orc(4), orc + goblin(6), goblin + goblin(4), goblin_wizard(5)
         #tier3
-        #tier4
-        #boss fight: troll_berserk
+        #tier4 fights: troll
+        #boss fight: Config.current_adventure(boss)
 
 
     def cleanup(self):
@@ -86,8 +92,8 @@ class Path(Config):
                         break 
 
             if clicked_location and clicked_location.type == 'fight':
-                #Config.room_monsters = self.create_content(clicked_location)
-                Config.room_monsters = self.content  
+                Config.room_monsters = self.create_content(clicked_location)
+                #Config.room_monsters = self.content  
                 self.current_location = clicked_location
                 self.next = 'battle'
                 self.done = True
@@ -101,8 +107,6 @@ class Path(Config):
     def update(self, screen, dt):
         self.draw(screen)
 
-    def draw_line(self, color, thickness, start_point, end_point):
-        pg.draw.line(self.screen, color, start_point, end_point, thickness)
 
     def draw_circle(self, color, center, radius, thickness):
         pg.draw.circle(self.screen, color, center, radius, thickness)
@@ -124,9 +128,9 @@ class Path(Config):
 
         for node in self.loc_objects:
             if node.child1:
-                self.draw_line(self.white, self.line_thickness, node.pos, node.child1.pos)
+                pg.draw.line(self.screen, self.white, node.pos, node.child1.pos, self.line_thickness)
             if node.child2:
-                self.draw_line(self.white, self.line_thickness, node.pos, node.child2.pos)
+                pg.draw.line(self.screen, self.white, node.pos, node.child2.pos, self.line_thickness)
 
-        
+
         self.path_sprites.draw(self.screen)
