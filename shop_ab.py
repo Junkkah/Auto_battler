@@ -1,23 +1,23 @@
 import pygame as pg
 import sys
 import random
-from states import States
+from config_ab import Config
 from hero_ab import Hero
-from objects import Button
+from sprites_ab import Button
 from data_ab import get_data
 from sounds_ab import sound_effect
 
 #class Selection / HeroHire / Shop
-#if States.party_heroes not:
+#if Config.party_heroes not:
 #show bubble
 #else: coming to shop from path
 
 #needs hire buttons
 
-class Shop(States):
+class Shop(Config):
     def __init__(self):
-        States.__init__(self)
-        #self.next = path if States.current_adventure
+        Config.__init__(self)
+        #self.next = path if Config.current_adventure
         self.next = 'map'
 
     def cleanup(self):
@@ -87,7 +87,7 @@ class Shop(States):
                 exit()
 
         elif event.type == pg.MOUSEBUTTONDOWN:
-            if self.continue_button.rect.collidepoint(pg.mouse.get_pos()) and len(States.party_heroes) == self.max_party_size:
+            if self.continue_button.rect.collidepoint(pg.mouse.get_pos()) and len(Config.party_heroes) == self.max_party_size:
                 sound_effect('click')
                 self.done = True
             elif self.continue_button.rect.collidepoint(pg.mouse.get_pos()):
@@ -97,10 +97,10 @@ class Shop(States):
                 if selected_hero.rect.collidepoint(pg.mouse.get_pos()):
                     if selected_hero.spot_frame == True:
                         selected_hero.spot_frame = False
-                        States.party_heroes.remove(selected_hero) 
+                        Config.party_heroes.remove(selected_hero) 
                     else:
                         selected_hero.spot_frame = True
-                        States.party_heroes.append(selected_hero)
+                        Config.party_heroes.append(selected_hero)
 
     def update(self, screen, dt):
         self.draw(screen)
@@ -119,7 +119,7 @@ class Shop(States):
         [pg.draw.rect(self.screen, self.red, [f_hero.pos_x, f_hero.pos_y, f_hero.width, f_hero.height], 2) for f_hero in self.selection if f_hero.spot_frame == True]
         
         
-        if len(States.party_heroes) == self.max_party_size:
+        if len(Config.party_heroes) == self.max_party_size:
             self.continue_button.border_color = self.black 
             self.continue_button.draw_border()
         else:

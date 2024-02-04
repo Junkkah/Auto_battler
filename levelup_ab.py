@@ -2,16 +2,16 @@ import pygame as pg
 import sys
 import random
 import pandas as pd
-from states import States
+from config_ab import Config
 from data_ab import get_data, get_talent_data
-from objects import Button, TalentCard
-from combat import Combat
+from sprites_ab import Button, TalentCard
+from battle_ab import BattleManager
 from sounds_ab import sound_effect
 
 #/ HeroManagement
-class LevelUp(States): 
+class LevelUp(Config): 
     def __init__(self):
-        States.__init__(self)
+        Config.__init__(self)
         self.next = 'path'
         self.levelup_hero_sprites = pg.sprite.Group()
         self.levelup_sprites = pg.sprite.Group()
@@ -61,18 +61,18 @@ class LevelUp(States):
         self.inv_buttons.append(self.continue_button)
 
         #position heroes 
-        combat_instance = Combat()
-        combat_instance.position_heroes(States.party_heroes)
-        for leveling_hero in States.party_heroes:
+        battle_instance = BattleManager()
+        battle_instance.position_heroes(Config.party_heroes)
+        for leveling_hero in Config.party_heroes:
             self.levelup_hero_sprites.add(leveling_hero)
             leveling_hero.gain_level()
 
 
-        self.numer_of_heroes = len(States.party_heroes)
+        self.numer_of_heroes = len(Config.party_heroes)
         samples = []
 
 
-        for sample_hero in States.party_heroes:
+        for sample_hero in Config.party_heroes:
             sample = self.create_talent_sample(sample_hero)
             samples.append(sample)
 
@@ -84,7 +84,7 @@ class LevelUp(States):
 
         for i in range(self.numer_of_heroes):
             sample = samples[i]
-            hero = States.party_heroes[i] 
+            hero = Config.party_heroes[i] 
             df1 = sample.iloc[[0]].reset_index(drop=True)
             df2 = sample.iloc[[1]].reset_index(drop=True)
 

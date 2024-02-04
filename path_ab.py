@@ -1,24 +1,24 @@
 import pygame as pg
-#import sys
-from states import States
-from objects import Location
+from config_ab import Config
+from sprites_ab import Location
 from data_ab import get_data, get_adv_monsters
+from sounds_ab import play_music_effect
 import pandas as pd
 import math
 
 #create list of town names, randomly pick town name from list
 #determine buyble stuff in town for each name
 
-class Path(States):
+class Path(Config):
     def __init__(self):
-        States.__init__(self)
-        self.next = 'combat'
+        Config.__init__(self)
+        self.next = 'battle'
         self.rooms_done = 0
         self.line_thickness = 5
         self.max_pulse_radius = 50
         self.pulsation_speed = 0.005
 
-        self.adventure_monsters = get_adv_monsters(States.current_adventure)
+        self.adventure_monsters = get_adv_monsters(Config.current_adventure)
         #boss in adventure column or as content in cave loc
 
         self.content = ['goblin']
@@ -36,11 +36,12 @@ class Path(States):
     def cleanup(self):
         self.path_sprites.empty()
         self.loc_objects = []
+        #stop music
 
     def startup(self):
-
+        play_music_effect(Config.current_adventure)
         self.loc_objects = []
-        locations_data = get_data(States.current_adventure)
+        locations_data = get_data(Config.current_adventure)
 
         for index, row in locations_data.iterrows():
             name = row['name']
@@ -85,10 +86,10 @@ class Path(States):
                         break 
 
             if clicked_location and clicked_location.type == 'fight':
-                #States.room_monsters = self.create_content(clicked_location)
-                States.room_monsters = self.content  
+                #Config.room_monsters = self.create_content(clicked_location)
+                Config.room_monsters = self.content  
                 self.current_location = clicked_location
-                self.next = 'combat'
+                self.next = 'battle'
                 self.done = True
             
             if clicked_location and clicked_location.type == 'shop':

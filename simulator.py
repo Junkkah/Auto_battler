@@ -2,20 +2,20 @@ import pygame as pg
 import sys
 import csv
 import random
-from states import States
+from config_ab import Config
 from hero_ab import Hero
-from objects import TalentCard
+from sprites_ab import TalentCard
 from data_ab import get_data
-from combat import Combat
+from battle_ab import BattleManager
 
-class Simulator(States):
+class Simulator(Config):
     def __init__(self):
-        States.__init__(self)
+        Config.__init__(self)
         self.next = 'menu'
        
     def cleanup(self):
         self.party = []
-        States.party_heroes = []
+        Config.party_heroes = []
         self.simu_paths = []
         self.party_exp = 0
         self.exp_reward = 0
@@ -34,7 +34,7 @@ class Simulator(States):
 
     def reset_variables(self):
         self.party = []
-        States.party_heroes = []
+        Config.party_heroes = []
         self.simu_paths = []
         self.party_exp = 0 
         self.exp_reward = 0
@@ -50,13 +50,15 @@ class Simulator(States):
             SIMU_X = 0
             SIMU_Y = 0
             self.simulated_hero = Hero((SIMU_X, SIMU_Y), self.simulation_sprites, self.party[simulated_hero][0], self.party[simulated_hero][1])
-            States.party_heroes.append(self.simulated_hero)
+            Config.party_heroes.append(self.simulated_hero)
             self.simulation_sprites.add(self.simulated_hero)
         
-        States.current_adventure = "dark_forest"
-        simulation_locations = get_data(States.current_adventure)
+        Config.current_adventure = "dark_forest"
+        simulation_locations = get_data(Config.current_adventure)
 
         #old paths
+        #choose starting point: ['tree1', 'tree2', 'tree3']
+        #traverse: if child2: choose child1 or child2 else: child1
         path1 = ['tree1', 'tree2', 'bush2', 'cave']
         path2 = ['tree1', 'bush2', 'bush3', 'cave']
         path3 = ['bush1', 'tree3', 'bush4', 'cave']
@@ -84,51 +86,52 @@ class Simulator(States):
             simulated_monsters.append(monsters)
 
         for monster_list in simulated_monsters:
-            States.room_monsters = monster_list
+            Config.room_monsters = monster_list
             
-            Combat().create_monsters() #monster objects
+            BattleManager().create_monsters() #monster objects
 
             self.actions_unordered = []
             
-            for room_monster in States.room_monsters:
+            for room_monster in Config.room_monsters:
                 self.actions_unordered.append(room_monster)
-            for party_hero in States.party_heroes:
+            for party_hero in Config.party_heroes:
                 self.actions_unordered.append(party_hero)
 
-            self.actions_ordered = Combat().order_sort(self.actions_unordered)
+            self.actions_ordered = BattleManager().order_sort(self.actions_unordered)
 
-            while States.party_heroes and States.room_monsters: #loop combat 
-                States.acting = self.actions_ordered[0] 
-                if States.acting.player == True:
-                    if States.acting.attack_type == "weapon" or not States.acting.spells:
-                        States.acting.melee_attack()
+            while Config.party_heroes and Config.room_monsters: #loop combat 
+                Config.acting = self.actions_ordered[0] 
+                if Config.acting.player == True:
+                    if Config.acting.attack_type == "weapon" or not Config.acting.spells:
+                        Config.acting.melee_attack()
                     else:
-                        States.acting.spell_attack(States.acting.spells[0]) #passing 1st spell
+                        Config.acting.spell_attack(Config.acting.spells[0]) #passing 1st spell
                     
-                    for fighting_monster in States.room_monsters:
+                    for fighting_monster in Config.room_monsters:
                         if fighting_monster.health <=0:
                             self.actions_ordered.remove(fighting_monster)
                             self.exp_reward += fighting_monster.exp
 
-                            States.room_monsters.remove(fighting_monster)
-                elif States.acting.player == False:
-                    States.acting.melee_attack()
-                    for fighting_hero in States.party_heroes:
+                            Config.room_monsters.remove(fighting_monster)
+                elif Config.acting.player == False:
+                    Config.acting.melee_attack()
+                    for fighting_hero in Config.party_heroes:
                         if fighting_hero.health <=0:
                             self.actions_ordered.remove(fighting_hero)
-                            States.party_heroes.remove(fighting_hero)
+                            Config.party_heroes.remove(fighting_hero)
 
                 self.actions_ordered.append(self.actions_ordered.pop(0))
 
-            if States.party_heroes and self.exp_reward + States.party_heroes[0].exp >= States.party_heroes[0].next_level:
-                for leveling_hero in States.party_heroes:
-                    #use level_up method
-                    Stats().levelup(leveling_hero)
+            if Config.party_heroes and self.exp_reward + Config.party_heroes[0].exp >= Config.party_heroes[0].next_level:
+                for leveling_hero in Config.party_heroes:
+                    leveling_hero.level_up()
+                    #Stats().levelup(leveling_hero)
 
+                #get talents code from levelup
                 #talent_data = get_data('talents')
                 self.talent_lists = get_data('talents')
-                #self.talent_lists = [Data.talent_data(thero.type) for thero in States.party_heroes]
-                self.numer_of_heroes = len(States.party_heroes)
+                #self.talent_lists = [Data.talent_data(thero.type) for thero in Config.party_heroes]
+                self.numer_of_heroes = len(Config.party_heroes)
                 #samples = [random.sample(t.items(), 2) for t in self.talent_lists]
                 samples = []
                 for talent_df in self.talent_dfs:
@@ -141,7 +144,7 @@ class Simulator(States):
                     X = 1 
                     Y = 1,1
                     sample = samples[i]
-                    hero = States.party_heroes[i] 
+                    hero = Config.party_heroes[i] 
                     name_value = TalentName(sample, X, Y, self.info_font, hero)
                     talents.append(name_value)
                     simulation_results[2][hero.name].append(name_value.a_name)
@@ -151,7 +154,7 @@ class Simulator(States):
 
         #write results into dataframe
         simulation_results.append(self.exp_reward)
-        if States.party_heroes:
+        if Config.party_heroes:
             simulation_results.append(
                 'True')
         else:

@@ -1,6 +1,6 @@
 import pygame as pg
 from data_ab import row_to_dict, get_data, get_talent_data
-from states import States
+from config_ab import Config
 import numpy as np
 import pandas as pd
 import random
@@ -10,7 +10,7 @@ hero_data = get_data('classes')
 exp_data = get_data('experience')
 spells_data = get_data('spells')
 
-class Hero(States, pg.sprite.Sprite):
+class Hero(Config, pg.sprite.Sprite):
     def __init__(self, groups, pos, name: str, type: str):
         super().__init__()
         pg.sprite.Sprite.__init__(self, groups) 
@@ -53,10 +53,18 @@ class Hero(States, pg.sprite.Sprite):
             #if spell in spells compare melee, spell
                 #if spell compare spells, healing?
     def get_target(self):
-        total_menace = sum(monster.menace for monster in States.room_monsters)
-        prob = [monster.menace/total_menace for monster in States.room_monsters]
-        target = np.random.choice(States.room_monsters, p=prob)
+        total_menace = sum(monster.menace for monster in Config.room_monsters)
+        prob = [monster.menace/total_menace for monster in Config.room_monsters]
+        target = np.random.choice(Config.room_monsters, p=prob)
         return target
+    
+    def attack(self, target):
+        for effect_name, effect_data in self.special_effects.items():
+            effect_behavior = effect_data.get("behavior", None)
+            if effect_behavior is not None:
+                # Dynamically execute the behavior function
+                effect_behavior(self)
+
     
     def melee_attack(self):
         target = self.get_target()
@@ -68,7 +76,7 @@ class Hero(States, pg.sprite.Sprite):
         self.animation = False
         DAMAGE = spell["damage"]
         if spell["area"] == 1:
-            for target_mob in States.room_monsters:
+            for target_mob in Config.room_monsters:
                 target_mob.health -= DAMAGE
         else:
             target = self.get_target()

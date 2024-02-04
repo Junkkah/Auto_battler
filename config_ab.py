@@ -1,13 +1,13 @@
 import pygame as pg
 
 #class Config
-class States(object):
+class Config(object):
     party_heroes = []
     room_monsters = []
     gold_count = 50
     current_location = None
     current_adventure = None
-    acting = None
+    acting_character = None
     width = 1920
     height = 1080
     def __init__(self):
@@ -46,6 +46,7 @@ class States(object):
 
         self.info_font_size = 20
         INFO_FONT_NAME = "Arial"
+        self.med_info_font = pg.font.SysFont(INFO_FONT_NAME, self.medium_font_size)
         self.info_font = pg.font.SysFont(INFO_FONT_NAME, self.info_font_size)
         self.title_font = pg.font.SysFont(INFO_FONT_NAME, self.title_font_size)
 
@@ -55,7 +56,7 @@ class States(object):
         self.gold_font_size = 25
     
     def create_gold_text(self):
-        gold_value = States.gold_count
+        gold_value = Config.gold_count
         gold = f'{gold_value :.0f} Gold coins'
         font = pg.font.SysFont(self.gold_font_name, self.gold_font_size)
         text_surface = font.render(gold, True, self.yellow) 

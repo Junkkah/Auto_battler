@@ -1,12 +1,12 @@
 import pygame as pg
 import sys
-from states import States
-from objects import Adventure
+from config_ab import Config
+from sprites_ab import Adventure
 from data_ab import get_data, row_to_dict
 
-class Map(States):
+class WorldMap(Config):
     def __init__(self):
-        States.__init__(self)
+        Config.__init__(self)
         self.next = 'path'
         self.error = False
 
@@ -45,7 +45,7 @@ class Map(States):
             for obj in self.map_objects:
                 if obj.rect.collidepoint(pg.mouse.get_pos()):
                     if obj.name == "dark_forest":
-                        States.current_adventure = obj.name
+                        Config.current_adventure = obj.name
                         self.done = True
 
                     else:

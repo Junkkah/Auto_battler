@@ -1,10 +1,10 @@
 https://mixkit.co/free-sound-effects/
 
-Sword_swing:
+Sword:
 Fast sword whoosh
 mixkit-fast-sword-whoosh-2792
 
-Forest:
+Dark_forest:
 European spring forest ambience
 mixkit-european-spring-forest-ambience-1219
 
@@ -23,3 +23,7 @@ mixkit-cinematic-impact-thunder-1286
 Error:
 Negative tone interface tap
 mixkit-negative-tone-interface-tap-2569
+
+Victory:
+Positive interface beep
+mixkit-positive-interface-beep-221

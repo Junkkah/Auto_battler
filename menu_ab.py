@@ -1,12 +1,12 @@
 import pygame as pg
 import sys
-from states import States
+from config_ab import Config
 from sounds_ab import sound_effect
-from objects import Button
+from sprites_ab import Button
 
-class Menu(States):
+class Menu(Config):
     def __init__(self):
-        States.__init__(self)
+        Config.__init__(self)
         self.next = 'shop' 
 
     def cleanup(self):

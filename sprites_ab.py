@@ -1,6 +1,6 @@
 import pygame as pg
 from data_ab import get_data
-from states import States
+from config_ab import Config
 import numpy as np
 import pandas as pd
 import random
@@ -9,7 +9,7 @@ import sys
 monster_data = get_data('monsters')
 
 
-class Monster(States, pg.sprite.Sprite):
+class Monster(Config, pg.sprite.Sprite):
     def __init__(self, groups, pos, type: str):
         super().__init__()
         pg.sprite.Sprite.__init__(self, groups) 
@@ -39,9 +39,9 @@ class Monster(States, pg.sprite.Sprite):
         #self.abilities = ["regenerating": True/False]
     
     def get_target(self):
-        total_menace = sum(hero.menace for hero in States.party_heroes)
-        prob = [hero.menace/total_menace for hero in States.party_heroes]
-        target = np.random.choice(States.party_heroes, p=prob)
+        total_menace = sum(hero.menace for hero in Config.party_heroes)
+        prob = [hero.menace/total_menace for hero in Config.party_heroes]
+        target = np.random.choice(Config.party_heroes, p=prob)
         return target
 
     def melee_attack(self):
@@ -68,8 +68,8 @@ class Adventure(pg.sprite.Sprite):
         scenery_size_scalar = 9
         self.height = height / scenery_size_scalar
         self.width = width / scenery_size_scalar
-        self.pos_x = States.width * float(pos[0])
-        self.pos_y = States.height * float(pos[1])
+        self.pos_x = Config.width * float(pos[0])
+        self.pos_y = Config.height * float(pos[1])
 
         #stuff in shops
 
@@ -91,8 +91,8 @@ class Location(pg.sprite.Sprite):
         self.height = scenery.get_height()
         self.width = scenery.get_width()
 
-        self.pos_x = States.width * (0.07 * self.depth)
-        self.pos_y = States.height * float(self.y_coord)
+        self.pos_x = Config.width * (0.07 * self.depth)
+        self.pos_y = Config.height * float(self.y_coord)
         self.pos = (self.pos_x, self.pos_y)
     
         self.image = pg.transform.smoothscale(scenery, ((self.width / self.size_scalar), (self.height / self.size_scalar)))
@@ -100,7 +100,7 @@ class Location(pg.sprite.Sprite):
 
         self.treasure = []
 
-class Button(States, pg.sprite.Sprite):
+class Button(Config, pg.sprite.Sprite):
     def __init__(self, groups, text, font, font_size, color, center):
         super().__init__() 
         pg.sprite.Sprite.__init__(self, groups) 
@@ -124,7 +124,7 @@ class Button(States, pg.sprite.Sprite):
         pg.draw.rect(self.image, self.border_color, self.image.get_rect(), self.border_width)
 
 
-class TalentCard(States, pg.sprite.Sprite):
+class TalentCard(Config, pg.sprite.Sprite):
     def __init__(self, groups, df, pos_x, pos_y, hero, font):
         super().__init__() 
         pg.sprite.Sprite.__init__(self, groups) 

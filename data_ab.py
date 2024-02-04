@@ -1,7 +1,7 @@
 import pygame as pg
 import csv
 from csv import DictReader
-from states import States
+from config_ab import Config
 import sqlite3
 import pandas as pd
 

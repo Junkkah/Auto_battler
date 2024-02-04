@@ -2,10 +2,10 @@ import pygame as pg
 import sys
 from menu_ab import Menu
 from shop_ab import Shop
-from map import Map
+from overworld_ab import WorldMap
 from path_ab import Path
-from combat import Combat
-from states import States
+from battle_ab import BattleManager
+from config_ab import Config
 from levelup_ab import LevelUp
 from simulator import Simulator
 
@@ -57,9 +57,9 @@ app = Control(**settings)
 state_dict = {
     'menu': Menu(),
     'shop': Shop(),
-    'map': Map(),
+    'map': WorldMap(),
     'path': Path(),
-    'combat': Combat(),
+    'battle': BattleManager(),
     'levelup': LevelUp(),
     'simulator': Simulator()
 }

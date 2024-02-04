@@ -1,7 +1,7 @@
 import pygame as pg, sys
-from states import States
+from config_ab import Config
 from hero_ab import Hero
-from objects import Monster
+from sprites_ab import Monster
 import numpy as np
 
 #Stab, Slash and Blast class code adapted from
@@ -9,6 +9,7 @@ import numpy as np
 
 #Animation masterclass or consolidate into single class
 
+#inherit Config
 class Stab(pg.sprite.Sprite): #Groupsingle
 	def __init__(self, pos_x, pos_y):
 		super().__init__()
@@ -43,7 +44,7 @@ class Stab(pg.sprite.Sprite): #Groupsingle
 				self.current_sprite = 0
 				self.attack_animation = False
 				self.image = self.weapon_sprites[int(self.current_sprite)]
-				States.acting.melee_attack()
+				Config.acting_character.melee_attack()
 				return True #return melee/spell?
 		self.pos_y -= 3
 		self.image = self.weapon_sprites[int(self.current_sprite)]
@@ -74,7 +75,7 @@ class Blast(pg.sprite.Sprite):
 		self.image = self.spell_sprites[self.current_sprite]
 
 		self.rect = self.image.get_rect()
-		self.rect.topleft = [(pos_x + (States.width / 16)), (pos_y - (States.width / 27))] 
+		self.rect.topleft = [(pos_x + (Config.width / 16)), (pos_y - (Config.width / 27))] 
 
 	def animation_start(self):
 		self.attack_animation = True
@@ -86,7 +87,7 @@ class Blast(pg.sprite.Sprite):
 				self.current_sprite = 0
 				self.attack_animation = False
 				self.image = self.spell_sprites[int(self.current_sprite)]
-				States.acting.spell_attack(self.attack_spell)
+				Config.acting_character.spell_attack(self.attack_spell)
 				return True
 
 		self.image = self.spell_sprites[int(self.current_sprite)]
@@ -123,7 +124,7 @@ class Slash(pg.sprite.Sprite):
 				self.current_sprite = 0
 				self.attack_animation = False
 				self.image = self.claw_sprites[int(self.current_sprite)]
-				States.acting.melee_attack() #States.party_heroes[0]
+				Config.acting_character.melee_attack() #Config.party_heroes[0]
 				return True
 
 		self.image = self.claw_sprites[int(self.current_sprite)]
@@ -173,7 +174,7 @@ class Smash(pg.sprite.Sprite):
 			if self.rotation_remaining <= 0:
 				self.attack_animation = False
 				self.image = pg.transform.rotozoom(self.club, np.degrees(self.rotation), 1)
-				States.acting.melee_attack()
+				Config.acting_character.melee_attack()
 				return True
 		
 		XOFFSET, YOFFSET = np.cos(self.rotation) * self.offset, -np.sin(self.rotation) * self.offset
