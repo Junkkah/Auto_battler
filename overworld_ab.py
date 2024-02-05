@@ -3,12 +3,14 @@ import sys
 from config_ab import Config
 from sprites_ab import Adventure
 from data_ab import get_data, row_to_dict
+import pandas as pd
 
 class WorldMap(Config):
     def __init__(self):
         Config.__init__(self)
         self.next = 'path'
         self.error = False
+        self.line_thickness = 10
 
     def cleanup(self):
         self.map_objects = []
@@ -22,8 +24,19 @@ class WorldMap(Config):
             name = row['name']
             coords = (row['pos_x'], row['pos_y'])
             desc = row['desc']
-            adventure = Adventure(coords, self.map_sprites, desc, name)
+            child = row['child']
+            adventure = Adventure(coords, self.map_sprites, desc, name, child)
             self.map_objects.append(adventure)
+
+
+        def set_child(df):
+            for obj in self.map_objects:
+                obj_name = obj.name
+                obj_child_name = df.loc[df['name'] == obj_name, 'child'].values[0]
+
+                if pd.notna(obj_child_name):
+                    obj.child = next((child_obj for child_obj in self.map_objects if child_obj.name == obj_child_name), None)
+        set_child(map_data)
 
         bubble = pg.image.load('./ab_images/map_bubble.png').convert_alpha()
         hood = pg.image.load('./ab_images/hood.png').convert_alpha()
@@ -51,7 +64,7 @@ class WorldMap(Config):
                     else:
                         error = "Inaccessible"
                         self.error_text = self.info_font.render((error), True, (self.red))
-                        self.error_text_rect = self.error_text.get_rect(topleft=((obj.pos_x), (obj.pos_y)))
+                        self.error_text_rect = self.error_text.get_rect(topleft=((obj.pos_x), (obj.pos_y))) 
                         self.error = True
 
     def update(self, screen, dt):
@@ -59,6 +72,11 @@ class WorldMap(Config):
 
     def draw(self, screen):
         self.screen.blit(self.ground, (0,0))
+
+        for node in self.map_objects:
+            if node.child:
+                pg.draw.line(self.screen, self.white, node.pos, node.child.pos, self.line_thickness)
+
         self.map_sprites.draw(self.screen)
 
         self.screen.blit(self.bubble, self.bubble_rect)
@@ -68,10 +86,11 @@ class WorldMap(Config):
         if collided_objects:
             obj = collided_objects[0]
             info_text = self.info_font.render(obj.desc, True, self.black)
-            info_text_rect = info_text.get_rect(bottomleft=(obj.pos_x, obj.pos_y + 5))
+            info_text_rect = info_text.get_rect(bottomleft=(obj.pos_x + obj.width // 2, obj.pos_y + obj.height // 2 + 5))
             self.screen.blit(info_text, info_text_rect)
+            #create adv list, if obj.name == next item on list
             if obj.name == "dark_forest":
-                pg.draw.rect(self.screen, self.red, [obj.pos_x, obj.pos_y, obj.width, obj.height], 2)
+                pg.draw.rect(self.screen, self.red, obj.rect, 2)
         
         if self.error == True:
             self.screen.blit(self.error_text, self.error_text_rect)

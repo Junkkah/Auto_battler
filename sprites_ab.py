@@ -60,7 +60,7 @@ class Monster(Config, pg.sprite.Sprite):
         pg.draw.rect(self.screen, self.red, [self.pos_x, self.pos_y - 10, bar_width, height])
 
 class Adventure(pg.sprite.Sprite):
-    def __init__(self, pos, groups, desc: str, name: str):
+    def __init__(self, pos, groups, desc: str, name: str, child):
         super().__init__(groups)
         scenery = pg.image.load('./ab_images/map/' + name + '.png').convert_alpha()
         height = scenery.get_height()
@@ -70,13 +70,13 @@ class Adventure(pg.sprite.Sprite):
         self.width = width / scenery_size_scalar
         self.pos_x = Config.width * float(pos[0])
         self.pos_y = Config.height * float(pos[1])
-
-        #stuff in shops
+        self.pos = (self.pos_x, self.pos_y)
 
         self.image = pg.transform.smoothscale(scenery, (self.width, self.height))
-        self.rect = self.image.get_rect(topleft = (self.pos_x, self.pos_y))
+        self.rect = self.image.get_rect(center = (self.pos_x, self.pos_y)) #topleft
         self.desc = desc
         self.name = name
+        self.child = child
         
 
 class Location(pg.sprite.Sprite):
@@ -98,6 +98,7 @@ class Location(pg.sprite.Sprite):
         self.image = pg.transform.smoothscale(scenery, ((self.width / self.size_scalar), (self.height / self.size_scalar)))
         self.rect = self.image.get_rect(center = (self.pos_x, self.pos_y))
 
+        #stuff in shops
         self.treasure = []
 
 class Button(Config, pg.sprite.Sprite):
