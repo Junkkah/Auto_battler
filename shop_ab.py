@@ -18,7 +18,6 @@ from sounds_ab import sound_effect
 class Shop(Config):
     def __init__(self):
         Config.__init__(self)
-        #self.next = path if Config.current_adventure
         self.next = 'map'
 
     def cleanup(self):
@@ -90,6 +89,8 @@ class Shop(Config):
         elif event.type == pg.MOUSEBUTTONDOWN:
             if self.continue_button.rect.collidepoint(pg.mouse.get_pos()) and len(Config.party_heroes) == self.max_party_size:
                 sound_effect('click')
+                if Config.current_adventure is not None:
+                    self.next = 'path'
                 self.done = True
             elif self.continue_button.rect.collidepoint(pg.mouse.get_pos()):
                 sound_effect('error')
@@ -110,9 +111,11 @@ class Shop(Config):
         self.screen.blit(self.ground, (0,0))
         self.selection_sprites.draw(self.screen)
         self.selection_button_sprites.draw(self.screen)
-        self.screen.blit(self.bubble, self.bubble_rect)
-        self.screen.blit(self.hood, self.hood_rect)
 
+        self.screen.blit(self.hood, self.hood_rect)
+        if not Config.party_heroes:
+            self.screen.blit(self.bubble, self.bubble_rect)
+        
         gold_text = self.create_gold_text()
         self.screen.blit(gold_text, self.coords_gold)
 

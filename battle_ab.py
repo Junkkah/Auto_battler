@@ -12,16 +12,15 @@ class BattleManager(Config):
         Config.__init__(self)
         self.next = 'path' 
         self.actions_unordered = []
+        self.defeated_heroes = []
         self.combat_hero_sprites = pg.sprite.Group()
         self.combat_mob_sprites = pg.sprite.Group()
         self.animation_sprites = pg.sprite.Group()
         self.exp_reward = 0
         self.temp_stats = [] #buffs etc
-
+        
         #adjust in settings
-        self.combat_started = False
-        self.combat_delay = 1.2
-        self.delay_timer = 0.0
+        self.combat_delay = 1.1
         self.animation_speed = 0.3
 
     def create_loot(self):
@@ -42,17 +41,21 @@ class BattleManager(Config):
         Config.room_monsters = []
         Config.gold_count += self.gold_loot
 
+        for risen_hero in self.defeated_heroes:
+            Config.party_heroes.append(risen_hero)
+            risen_hero.health = risen_hero.max_health // 2
+        self.defeated_heroes = []
+
         for cleanup_hero in Config.party_heroes:
             cleanup_hero.exp += self.exp_reward 
         self.exp_reward = 0
         self.gold_loot = 0
+        self.combat_started = False
+        self.delay_timer = 0.0
 
-
-    #On hero defeat, don't remove from Config.party_heroes
-    #health bars are drawn for Config.party_heroes, remove that
     #one hero survives -> whole party survives
-    #create defeated heroes list and append defeated heroes back to party at cleanup
-
+    #or defeated heroes removed from party
+    #economy used for buying new party members to replace defeated
 
     #hero method? get len(Config.party_heroes), check find self.name position in Config.party
     #for i in range len(S.party): S.party[i].get_into_position(i + 1) pos1,2,3,4
@@ -97,6 +100,9 @@ class BattleManager(Config):
         return sorted(incombat, key=speed_order, reverse=True)
         
     def startup(self):
+
+        self.combat_started = False
+        self.delay_timer = 0.0
 
         self.position_heroes(Config.party_heroes)
         self.create_monsters()
@@ -178,6 +184,7 @@ class BattleManager(Config):
                         self.combat_hero_sprites.remove(fighting_hero)
                         self.actions_ordered.remove(fighting_hero)
                         Config.party_heroes.remove(fighting_hero)
+                        self.defeated_heroes.append(fighting_hero)
                         if not Config.party_heroes: #do loss screen
                             Config.current_location = None
                             self.next = 'menu'

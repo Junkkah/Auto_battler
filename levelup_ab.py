@@ -8,7 +8,8 @@ from sprites_ab import Button, TalentCard
 from battle_ab import BattleManager
 from sounds_ab import sound_effect
 
-#/ HeroManagement
+#separate stats from talents?
+# HeroManagement
 class LevelUp(Config): 
     def __init__(self):
         Config.__init__(self)

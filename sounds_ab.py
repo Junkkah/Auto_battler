@@ -13,9 +13,11 @@ def sound_effect(effect: str):
     sound_effect.play()
 
 def play_music_effect(location: str):
+    #pg.mixer.stop()
     music_effect = pygame.mixer.Sound('./ab_sounds/' + location + '.wav')
     music_effect.set_volume(music_volume)
-    music_effect.play(loops=-1)
+    if not pg.mixer.get_busy():
+        music_effect.play(loops=-1)
 
 def set_sfx_volume(volume: float):
     global SFX_volume

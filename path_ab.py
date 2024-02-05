@@ -19,9 +19,6 @@ class Path(Config):
         self.max_pulse_radius = 50
         self.pulsation_speed = 0.005
 
-        #self.content = ['goblin']
-
-    #boss in adventure column or as content in cave loc
     def create_content(self, location) -> list:
         tier = location.tier
         encounters_df = get_monster_encounters(Config.current_adventure, tier)
@@ -30,13 +27,6 @@ class Path(Config):
         encounter = random.choices(mob_lists, weights=probs, k=1)[0]
 
         return encounter
-
-        #tree vs bush
-        #tier1 fights: goblin(2), goblin + kobold(3), orc(4)
-        #tier2 fights: orc(4), orc + goblin(6), goblin + goblin(4), goblin_wizard(5)
-        #tier3
-        #tier4 fights: troll
-        #boss fight: Config.current_adventure(boss)
 
 
     def cleanup(self):
@@ -93,7 +83,12 @@ class Path(Config):
 
             if clicked_location and clicked_location.type == 'fight':
                 Config.room_monsters = self.create_content(clicked_location)
-                #Config.room_monsters = self.content  
+                self.current_location = clicked_location
+                self.next = 'battle'
+                self.done = True
+            
+            if clicked_location and clicked_location.type == 'boss':
+                Config.room_monsters = self.create_content(clicked_location)
                 self.current_location = clicked_location
                 self.next = 'battle'
                 self.done = True

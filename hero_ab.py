@@ -37,8 +37,8 @@ class Hero(Config, pg.sprite.Sprite):
         #what if starting level > 1
         self.level = 1
         self.exp_df = exp_data
-        #self.next_level = self.exp_df.at[0, 'exp']
-        self.next_level = 2
+        self.next_level = self.exp_df.at[0, 'exp']
+        #self.next_level = 2
 
         self.df = hero_data[hero_data['type'] == self.type].reset_index(drop=True)
         # Assign stats type, health, max_health, damage, speed, exp, menace, armor, attack_type
