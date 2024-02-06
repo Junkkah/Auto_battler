@@ -9,13 +9,16 @@ import numpy as np
 
 #Animation masterclass or consolidate into single class
 
+#ThrustAttack with parameter weapon type:
+#weapon rotated to point at target
+#need weapons: spear, axe, dagger, mace
 #inherit Config
 class Stab(pg.sprite.Sprite): #Groupsingle
 	def __init__(self, pos_x, pos_y):
 		super().__init__()
 		self.attack_animation = False
 		self.weapon_sprites = [] 
-		weapon_image = pg.image.load('./ab_images/sword.png').convert_alpha()
+		weapon_image = pg.image.load('./ab_images/weapons/sword.png').convert_alpha()
 		WIDTH, HEIGHT = weapon_image.get_size()
 		SIZE_SCALAR = 10
 		SCALED_WIDTH = WIDTH / SIZE_SCALAR
@@ -137,7 +140,7 @@ class Smash(pg.sprite.Sprite):
 		self.pos_x = pos_x
 		self.pos_y = pos_y
 		CLUB_IMAGE = pg.image.load('./ab_images/claw.png').convert_alpha()
-		#CLUB_IMAGE = pg.image.load('./ab_images/club.png').convert_alpha()
+		#CLUB_IMAGE = pg.image.load('./ab_images/weapons/club.png').convert_alpha()
 		WIDTH, HEIGHT = CLUB_IMAGE.get_size()
 		#claw skalar
 		SIZE_SCALAR = 15

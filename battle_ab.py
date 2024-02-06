@@ -224,6 +224,7 @@ class BattleManager(Config):
             COORDS_VICTORY = (self.screen_width * 0.50, self.screen_height * 0.20)
             VICTORY_TEXT_RECT = VICTORY_TEXT.get_rect(center = COORDS_VICTORY)
             self.screen.blit(VICTORY_TEXT, VICTORY_TEXT_RECT)
+            
             VICTORY_HEIGHT = VICTORY_TEXT.get_height() // 2
             COORDS_VIC = (self.screen_width * 0.50, self.screen_width * 0.20 + VICTORY_HEIGHT)
 

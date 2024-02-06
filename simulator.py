@@ -4,9 +4,10 @@ import csv
 import random
 from config_ab import Config
 from hero_ab import Hero
-from sprites_ab import TalentCard
+from sprites_ab import Button, TalentCard
 from data_ab import get_data
 from battle_ab import BattleManager
+from sounds_ab import sound_effect
 
 class Simulator(Config):
     def __init__(self):
@@ -21,7 +22,7 @@ class Simulator(Config):
         self.exp_reward = 0
 
     def startup(self):
-        self.screen.fill(self.white)
+        #self.screen.fill(self.white)
         self.simulation_sprites = pg.sprite.Group()
         self.monster_sprites = pg.sprite.Group()
         self.party_exp = 0
@@ -31,6 +32,12 @@ class Simulator(Config):
         self.names = get_data('names')
         #self.names = Stats().names
         self.COUNT = 10
+
+        FONT_NAME = "Arial"
+        COORDS_START = (self.width * 0.50, self.height * 0.20)
+        START = 'Start'
+
+        self.start_button = Button(self.simulation_sprites, START, FONT_NAME, self.big_font_size, self.black, COORDS_START)
 
     def reset_variables(self):
         self.party = []
@@ -57,8 +64,12 @@ class Simulator(Config):
         simulation_locations = get_data(Config.current_adventure)
 
         #old paths
-        #choose starting point: ['tree1', 'tree2', 'tree3']
+        start_loc = random.choice(['tree1', 'tree2', 'tree3'])
+        #create location objects
+        #set location children
         #traverse: if child2: choose child1 or child2 else: child1
+        #result is simulated_path
+        #need to call create_ecnounter(loc) for each location
         path1 = ['tree1', 'tree2', 'bush2', 'cave']
         path2 = ['tree1', 'bush2', 'bush3', 'cave']
         path3 = ['bush1', 'tree3', 'bush4', 'cave']
@@ -82,6 +93,7 @@ class Simulator(Config):
 
         for location in simulated_path:
             monsters = []
+            #monsters = path.create_encounter(location)
             monsters = simulation_locations[location]['content'].split(" ")
             simulated_monsters.append(monsters)
 
@@ -101,7 +113,7 @@ class Simulator(Config):
 
             while Config.party_heroes and Config.room_monsters: #loop combat 
                 Config.acting = self.actions_ordered[0] 
-                if Config.acting.player == True:
+                if Config.acting.player:
                     if Config.acting.attack_type == "weapon" or not Config.acting.spells:
                         Config.acting.melee_attack()
                     else:
@@ -113,19 +125,20 @@ class Simulator(Config):
                             self.exp_reward += fighting_monster.exp
 
                             Config.room_monsters.remove(fighting_monster)
-                elif Config.acting.player == False:
+                elif not Config.acting.player: # == False
                     Config.acting.melee_attack()
                     for fighting_hero in Config.party_heroes:
                         if fighting_hero.health <=0:
                             self.actions_ordered.remove(fighting_hero)
                             Config.party_heroes.remove(fighting_hero)
+                            #fallen_heroes.append(fighting_hero)
+                            #revive fallen hero for next node
 
                 self.actions_ordered.append(self.actions_ordered.pop(0))
 
             if Config.party_heroes and self.exp_reward + Config.party_heroes[0].exp >= Config.party_heroes[0].next_level:
                 for leveling_hero in Config.party_heroes:
                     leveling_hero.level_up()
-                    #Stats().levelup(leveling_hero)
 
                 #get talents code from levelup
                 #talent_data = get_data('talents')
@@ -140,6 +153,7 @@ class Simulator(Config):
                     samples.append(new_df)
                 talents = []
 
+                #old talent code
                 for i in range(self.numer_of_heroes):
                     X = 1 
                     Y = 1,1
@@ -149,6 +163,7 @@ class Simulator(Config):
                     talents.append(name_value)
                     simulation_results[2][hero.name].append(name_value.a_name)
 
+                #old talent code
                 for s_talent in talents: #always adds a talents - randomize between a and b
                     Stats().add_talent(s_talent.hero, s_talent.a_name, s_talent.a_type)
 
@@ -165,29 +180,24 @@ class Simulator(Config):
             writer = csv.writer(sim_data)
             writer.writerow(simulation_results)
 
+        #where is cleanup between node?
         self.reset_variables() #cleanup  
 
     def update(self, screen, dt):
         self.draw(screen)
     def draw(self, screen):
-        screen.fill(self.white)
+        screen.fill(self.grey)
         #display simulation results
-        SIMULATION_FONT_NAME = "Arial"
-        simu_big_font = pg.font.SysFont(SIMULATION_FONT_NAME, self.big_font_size)
-        MIDDLE = self.width * 0.50
-        HEIGHT_GAP = self.height * 0.20
-        COORDS_START = (MIDDLE, HEIGHT_GAP)
-        START = 'Start'
-        self.start_text = simu_big_font.render(START, True, self.black)
-        self.start_rect = self.start_text.get_rect(center=COORDS_START) 
-        self.screen.blit(self.start_text, self.start_rect)
+
+        self.simulation_sprites.draw(self.screen)
         
     def get_event(self, event):
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_ESCAPE:
                 self.done = True
-        elif event.type == pg.MOUSEBUTTONDOWN: #add button press effect
-            if self.start_rect.collidepoint(pg.mouse.get_pos()):
+        elif event.type == pg.MOUSEBUTTONDOWN:
+            if self.start_button.rect.collidepoint(pg.mouse.get_pos()):
+                sound_effect('click')
                 for _ in range(self.COUNT):
                     self.run_simulation()
             else:

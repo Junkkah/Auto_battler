@@ -159,6 +159,12 @@ class LevelUp(Config):
                 else:
                     drawn_card[i].border_color = (self.black)
                     drawn_card[i].draw_border()
+        
+        INFO = 'Your heroes leveled up. Choose new talents'
+        INFO_TEXT = self.med_info_font.render(INFO, True, self.black)
+        COORDS_INFO = (self.screen_width * 0.35, self.screen_height * 0.09)
+        INFO_RECT = INFO_TEXT.get_rect(topleft = COORDS_INFO)
+        self.screen.blit(INFO_TEXT, INFO_RECT)
             
         
        

@@ -61,5 +61,3 @@ class Config(object):
         font = pg.font.SysFont(self.gold_font_name, self.gold_font_size)
         text_surface = font.render(gold, True, self.yellow) 
         return text_surface
-
-
