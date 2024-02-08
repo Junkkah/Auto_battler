@@ -22,6 +22,7 @@ class Simulator(Config):
         self.party_exp = 0
         self.exp_reward = 0
         self.results_list = []
+        self.simulation_sprites.empty()
 
     def startup(self):
         self.simulation_hero_sprites = pg.sprite.Group()
@@ -54,7 +55,6 @@ class Simulator(Config):
         self.sim_loc_df = None
         self.party_exp = 0 
         self.exp_reward = 0
-        self.simulation_sprites.empty()
         self.simulation_monster_sprites.empty()
         self.simulation_hero_sprites.empty()
     
@@ -219,14 +219,6 @@ class Simulator(Config):
         #where is cleanup between node?
         self.reset_variables() #cleanup 
         return simulation_results 
-
-    def update(self, screen, dt):
-        self.draw(screen)
-    def draw(self, screen):
-        screen.fill(self.grey)
-        #display simulation results
-
-        self.simulation_sprites.draw(self.screen)
         
     def get_event(self, event):
         if event.type == pg.KEYDOWN:
@@ -249,7 +241,13 @@ class Simulator(Config):
                 sound_effect('click')
                 Config.current_adventure = 'dark_forest'
 
-            else:
-                pass
+    def update(self, screen, dt):
+        self.draw(screen)
+
+    def draw(self, screen):
+        screen.fill(self.grey)
+        #display simulation results
+
+        self.simulation_sprites.draw(self.screen)
 
             

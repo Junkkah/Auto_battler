@@ -65,18 +65,30 @@ def get_talent_data(hero_class: str) -> pd.DataFrame:
     db.close()
     return talents_df
 
-def get_hero_id(db, result_id, hero_name):
+def get_simulation_data() -> pd.DataFrame:
+    db = sqlite3.connect('./ab_data/simulation_results.db')
 
-    hero_id_query = """
-        SELECT id FROM Heroes WHERE result_id = ? AND name = ?"""
-
-    cursor = db.execute(hero_id_query, (result_id, hero_name))
-    result = cursor.fetchone()
-    if result:
-        return result[0]
-    else:
-        return None
-
+    sim_query = """
+        SELECT 
+            results.exp, 
+            results.boss_defeated, 
+            heroes.name AS hero_name, 
+            heroes.class AS hero_class, 
+            talents.talent1, talents.talent2, talents.talent3, talents.talent4, talents.talent5,
+            talents.talent1_2, talents.talent2_2, talents.talent3_2, talents.talent4_2, talents.talent5_2,
+            talents.talent1_3, talents.talent2_3, talents.talent3_3, talents.talent4_3, talents.talent5_3
+        FROM 
+            results
+        INNER JOIN 
+            heroes ON heroes.result_id = results.id
+        INNER JOIN 
+            talents ON talents.hero_id = heroes.id
+        """
+    
+    data_df = pd.read_sql_query(sim_query, db)
+    db.close()
+    return data_df
+    
 
 def enter_simulation_result(row):
     db = sqlite3.connect('./ab_data/simulation_results.db')
@@ -98,11 +110,13 @@ def enter_simulation_result(row):
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
     db.execute(node_query, (result_id,) + tuple(nodes))
 
-    heroes_query = """
-        INSERT INTO Heroes (result_id, name, class) VALUES (?, ?, ?)"""
-    
-    for name, class_ in row['heroes']:
-        db.execute(heroes_query, (result_id, name, class_))
+    heroes = row['heroes']
+    hero_data = [hero for hero_tuple in heroes for hero in hero_tuple]
+
+    hero_query = """
+        INSERT INTO Heroes (result_id, name1, class1, name2, class2, name3, class3) 
+        VALUES (?, ?, ?, ?, ?, ?, ?)"""
+    db.execute(hero_query, (result_id,) + tuple(hero_data))
   
 
     talent_dicts = []
@@ -111,66 +125,22 @@ def enter_simulation_result(row):
         talent_dicts.append(talent_dict)
     
     talent_query = """
-        INSERT INTO Talents (result_id, hero_id, talent1, talent2, talent3, talent4, talent5)
-        VALUES (?, ?, ?, ?, ?, ?, ?)"""
+        INSERT INTO Talents 
+        (result_id, hero1_talent1, hero1_talent2, hero1_talent3, hero1_talent4, hero1_talent5,
+        hero2_talent1, hero2_talent2, hero2_talent3, hero2_talent4, hero2_talent5, 
+        hero3_talent1, hero3_talent2, hero3_talent3, hero3_talent4, hero3_talent5)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
+
+    
+    talent_values = [result_id]
 
     for t_dict in talent_dicts:
-        hero_name = t_dict['hero_name']
         talents = t_dict['talents']
-        hero_id = get_hero_id(db, result_id, hero_name)
-        if hero_id is not None:
-            talents.extend([None] * (5 - len(talents)))
-            db.execute(talent_query, (result_id, hero_id,) + tuple(talents))
+        talents.extend([None] * (5 - len(talents)))
+        talent_values += talents
+
+    db.execute(talent_query, tuple(talent_values))
 
     cursor.close()
     db.commit()
     db.close()
-
-def enter_sim_list_result(lst):
-    db = sqlite3.connect('./ab_data/simulation_results.db')
-    db.isolation_level = None
-
-    exp = lst[3]
-    boss = lst[4]
-    result_query = """
-        INSERT INTO Results (exp, boss) VALUES (?, ?)"""
-    db.execute(result_query, (exp, boss,))
-    
-    result_id = db.lastrowid
-
-    nodes = lst[0]
-    node_query = """
-        INSERT INTO Nodes (result_id, node1, node2, node3, node4, node5, node6, node7, node8, node9, node10, node11, node12, node13) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
-    db.execute(node_query, (result_id,) + tuple(nodes))
-
-    heroes = lst[1]
-    heroes_query = """
-        INSERT INTO Heroes (result_id, name, class)
-        VALUES (?, ?, ?)"""
-
-    for hero in heroes:
-        db.execute(heroes_query, (result_id,) + hero)
-    
-
-    talent_dicts = lst[2]
-    talent_query = """
-        INSERT INTO Talents (result_id, hero_id, talent1, talent2, talent3, talent4, talent5)
-        VALUES (?, ?, ?, ?, ?, ?, ?)"""
-
-
-    for t_dict in talent_dicts:
-        for hero_name, talents in t_dict.items():
-            hero_id = get_hero_id(db, result_id, hero_name)
-            if hero_id is not None:
-                talents.extend([None] * (5 - len(talents)))
-                db.execute(talent_query, (result_id, hero_id,) + tuple(talents))
-
-    db.commit()
-    db.close()
-
-        
-
-
-
-
