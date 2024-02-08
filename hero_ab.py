@@ -9,6 +9,7 @@ import sys
 hero_data = get_data('classes')
 exp_data = get_data('experience')
 spells_data = get_data('spells')
+#weapons_data = get_data('weapons')
 
 class Hero(Config, pg.sprite.Sprite):
     def __init__(self, groups, pos, name: str, type: str):
@@ -49,10 +50,13 @@ class Hero(Config, pg.sprite.Sprite):
         self.talents = []
         #done before creating animation object
         #set acting, run eval, create animation object
-        #def eval_attack_type(self): uncertainty
+        #to do eval requires weapon data in hero object
+            #pass weapons data from hero object to animation
+        #def get_attack_type(self): uncertainty
             #if song in talents do song
-            #if spell in spells compare melee, spell
-                #if spell compare spells, healing?
+            #if spell in spells 
+                #compare melee, spell
+            #if spell compare spells
     def get_target(self):
         total_menace = sum(monster.menace for monster in Config.room_monsters)
         prob = [monster.menace/total_menace for monster in Config.room_monsters]

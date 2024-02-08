@@ -27,7 +27,7 @@ class Menu(Config):
         COORDS_QUIT = (MENU_BUTTON_XPOS, MENU_BUTTON_YPOS * 5)
 
         TITLE = "Auto Battler" 
-        PLAY_TEXT = "Play"
+        PLAY_TEXT = "New Game"
         SETTINGS_TEXT = "Settings"
         SIMULATOR_TEXT = "Simulator"
         QUIT_TEXT = "Quit"
@@ -53,7 +53,6 @@ class Menu(Config):
         self.screen.blit(self.title_text, self.title_rect)
         self.menu_button_sprites.draw(self.screen)
         
-
     def get_event(self, event):
         mouse_pos = pg.mouse.get_pos()
         if event.type == pg.KEYDOWN:
@@ -77,7 +76,6 @@ class Menu(Config):
 
             elif self.settings_button.rect.collidepoint(mouse_pos):
                 sound_effect('error')
-                pass
                 #self.next = 'settings'
                 #self.done = True
 

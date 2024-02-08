@@ -7,10 +7,6 @@ from sprites_ab import Button
 from data_ab import get_data
 from sounds_ab import sound_effect
 
-#class Selection / HeroHire / Shop
-#if Config.party_heroes not:
-#show bubble
-#else: coming to shop from path
 
 #needs hire buttons
 
@@ -38,8 +34,8 @@ class Shop(Config):
         
         bubble = pg.image.load('./ab_images/menu_bubble.png').convert_alpha()
         hood = pg.image.load('./ab_images/hood.png').convert_alpha()
-        COORDS_BUBBLE  = (self.screen_width * 0.12, self.screen_height * 0.85)
-        COORDS_HOOD = (self.screen_width * 0.05, self.screen_height * 0.80)
+        COORDS_BUBBLE  = (self.screen_width * 0.12, self.screen_height * 0.75)
+        COORDS_HOOD = (self.screen_width * 0.05, self.screen_height * 0.70)
         SCALAR_BUBBLE = ((bubble.get_width() / 8), (bubble.get_height() / 8))
         SCALAR_HOOD = ((hood.get_width() / 8), (hood.get_height() / 8))
         
@@ -52,7 +48,7 @@ class Shop(Config):
         self.names = [tuple(row) for row in names_df[['name', 'type']].values]
         self.available = random.sample(self.names, SELECTABLE_HEROES)
 
-        #raise upper row to make room for hire buttons
+        #raise rows to make room for hire buttons
         HEROPOS_X = (self.screen_width * 0.20)
         HEROPOS_Y_ROW1 = (self.screen_height * 0.20)
         HEROPOS_Y_ROW2 = (self.screen_height * 0.50)
@@ -75,8 +71,15 @@ class Shop(Config):
         CONT_FONT = self.default_font
         CONT_SIZE = self.big_font_size
         CONT_COL = self.black
-        COORDS_CONT = (self.screen_width * 0.75, self.screen_height * 0.88)
+        COORDS_CONT = (self.screen_width * 0.75, self.screen_height * 0.90)
 
+        BACK_TEXT = "MENU (Esc)"
+        BACK_FONT = self.default_font
+        BACK_SIZE = self.medium_font_size
+        BACK_COL = self.black
+        COORDS_BACK = (self.screen_width * 0.10, self.screen_height * 0.90)
+
+        self.back_button = Button(self.selection_button_sprites, BACK_TEXT, BACK_FONT, BACK_SIZE, BACK_COL, COORDS_BACK)
         self.continue_button = Button(self.selection_button_sprites, CONT_TEXT, CONT_FONT, CONT_SIZE, CONT_COL, COORDS_CONT)
         self.selection_buttons.append(self.continue_button)
         
@@ -87,6 +90,10 @@ class Shop(Config):
                 exit()
 
         elif event.type == pg.MOUSEBUTTONDOWN:
+            if self.back_button.rect.collidepoint(pg.mouse.get_pos()):
+                sound_effect('click')
+                self.next = 'menu'
+                self.done = True
             if self.continue_button.rect.collidepoint(pg.mouse.get_pos()) and len(Config.party_heroes) == self.max_party_size:
                 sound_effect('click')
                 if Config.current_adventure is not None:

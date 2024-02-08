@@ -7,7 +7,7 @@ from path_ab import Path
 from battle_ab import BattleManager
 from config_ab import Config
 from levelup_ab import LevelUp
-from simulator import Simulator
+from simulator_ab import Simulator
 
 #Control and States class state machine code from
 #https://python-forum.io/thread-336.html 

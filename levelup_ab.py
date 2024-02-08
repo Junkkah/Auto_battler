@@ -8,7 +8,6 @@ from sprites_ab import Button, TalentCard
 from battle_ab import BattleManager
 from sounds_ab import sound_effect
 
-#separate stats from talents?
 # HeroManagement
 class LevelUp(Config): 
     def __init__(self):
@@ -37,21 +36,16 @@ class LevelUp(Config):
         for selected_talent in self.talents_selected:
             selected_talent.hero.add_talent(selected_talent.name, selected_talent.type)
 
-
         self.talent_buttons = []
-        self.inv_buttons = []
         self.talents_selected = []
         self.levelup_hero_sprites.empty()
         self.levelup_sprites.empty()
     
     def startup(self):
         self.talent_buttons = []
-        self.inv_buttons = []
         self.talents_selected = []
         self.talent_cards = []
 
-        #
-        TITLE_TEXT = "Choose new talents"
         CONT_TEXT = "CONTINUE"
         CONT_FONT = self.default_font
         CONT_SIZE = self.big_font_size
@@ -59,7 +53,6 @@ class LevelUp(Config):
         COORDS_CONT = (self.screen_width * 0.75, self.screen_height * 0.88)
 
         self.continue_button = Button(self.levelup_sprites, CONT_TEXT, CONT_FONT, CONT_SIZE, CONT_COL, COORDS_CONT)
-        self.inv_buttons.append(self.continue_button)
 
         #position heroes 
         battle_instance = BattleManager()

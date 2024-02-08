@@ -19,15 +19,13 @@ class Path(Config):
         self.max_pulse_radius = 50
         self.pulsation_speed = 0.005
 
-    def create_content(self, location) -> list:
-        tier = location.tier
+    def create_encounter(self, tier) -> list:
         encounters_df = get_monster_encounters(Config.current_adventure, tier)
         probs = encounters_df['Probability'].tolist()
         mob_lists = encounters_df.apply(lambda row: [value for value in row[4:].tolist() if value is not None], axis=1).tolist()
         encounter = random.choices(mob_lists, weights=probs, k=1)[0]
 
         return encounter
-
 
     def cleanup(self):
         self.path_sprites.empty()
@@ -82,13 +80,15 @@ class Path(Config):
                         break 
 
             if clicked_location and clicked_location.type == 'fight':
-                Config.room_monsters = self.create_content(clicked_location)
+                print("Tier type:", type(clicked_location.tier))
+                Config.room_monsters = self.create_encounter(clicked_location.tier)
+
                 self.current_location = clicked_location
                 self.next = 'battle'
                 self.done = True
             
             if clicked_location and clicked_location.type == 'boss':
-                Config.room_monsters = self.create_content(clicked_location)
+                Config.room_monsters = self.create_encounter(clicked_location.tier)
                 self.current_location = clicked_location
                 self.next = 'battle'
                 self.done = True
