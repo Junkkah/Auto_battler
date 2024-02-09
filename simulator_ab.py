@@ -23,30 +23,39 @@ class Simulator(Config):
         self.exp_reward = 0
         self.results_list = []
         self.simulation_sprites.empty()
+        self.help_sprites.empty()
 
     def startup(self):
         self.simulation_hero_sprites = pg.sprite.Group()
         self.simulation_sprites = pg.sprite.Group()
         self.simulation_monster_sprites = pg.sprite.Group()
+        self.help_sprites = pg.sprite.Group()
         self.party_exp = 0
         self.exp_reward = 0
         self.party_size = 3
         self.simu_paths = []
         self.names_df = get_data('names')
         self.talent_lists = get_data('talents')
-        self.COUNT = 1
+        self.COUNT = 10
         self.results_list = []
-
+        self.sim_done = False
 
         FONT_NAME = "Arial"
-        COORDS_START = (self.screen_width * 0.50, self.screen_height * 0.20)
-        COORDS_FOREST = (self.screen_width * 0.65, self.screen_height * 0.20)
+        COORDS_START = (self.screen_width * 0.50, self.screen_height * 0.40)
+        COORDS_FOREST = (self.screen_width * 0.50, self.screen_height * 0.20)
+        COORDS_DONE = (self.screen_width * 0.50, self.screen_height * 0.50)
         START = 'Start'
         FOREST = 'Set: Dark Forest'
+        DONE = 'Done'
 
         self.start_button = Button(self.simulation_sprites, START, FONT_NAME, self.big_font_size, self.black, COORDS_START)
         self.forest_button = Button(self.simulation_sprites, FOREST, FONT_NAME, self.medium_font_size, self.black, COORDS_FOREST)
+        self.done_button = Button(self.help_sprites, DONE, FONT_NAME, self.medium_font_size, self.black, COORDS_DONE)
 
+        info = "Simulation is running"
+        self.info_text = self.info_font.render(info, True, self.black)
+        self.info_text_rect = self.info_text.get_rect(center=COORDS_DONE)
+        
     def reset_variables(self):
         self.party = []
         Config.party_heroes = []
@@ -82,8 +91,8 @@ class Simulator(Config):
 
     def create_encounter(self, tier) -> list:
         loc_tier = tier
-        adv = 'dark_forest'
-        encounters_df = get_monster_encounters(adv, tier) #Config.current_adventure
+        adv = Config.current_adventure 
+        encounters_df = get_monster_encounters(adv, tier)
         probs = encounters_df['Probability'].tolist()
         mob_lists = encounters_df.apply(lambda row: [value for value in row[4:].tolist() if value is not None], axis=1).tolist()
         encounter = random.choices(mob_lists, weights=probs, k=1)[0]
@@ -115,10 +124,7 @@ class Simulator(Config):
         
         simulation_results.append(simulated_path)
         simulation_results.append(self.party)
-        
-        #modify to list of dicts
-        #now dict of dicts
-        #if modify, adjust enter_simulator_results
+
         talent_dicts = {}
         for p in range(self.party_size):
             talent_dicts[simulation_results[1][p][0]] = []
@@ -216,7 +222,6 @@ class Simulator(Config):
             simulation_results.append('False')
         
 
-        #where is cleanup between node?
         self.reset_variables() #cleanup 
         return simulation_results 
         
@@ -226,20 +231,31 @@ class Simulator(Config):
                 self.done = True
         elif event.type == pg.MOUSEBUTTONDOWN:
             if self.start_button.rect.collidepoint(pg.mouse.get_pos()):
-                sound_effect('click')
-                for _ in range(self.COUNT):
-                    result = self.run_simulation()
-                    self.results_list.append(result)
+                if Config.current_adventure:  
+                    self.sim_done = False
+                    sound_effect('click')
+                    for _ in range(self.COUNT):
+                        result = self.run_simulation()
+                        self.results_list.append(result)
+                        self.screen.blit(self.info_text, self.info_text_rect)
 
-                columns = ['nodes', 'heroes', 'talents', 'exp', 'boss_defeated']
-                results_df = pd.DataFrame(self.results_list, columns=columns)
-                
-                for _, row in results_df.iterrows():
-                    enter_simulation_result(row)
+                    columns = ['nodes', 'heroes', 'talents', 'exp', 'boss_defeated']
+                    results_df = pd.DataFrame(self.results_list, columns=columns)
+                    
+                    for _, row in results_df.iterrows():
+                        enter_simulation_result(row)
+                    self.sim_done = True
+
+                else:
+                    sound_effect('error')
 
             elif self.forest_button.rect.collidepoint(pg.mouse.get_pos()):
                 sound_effect('click')
                 Config.current_adventure = 'dark_forest'
+            
+            elif self.done_button.rect.collidepoint(pg.mouse.get_pos()):
+                sound_effect('click')
+                self.sim_done = False
 
     def update(self, screen, dt):
         self.draw(screen)
@@ -250,4 +266,5 @@ class Simulator(Config):
 
         self.simulation_sprites.draw(self.screen)
 
-            
+        if self.sim_done:
+            self.help_sprites.draw(self.screen)

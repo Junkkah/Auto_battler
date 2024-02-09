@@ -71,18 +71,22 @@ def get_simulation_data() -> pd.DataFrame:
     sim_query = """
         SELECT 
             results.exp, 
-            results.boss_defeated, 
-            heroes.name AS hero_name, 
-            heroes.class AS hero_class, 
-            talents.talent1, talents.talent2, talents.talent3, talents.talent4, talents.talent5,
-            talents.talent1_2, talents.talent2_2, talents.talent3_2, talents.talent4_2, talents.talent5_2,
-            talents.talent1_3, talents.talent2_3, talents.talent3_3, talents.talent4_3, talents.talent5_3
+            results.boss, 
+            heroes.name1 AS hero1_name, 
+            heroes.class1 AS hero1_class, 
+            heroes.name2 AS hero2_name, 
+            heroes.class2 AS hero2_class, 
+            heroes.name3 AS hero3_name, 
+            heroes.class3 AS hero3_class, 
+            talents.hero1_talent1, talents.hero1_talent2, talents.hero1_talent3, talents.hero1_talent4, talents.hero1_talent5,
+            talents.hero2_talent1, talents.hero2_talent2, talents.hero2_talent3, talents.hero2_talent4, talents.hero2_talent5,
+            talents.hero3_talent1, talents.hero3_talent2, talents.hero3_talent3, talents.hero3_talent4, talents.hero3_talent5
         FROM 
             results
         INNER JOIN 
             heroes ON heroes.result_id = results.id
         INNER JOIN 
-            talents ON talents.hero_id = heroes.id
+            talents ON talents.result_id = results.id
         """
     
     data_df = pd.read_sql_query(sim_query, db)
