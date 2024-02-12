@@ -1,5 +1,3 @@
-import pygame as pg
-from config_ab import Config
 import sqlite3
 import pandas as pd
 
@@ -12,26 +10,10 @@ def row_to_dict(dataframe, name) -> dict:
 def get_data(table: str) -> pd.DataFrame:
     db = sqlite3.connect('./ab_data/stats.db')
     db.isolation_level = None
-    # "SELECT * FROM Monsters WHERE name IN ('goblin', 'orc')"
     query = "SELECT * FROM " + table
     df = pd.read_sql_query(query, db)
     db.close()
     return df
-
-def get_adv_monsters(adventure: str) -> pd.DataFrame:
-    db = sqlite3.connect('./ab_data/stats.db')
-
-    mob_query = """
-        SELECT m.*
-        FROM Monsters m
-        JOIN Adventure_monsters am ON m.id = am.monster_id
-        JOIN Adventures a ON a.id = am.adventure_id
-        WHERE a.name = ?
-        """
-
-    mobs_df = pd.read_sql_query(mob_query, db, params=(adventure,))
-    db.close()
-    return mobs_df
 
 def get_monster_encounters(adventure: str, tier: int) -> pd.DataFrame:
     db = sqlite3.connect('./ab_data/stats.db')
@@ -41,7 +23,7 @@ def get_monster_encounters(adventure: str, tier: int) -> pd.DataFrame:
     
     mob_group_query = """
         SELECT *
-        FROM Loc_Content 
+        FROM Location_encounters
         WHERE Adventure_id = ? AND Tier = ?"""
         
     mob_group_df = pd.read_sql_query(mob_group_query, db, params=(id, tier,))
@@ -58,15 +40,13 @@ def get_talent_data(hero_class: str) -> pd.DataFrame:
         WHERE classes.type = ?
         """
     
-    # Use COLLATE NOCASE for case-insensitive comparison
-    #query = f"SELECT * FROM talents WHERE name = ? COLLATE NOCASE"
-
     talents_df = pd.read_sql_query(talents_query, db, params=(hero_class,))
     db.close()
     return talents_df
 
-def get_simulation_data() -> pd.DataFrame:
-    db = sqlite3.connect('./ab_data/simulation_results.db')
+def get_simulation_dataset(set_number: int) -> pd.DataFrame:
+    num = str(set_number)
+    db = sqlite3.connect('./ab_data/simulation_datasets/simulation_results_' + num + '.db')
 
     sim_query = """
         SELECT 
@@ -148,3 +128,12 @@ def enter_simulation_result(row):
     cursor.close()
     db.commit()
     db.close()
+
+def get_data_simulation(table: str, set_number: int):
+    num = str(set_number)
+    db = sqlite3.connect('./ab_data/simulation_datasets/simulation_results_' + num + '.db')
+    db.isolation_level = None
+    query = "SELECT * FROM " + table
+    df = pd.read_sql_query(query, db)
+    db.close()
+    return df

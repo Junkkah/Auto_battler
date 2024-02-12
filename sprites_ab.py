@@ -98,7 +98,7 @@ class Location(pg.sprite.Sprite):
         self.image = pg.transform.smoothscale(scenery, ((self.width / self.size_scalar), (self.height / self.size_scalar)))
         self.rect = self.image.get_rect(center = (self.pos_x, self.pos_y))
 
-        #stuff in shops
+        #items in shops
         self.treasure = []
 
 class Button(Config, pg.sprite.Sprite):

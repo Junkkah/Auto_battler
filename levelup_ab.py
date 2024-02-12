@@ -94,12 +94,6 @@ class LevelUp(Config):
             if event.key == pg.K_ESCAPE:
                 exit()
 
-        #if event.type == pg.MOUSEMOTION:
-        #    for talent_button in self.talent_buttons:
-        #        if talent_button.rect.collidepoint(pg.mouse.get_pos()):
-        #            pass
-        #        else:
-        #            pass
 
         elif event.type == pg.MOUSEBUTTONDOWN:
             mouse_pos = pg.mouse.get_pos()

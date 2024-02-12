@@ -2,7 +2,7 @@ import pygame as pg
 from config_ab import Config
 from hero_ab import Hero
 from sprites_ab import Monster
-from animation import Stab, Slash, Blast, Smash
+from animations_ab import Stab, Slash, Blast, Smash
 from sounds_ab import sound_effect
 import random
 
@@ -53,9 +53,6 @@ class BattleManager(Config):
         self.combat_started = False
         self.delay_timer = 0.0
 
-    #one hero survives -> whole party survives
-    #or defeated heroes removed from party
-    #economy used for buying new party members to replace defeated
 
     #hero method? get len(Config.party_heroes), check find self.name position in Config.party
     #for i in range len(S.party): S.party[i].get_into_position(i + 1) pos1,2,3,4
@@ -201,8 +198,6 @@ class BattleManager(Config):
         for live_monster in Config.room_monsters:
             live_monster.draw_health_bar()
 
-        #new list self.not_defeated_heroes to draw health bars,
-        #if deafeated heroes are not removed from party_heroes
         for live_hero in Config.party_heroes:
             live_hero.draw_health_bar()
 

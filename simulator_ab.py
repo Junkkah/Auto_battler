@@ -10,6 +10,8 @@ from sounds_ab import sound_effect
 from path_ab import Path
 from levelup_ab import LevelUp
 
+# Simulation runtime for self.COUNT = 5000 estimated 4h 30mins
+
 class Simulator(Config):
     def __init__(self):
         Config.__init__(self)
@@ -36,7 +38,7 @@ class Simulator(Config):
         self.simu_paths = []
         self.names_df = get_data('names')
         self.talent_lists = get_data('talents')
-        self.COUNT = 10
+        self.COUNT = 1000
         self.results_list = []
         self.sim_done = False
 
@@ -144,6 +146,7 @@ class Simulator(Config):
             simulated_monsters.append(monsters)
 
         #take first monster list in simulated_monsters and loop battle
+        #rooms_done += 1 to count final room
         for monster_list in simulated_monsters:
             Config.room_monsters = monster_list
             #monster objects

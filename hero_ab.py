@@ -45,7 +45,8 @@ class Hero(Config, pg.sprite.Sprite):
         # Assign stats type, health, max_health, damage, speed, exp, menace, armor, attack_type
         for stat_name in self.df.columns:
             setattr(self, stat_name, int(self.df.at[0, stat_name]) if str(self.df.at[0, stat_name]).isdigit() else self.df.at[0, stat_name])
-        
+        #more stats? critical strike, evasion, retribution
+
         self.spells = []
         self.talents = []
         #done before creating animation object
@@ -63,6 +64,7 @@ class Hero(Config, pg.sprite.Sprite):
         target = np.random.choice(Config.room_monsters, p=prob)
         return target
     
+    
     def attack(self, target):
         for effect_name, effect_data in self.special_effects.items():
             effect_behavior = effect_data.get("behavior", None)
@@ -70,8 +72,12 @@ class Hero(Config, pg.sprite.Sprite):
                 # Dynamically execute the behavior function
                 effect_behavior(self)
 
-    
+    #any class techniques to aid
+    #DAMAGE = self.weapon_damage + self.damage_bonus * self.damage_multiplier
+    #+possible cleave_attack or other
     def melee_attack(self):
+        #if self.health == low and Berserking in self.talents
+            #+damage
         target = self.get_target()
         self.animation = False
         DAMAGE = self.damage - target.armor
@@ -125,7 +131,7 @@ class Hero(Config, pg.sprite.Sprite):
 
         elif talent_type == "special":
             self.talents.append(talent_name)
-            #check hero talent list start of combat and pull effects from data
+            #check hero talent list at combat / pull effects from data
 
         elif talent_type == "domain":
             self.talents.append(talent_name) 

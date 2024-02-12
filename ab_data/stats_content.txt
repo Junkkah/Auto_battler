@@ -23,12 +23,12 @@ Columns:
 - health: Health points (HP) of the class.
 - max_health: Maximum health points
 - damage: Amount of damage the class can deal.
-- speed:
+- speed: How fast the hero performs actions.
 - exp: Current experience points of character.
-- menace:
+- menace: Hero with most menace is most likely to be hit by enemies.
 - armor: Armor value, reducing incoming damage.
-- attack_type:
-- level_health:
+- attack_type: What type of attacks the hero uses.
+- level_health: How much the heros maximum health is increased when gaining a level. 
 
 Table: Names
 Columns:
@@ -41,9 +41,9 @@ Table: Spells
 Columns:
 - id: Unique identifier for each spell.
 - name: Name of the spell.
-- damage:
-- speed:
-- type:
+- damage: How damage the spell deals to enemy / enemies.
+- speed: How fast the spell is cast.
+- type: What type of damage the spell deals.
 - area: Value 0 indicates single target spell, value 1 indicates area spell.
 
 Table: Adventures
@@ -55,25 +55,17 @@ Columns:
 - pos_y: Locations y-coordinate relative to screen height.
 - desc: Description of the location displayed in game.
 
-#replaced with Loc_Content
-Table: Adventure_monsters
-- Lists adventures where each monster can appear.
-Columns:
-- id:
-- adventure_id: 
-- monster_id: 
-
-Table: Loc_Content
+Table: Location_encounters
 - Monster encounter distribution.
 Columns:
-- id: 
-- adventure_id: 
-- tier:
-- probability: 
-- monster1:
-- monster2: 
-- monster3: 
-- monster4:
+- id: Unique identifier for each monster encounter.
+- adventure_id: Foreign key reference to Adventures table.
+- tier: Indicates difficulty of the encounter. Tier 1 is easiest encounter.
+- probability: Probability of encounter occurring in the location.
+- monster1: Name of the monster in encounter.
+- monster2: Name of the monster in encounter. Value can be None
+- monster3: Name of the monster in encounter. Value can be None
+- monster4: Name of the monster in encounter. Value can be None
 
 Table: dark_forest
 - Attributes for adventure dark_forest locations
@@ -97,17 +89,17 @@ Table: talents
 Columns:
 - id: Unique identifier for each talent.
 - name: Name of the talent.
-- desc:
-- effect: 
-- type:
-- min_level: 
-- req1: 
-- req2: 
-- class_id: 
+- desc: Short description of the talent.
+- effect: Instruction for Hero method how the talent effects the hero.
+- type: Talent types are: stat, spell, special, song.
+- min_level: Minimum level required to learn the talent.
+- req1: Another talent hero needs to have in order to learn the talent.
+- req2: Another talent hero needs to have in order to learn the talent.
+- class_id: Foreign key reference to Classes table.
 
 Table: Experience
--
+- Table for experience values needed to gain levels.
 Columns:
-- id:
-- level:
-- exp:
+- id: Unique identifier for each hero level.
+- level: Hero Level.
+- exp: Experience points required to advance to hero level.

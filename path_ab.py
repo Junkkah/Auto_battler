@@ -7,8 +7,6 @@ import pandas as pd
 import math
 import random
 
-#create list of town names, randomly pick town name from list
-#determine buyble stuff in town for each name
 
 class Path(Config):
     def __init__(self):
@@ -57,8 +55,6 @@ class Path(Config):
     
 
     #randomized paths
-
-
     def get_event(self, event):
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_ESCAPE:
@@ -80,7 +76,6 @@ class Path(Config):
                         break 
 
             if clicked_location and clicked_location.type == 'fight':
-                print("Tier type:", type(clicked_location.tier))
                 Config.room_monsters = self.create_encounter(clicked_location.tier)
 
                 self.current_location = clicked_location

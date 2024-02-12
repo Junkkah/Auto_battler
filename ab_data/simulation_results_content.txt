@@ -19,20 +19,18 @@ Table: Heroes
 Columns:
 - id: Unique identifier for each simulation.
 - result_id: Foreign key reference to Results ID. Redundant.
-- name1: 
-- class1: 
-- name2: 
-- class2: 
-- name3: 
-- class3:
+- name1: Name of first hero in the party.
+- class1: Name of the class of first hero in the party.
+- name2: Name of second hero in the party.
+- class2: Name of the class of second hero in the party.
+- name3: Name of third hero in the party.
+- class3: Name of the class of third hero in the party.
 
 Table: Talents
 - Names of talents for each Hero.
 - Hero gains new talent each level. 
 - None values indicate hero did not reach that level
 Columns: 
-- id: 
-- result_id: 
-hero1_talent1, hero1_talent2, hero1_talent3, hero1_talent4, hero1_talent5,
-hero2_talent1, hero2_talent2, hero2_talent3, hero2_talent4, hero2_talent5, 
-hero3_talent1, hero3_talent2, hero3_talent3, hero3_talent4, hero3_talent5
+- id: Unique identifier for each simulation.
+- result_id: Foreign key reference to Results ID. Redundant.
+- hero[i]_talent[j]: Talent number j of hero number i. Maximum of three heroes, five talents

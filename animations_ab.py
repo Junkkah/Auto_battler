@@ -7,7 +7,6 @@ import numpy as np
 #Stab, Slash and Blast class code adapted from
 #https://github.com/clear-code-projects/animation 
 
-#Animation masterclass or consolidate into single class
 
 #ThrustAttack with parameter weapon type:
 #weapon rotated to point at target
@@ -95,7 +94,7 @@ class Blast(pg.sprite.Sprite):
 
 		self.image = self.spell_sprites[int(self.current_sprite)]
 
-#animation not working properly
+#Slash animation not working properly
 #black screen blink in combat start
 class Slash(pg.sprite.Sprite):
 	def __init__(self, pos_x, pos_y):

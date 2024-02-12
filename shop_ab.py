@@ -9,7 +9,6 @@ from sounds_ab import sound_effect
 
 
 #needs hire buttons
-
 #HeroManager
 class Shop(Config):
     def __init__(self):
@@ -136,7 +135,6 @@ class Shop(Config):
         else:
             self.continue_button.border_color = self.grey
             self.continue_button.draw_border()
-
 
         for shero in self.selection:
             if shero.rect.collidepoint(pg.mouse.get_pos()):

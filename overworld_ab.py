@@ -5,7 +5,6 @@ from sprites_ab import Adventure
 from data_ab import get_data, row_to_dict
 import pandas as pd
 
-#2, 3, home, 0.15, 0.25, Home Base, dark_forest
 
 class WorldMap(Config):
     def __init__(self):
