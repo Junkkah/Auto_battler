@@ -9,15 +9,24 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 from data_ab import get_simulation_dataset, get_data_simulation
-import operator
+
 
 # Random Forest Regression
 # Supervised learning
+# Dataset1, N = 5000
 # Dependant y = 'exp'
 # Independent variables X = 'hero1_class', 'hero2_class', 'hero3_class'
 # Plot of dataset1 similar to arctangent function
 
 # Based on visual inspection of plot, polynomial regression might be better fit
+# Test for random forest regression:
+# RMSE: 13.023468377137092
+# R-squared: 0.36218110782957313
+
+# Polynomial regression:
+# RMSE: 12.411438835398728 
+# R-squared: 0.42072028345750256
+
 
 df = get_simulation_dataset(1)
 df.drop(columns=['boss', 'hero1_name', 'hero2_name', 'hero3_name', 'hero1_talent5', 'hero2_talent5', 'hero3_talent5',], inplace=True)
@@ -48,9 +57,8 @@ def random_forest_model():
     mse = mean_squared_error(y_test, y_pred)
     rmse = np.sqrt(mse)
     r2 = r2_score(y_test, y_pred)
-    print(f'RMSE: {rmse}') #13.023468377137092
-    print(f'R-squared:: {r2}') #0.36218110782957313
-
+    print(f'RMSE: {rmse}') 
+    print(f'R-squared:: {r2}') 
 
 poly = PolynomialFeatures(degree=2)
 X_train_poly = poly.fit_transform(X_train)
@@ -64,9 +72,8 @@ y_pred = poly_reg.predict(X_test_poly)
 r2 = r2_score(y_test, y_pred)
 mse = mean_squared_error(y_test, y_pred)
 rmse = np.sqrt(mse)
-print(f'RMSE: {rmse}') #12.411438835398728 
-print("R-squared:", r2) #0.42072028345750256
-
+print(f'RMSE: {rmse}') 
+print("R-squared:", r2)
 
 def plot_data():
     y_test_series = pd.Series(y_test.flatten())
