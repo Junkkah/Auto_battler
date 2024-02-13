@@ -38,7 +38,7 @@ class Simulator(Config):
         self.simu_paths = []
         self.names_df = get_data('names')
         self.talent_lists = get_data('talents')
-        self.COUNT = 1000
+        self.COUNT = 5000
         self.results_list = []
         self.sim_done = False
 

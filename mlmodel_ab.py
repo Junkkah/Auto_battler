@@ -11,15 +11,15 @@ import numpy as np
 from data_ab import get_simulation_dataset, get_data_simulation
 
 
-# Random Forest Regression
+# Random Forest Regression and Polynomial Regression
 # Supervised learning
 # Dataset1, N = 5000
+# Dataset2, N = 10000
 # Dependant y = 'exp'
 # Independent variables X = 'hero1_class', 'hero2_class', 'hero3_class'
-# Plot of dataset1 similar to arctangent function
 
-# Based on visual inspection of plot, polynomial regression might be better fit
-# Test for random forest regression:
+# Test for Dataset1
+# Random forest regression:
 # RMSE: 13.023468377137092
 # R-squared: 0.36218110782957313
 
@@ -27,8 +27,17 @@ from data_ab import get_simulation_dataset, get_data_simulation
 # RMSE: 12.411438835398728 
 # R-squared: 0.42072028345750256
 
+#Dataset2 random forest regression
+#RMSE: 15.501181916945496
+#R-squared:: 0.12171738791769571
 
-df = get_simulation_dataset(1)
+#Dataset2 polynomial regression
+#RMSE: 15.513436783163018
+#R-squared: 0.12032814023977545
+
+
+df = get_simulation_dataset(2)
+
 df.drop(columns=['boss', 'hero1_name', 'hero2_name', 'hero3_name', 'hero1_talent5', 'hero2_talent5', 'hero3_talent5',], inplace=True)
 #df.fillna('', inplace=True)
 #df.fillna('No Talent', inplace=True)
@@ -60,6 +69,7 @@ def random_forest_model():
     print(f'RMSE: {rmse}') 
     print(f'R-squared:: {r2}') 
 
+#polynomial_regression
 poly = PolynomialFeatures(degree=2)
 X_train_poly = poly.fit_transform(X_train)
 X_test_poly = poly.transform(X_test)
@@ -85,5 +95,3 @@ def plot_data():
     plt.xlabel('Actual Experience Gained')
     plt.ylabel('Predicted Experience Gained')
     plt.show()
-plot_data()
-
