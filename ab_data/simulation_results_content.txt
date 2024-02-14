@@ -1,4 +1,4 @@
-
+#put all results into single table
 Table: Results
 - Measure of heroes success in simulation
 Columns: 

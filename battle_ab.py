@@ -135,19 +135,24 @@ class BattleManager(Config):
         Config.acting_character = self.actions_ordered[0]
         if not Config.acting_character.animation and Config.room_monsters: #animation hasn't started yet
             if Config.acting_character.player: #Attacker is hero
-                if Config.acting_character.attack_type == "weapon" or not Config.acting_character.spells:
-                    sound_effect('sword')
-                    self.combat_animation = Stab(Config.acting_character.pos_x, Config.acting_character.pos_y)
-                else:
+                if Config.acting_character.attack_type == "spell" and Config.acting_character.spells:
                     #hero always cast index 0 spell in self.spells
                     #create hero method for choosing spell to cast
-                    self.combat_animation = Blast(Config.acting_character.pos_x, Config.acting_character.pos_y, Config.acting_character.spells[0])
+                    self.combat_animation = Blast(self.animation_sprites, Config.acting_character.pos_x, Config.acting_character.pos_y, Config.acting_character.spells[0])
+                else:
+                    #if Config.acting_character.attack_type == "weapon" or not Config.acting_character.spells:
+                    sound_effect('sword')
+                    pos_x = Config.acting_character.pos_x
+                    pos_y = Config.acting_character.pos_y
+                    weapon = Config.acting_character.attack_type
+                    self.combat_animation = Stab(self.animation_sprites, weapon, pos_x, pos_y)
+
             elif not Config.acting_character.player:
-                self.combat_animation = Smash((Config.acting_character.pos_x + Config.acting_character.width), (Config.acting_character.pos_y + Config.acting_character.height))
-                #self.combat_animation = Slash((Config.acting_character.pos_x + self.screen_width * 0.1), (Config.acting_character.pos_y + self.screen_height * 0.1))
+                self.combat_animation = Smash(self.animation_sprites, (Config.acting_character.pos_x + Config.acting_character.width), (Config.acting_character.pos_y + Config.acting_character.height))
+                #self.combat_animation = Slash(self.animation_sprites, (Config.acting_character.pos_x + self.screen_width * 0.1), (Config.acting_character.pos_y + self.screen_height * 0.1))
             else:
                 pass
-            self.animation_sprites.add(self.combat_animation)
+            #self.animation_sprites.add(self.combat_animation)
             Config.acting_character.animation = True
             self.combat_animation.animation_start()
 

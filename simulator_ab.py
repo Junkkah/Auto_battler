@@ -165,10 +165,10 @@ class Simulator(Config):
             while Config.party_heroes and Config.room_monsters: #loop combat 
                 Config.acting = self.actions_ordered[0] 
                 if Config.acting.player:
-                    if Config.acting.attack_type == "weapon" or not Config.acting.spells:
-                        Config.acting.melee_attack()
-                    else:
+                    if Config.acting.attack_type == "spell" and Config.acting.spells:
                         Config.acting.spell_attack(Config.acting.spells[0]) #passing 1st spell
+                    else:
+                        Config.acting.melee_attack()
                     
                     for fighting_monster in Config.room_monsters:
                         if fighting_monster.health <=0:
@@ -176,7 +176,7 @@ class Simulator(Config):
                             self.exp_reward += fighting_monster.exp
 
                             Config.room_monsters.remove(fighting_monster)
-                elif not Config.acting.player: # == False
+                elif not Config.acting.player:
                     Config.acting.melee_attack()
                     for fighting_hero in Config.party_heroes:
                         if fighting_hero.health <=0:

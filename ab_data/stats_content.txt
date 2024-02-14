@@ -14,7 +14,6 @@ Columns:
 - gold_min: Minimum amount of gold awarded when the monster is defeated.
 - gold_max: Maximum amount of gold awarded when the monster is defeated.
 
-
 Table: Classes
 - Attributes for different hero classes.
 Columns:
@@ -67,7 +66,7 @@ Columns:
 - monster3: Name of the monster in encounter. Value can be None
 - monster4: Name of the monster in encounter. Value can be None
 
-Table: dark_forest
+Table: Dark_forest
 - Attributes for adventure dark_forest locations
 Columns:
 - id: Unique identifier for each location.
@@ -84,7 +83,7 @@ Columns:
 - child1: Child node of the location.
 - child2: Child node of the location.
 
-Table: talents
+Table: Talents
 - Talent information and effects for all classes.
 Columns:
 - id: Unique identifier for each talent.
@@ -95,7 +94,12 @@ Columns:
 - min_level: Minimum level required to learn the talent.
 - req1: Another talent hero needs to have in order to learn the talent.
 - req2: Another talent hero needs to have in order to learn the talent.
-- class_id: Foreign key reference to Classes table.
+
+Table: Talent_Class_Association 
+- Table used for matching heroes with talents they have access to.
+Columns:
+- talent_id: Foreign key reference to Talents table id.
+- class_id: Foreign key reference to Classes table id.
 
 Table: Experience
 - Table for experience values needed to gain levels.
@@ -103,3 +107,14 @@ Columns:
 - id: Unique identifier for each hero level.
 - level: Hero Level.
 - exp: Experience points required to advance to hero level.
+
+Table: Weapons
+- Table for weapon items.
+Columns:
+- id: Unique identifier for each hero level.
+- name: Name of the weapon.
+- size_scalar: Scalar for resizing image.
+- speed_mod: Modified to hero's speed value when wielded.
+- base_damage: How much damage hero deals when wielded.
+- offset_x: Adjustment for weapon's distance from hero.
+- offset_y: Adjustment for weapon's distance from hero.

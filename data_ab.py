@@ -33,17 +33,18 @@ def get_monster_encounters(adventure: str, tier: int) -> pd.DataFrame:
 def get_talent_data(hero_class: str) -> pd.DataFrame:
     db = sqlite3.connect('./ab_data/stats.db')
 
-    talents_query = """
-        SELECT talents.*
+
+    talents_query = """SELECT talents.*
         FROM talents
-        INNER JOIN classes ON talents.class_id = classes.id
-        WHERE classes.type = ?
-        """
+        INNER JOIN talent_class_association ON talents.id = talent_class_association.talent_id
+        INNER JOIN classes ON talent_class_association.class_id = classes.id
+        WHERE classes.type = ?;"""
     
     talents_df = pd.read_sql_query(talents_query, db, params=(hero_class,))
     db.close()
     return talents_df
 
+# Produces dataframe with duplicates from dataset2
 def get_simulation_dataset(set_number: int) -> pd.DataFrame:
     num = str(set_number)
     db = sqlite3.connect('./ab_data/simulation_datasets/simulation_results_' + num + '.db')
