@@ -35,7 +35,6 @@ class Hero(Config, pg.sprite.Sprite):
         self.player = True
         self.type = type
 
-        #what if starting level > 1
         self.level = 1
         self.exp_df = exp_data
         self.next_level = self.exp_df.at[0, 'exp']
@@ -47,8 +46,7 @@ class Hero(Config, pg.sprite.Sprite):
             setattr(self, stat_name, int(self.df.at[0, stat_name]) if str(self.df.at[0, stat_name]).isdigit() else self.df.at[0, stat_name])
         #more stats? critical strike, evasion, retribution
 
-        self.spell_talent_bonus = 0
-        self.melee_talent_bonus = 0
+        self.talent_bonus = 0
         self.spells = []
         self.talents = []
         self.special_talents = {}
@@ -71,32 +69,34 @@ class Hero(Config, pg.sprite.Sprite):
         return target
 
 
-    def activate_special_talents(self):
+    def activate_special_talents(self, **kwargs):
+        damage_type = kwargs.get('damage_type', None)
         for talent_effect, talent_info in self.special_talents.items():
             condition_func = talent_info['condition_func']
             bonus_func = talent_info['bonus_func']
-            #if condition_func(self):
-            if condition_func(self, damage_type = talent_effect):
-                self.spell_talent_bonus = bonus_func(self)
+            if condition_func(damage_type = damage_type):
+                self.talent_bonus += bonus_func()
     
     
     #DAMAGE = self.weapon_damage + self.damage_bonus * self.damage_multiplier
     def melee_attack(self):
         self.activate_special_talents()
-        #if self.health == low and Berserking in self.talents
-            #+damage
+
         target = self.get_target()
         self.animation = False
-        DAMAGE = self.damage - target.armor
+        DAMAGE = self.damage + self.talent_bonus - target.armor
+        self.talent_bonus = 0
         target.health -= DAMAGE
-        #method for hero and mosnter for taking damage
+        #method for hero / monster for taking damage
+        #target.take_damage(DAMAGE, 'physical')
+        #def take_damage(self, damage, damage_type)
 
     def spell_attack(self, spell):
         damage_type = spell["type"]
-        self.activate_special_talents()
+        self.activate_special_talents(damage_type)
         self.animation = False
-        DAMAGE = spell["damage"] + self.spell_talent_bonus
-        self.spell_talent_bonus = 0
+        DAMAGE = spell["damage"] + self.talent_bonus
+        self.talent_bonus = 0
         if spell["area"] == 1:
             for target_mob in Config.room_monsters:
                 target_mob.health -= DAMAGE
@@ -167,16 +167,14 @@ class Hero(Config, pg.sprite.Sprite):
             #create songs and tunes
             self.talents.append(talent_name)
     
-    def berserk_condition(self):
-        return self.health < hero.max_health // 2
-        #return 'berserk' in self.talents and self.health < hero.max_health // 2
+    def berserk_condition(self, **kwargs):
+        unused = kwargs.get('unused', None)
+        return self.health < self.max_health // 2
 
-    def berserk_bonus(hero):
+    def berserk_bonus(self):
         berserk_bonus_damage = 3
-        return berserk_bonus
+        return berserk_bonus_damage
 
-
-    #fire, acid, nature + cold
     def lightning_condition(self, **kwargs):
         damage_type = kwargs.get('damage_type')
         return damage_type == 'lightning'
@@ -209,7 +207,7 @@ class Hero(Config, pg.sprite.Sprite):
         spell_bonus_damage = self.level // 2
         return spell_bonus_damage  
     
-    def friends_condition(self):
+    def friends_condition(self, **kwargs):
         return False #if Config.party_members.talents have 'Friendship'
     
     def friends_bonus(self):
