@@ -46,8 +46,9 @@ class Config(object):
 
         self.info_font_size = 20
         INFO_FONT_NAME = "Arial"
-        self.med_info_font = pg.font.SysFont(INFO_FONT_NAME, self.medium_font_size)
         self.info_font = pg.font.SysFont(INFO_FONT_NAME, self.info_font_size)
+        self.med_info_font = pg.font.SysFont(INFO_FONT_NAME, self.medium_font_size)
+        self.large_info_font = pg.font.SysFont(INFO_FONT_NAME, self.big_font_size)
         self.title_font = pg.font.SysFont(INFO_FONT_NAME, self.title_font_size)
 
 

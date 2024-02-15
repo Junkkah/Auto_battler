@@ -12,7 +12,7 @@ spells_data = get_data('spells')
 #weapons_data = get_data('weapons')
 
 class Hero(Config, pg.sprite.Sprite):
-    def __init__(self, groups, pos, name: str, type: str):
+    def __init__(self, groups, pos, name: str, hero_type: str):
         super().__init__()
         pg.sprite.Sprite.__init__(self, groups) 
 
@@ -33,7 +33,7 @@ class Hero(Config, pg.sprite.Sprite):
         self.frame_width = 2
         self.name = name
         self.player = True
-        self.type = type
+        self.type = hero_type
 
         self.level = 1
         self.exp_df = exp_data
@@ -50,8 +50,10 @@ class Hero(Config, pg.sprite.Sprite):
         self.spells = []
         self.talents = []
         self.special_talents = {}
-        #special_combat / special noncombat
-
+        #special_combat_talents
+        #special_global_talents
+        #special_map_talents
+        #special_shop_talents
 
         #done before creating animation object
         #set acting, run eval, create animation object
@@ -93,7 +95,7 @@ class Hero(Config, pg.sprite.Sprite):
 
     def spell_attack(self, spell):
         damage_type = spell["type"]
-        self.activate_special_talents(damage_type)
+        self.activate_special_talents(damage_type = damage_type)
         self.animation = False
         DAMAGE = spell["damage"] + self.talent_bonus
         self.talent_bonus = 0
