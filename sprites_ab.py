@@ -10,16 +10,16 @@ monster_data = get_data('monsters')
 
 
 class Monster(Config, pg.sprite.Sprite):
-    def __init__(self, groups, pos, type: str):
+    def __init__(self, groups, pos, monster_type: str):
         super().__init__()
         pg.sprite.Sprite.__init__(self, groups) 
 
-        mob = pg.image.load('./ab_images/monster/' + type + '.png').convert_alpha()
+        mob = pg.image.load('./ab_images/monster/' + monster_type + '.png').convert_alpha()
         HEIGHT = mob.get_height()
         WIDTH = mob.get_width()
         self.pos_x = pos[0]
         self.pos_y = pos[1]
-        self.type = type
+        self.type = monster_type
         self.player = False
         self.animation = False
         self.attacked = False

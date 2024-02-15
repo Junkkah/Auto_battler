@@ -1,0 +1,84 @@
+Simulator
+The Simulator class executes simulations of the game by making all choices randomly. 
+A simulation ends either when all three heroes are defeated during a single battle or when the heroes defeat the boss monster, 
+known as the troll berserk.
+
+Dataset
+Dataset2 comprises of Dataset1 combined with an additional 5000 simulations, 
+resulting in a total of 10000 simulations. In these simulations, the heroes successfully defeated the boss ten times. 
+Recorded data for each simulation includes the total experience gained, whether the boss was defeated (True/False), 
+the classes and names of heroes, the talents of heroes, and the nodes the heroes would have traveled, 
+even if they did not reach the boss.
+
+Analysis
+For this analysis, we have selected the experience gained (exp) as the dependent variable. 
+The independent variables chosen are the classes of the heroes. 
+We aim to understand how much of the variability in gained experience is explained by the chosen classes.
+
+Findings
+Both random forest regression and polynomial regression models performed poorly in explaining the variance in exp, 
+with lower R-squared scores observed for Dataset2 compared to Dataset1. We further investigated how hero parties 
+performed when at least one party member belonged to a specific class. We noted what classes underperformed. 
+Those classes have received a small increase in power in the game and we continue to monitor how they perform.
+Additionally, outliers were identified where heroes failed to progress beyond the first node('exp' value 0). 
+These outliers were attributed to errors in enemy design, which have since been rectified to ensure that heroes 
+can always reach the second node in future simulations.
+
+Saved Plots
+Plots have been generated for both Dataset1 and Dataset2 using both random forest regression and polynomial regression models. 
+These plots provide visual representations of the model performance and can offer insights into the relationship between 
+the independent variables (hero classes) and the dependent variable (experience gained). 
+The plots are saved for future reference and analysis in /set1-2_figs.
+
+Next Steps
+Our next steps involve hyperparameter tuning and feature engineering to improve model performance.
+Choosing talents of the heroes as dependant variables is logical next step.
+We can consider including additional evaluation metrics such as mean absolute error or mean absolute percentage error
+to provide better assessment of model performance. We are also making improvements to the game itself.
+
+Random Forest Regression and Polynomial Regression
+Supervised learning
+Dataset1, N = 5000
+Dataset2, N = 10000
+Dependant y = 'exp'
+Independent variables X = 'hero1_class', 'hero2_class', 'hero3_class'
+
+Dataset1
+Random forest regression:
+RMSE: 13.023468377137092
+R-squared: 0.36218110782957313
+
+Polynomial regression:
+RMSE: 12.411438835398728 
+R-squared: 0.42072028345750256
+
+Dataset2 
+Random forest regression
+RMSE: 15.501181916945496
+R-squared:: 0.12171738791769571
+
+Polynomial regression
+RMSE: 15.513436783163018
+R-squared: 0.12032814023977545
+
+Average exp for party: 31.3651
+Average exp for party with cleric: 28.42
+Average exp for party with thief: 30.56
+Average exp for party with bard: 25.80
+Average exp for party with wizard: 23.97
+Average exp for party with ranger: 33.58
+Average exp for party with warrior: 37.43
+Average exp for party with barbarian: 42.18
+Average exp for party with paladin: 35.81
+
+Party can have maximum of three heroes. 
+They are chosen from pool of eight random heroes.
+Class distribution among potential heroes:
+thief        4
+cleric       4
+warrior      4
+wizard       4
+paladin      2
+bard         2
+ranger       2
+barbarian    2

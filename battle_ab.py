@@ -135,12 +135,12 @@ class BattleManager(Config):
         Config.acting_character = self.actions_ordered[0]
         if not Config.acting_character.animation and Config.room_monsters: #animation hasn't started yet
             if Config.acting_character.player: #Attacker is hero
-                if Config.acting_character.attack_type == "spell" and Config.acting_character.spells:
+                if Config.acting_character.attack_type == "spell":
                     #hero always cast index 0 spell in self.spells
                     #create hero method for choosing spell to cast
+                    #play sound_effect based on spell type
                     self.combat_animation = Blast(self.animation_sprites, Config.acting_character.pos_x, Config.acting_character.pos_y, Config.acting_character.spells[0])
                 else:
-                    #if Config.acting_character.attack_type == "weapon" or not Config.acting_character.spells:
                     sound_effect('sword')
                     pos_x = Config.acting_character.pos_x
                     pos_y = Config.acting_character.pos_y
@@ -148,6 +148,8 @@ class BattleManager(Config):
                     self.combat_animation = Stab(self.animation_sprites, weapon, pos_x, pos_y)
 
             elif not Config.acting_character.player:
+                if Config.acting_character.type == 'kobold' or Config.acting_character.type == 'goblin':
+                    sound_effect('growl')
                 self.combat_animation = Smash(self.animation_sprites, (Config.acting_character.pos_x + Config.acting_character.width), (Config.acting_character.pos_y + Config.acting_character.height))
                 #self.combat_animation = Slash(self.animation_sprites, (Config.acting_character.pos_x + self.screen_width * 0.1), (Config.acting_character.pos_y + self.screen_height * 0.1))
             else:

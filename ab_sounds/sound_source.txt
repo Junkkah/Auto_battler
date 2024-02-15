@@ -27,3 +27,19 @@ mixkit-negative-tone-interface-tap-2569
 Victory:
 Positive interface beep
 mixkit-positive-interface-beep-221
+
+Growl:
+Small monster growl
+mixkit-small-monster-growl-1968
+
+Zombie:
+Exclamation of pain from a zombie
+mixkit-exclamation-of-pain-from-a-zombie-2207
+
+Troll:
+Troll warrior laugh
+mixkit-troll-warrior-laugh-409
+
+Ruins:
+Creepy tomb ambience
+mixkit-creepy-tomb-ambience-2500
