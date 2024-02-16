@@ -22,7 +22,8 @@ class Hero(Config, pg.sprite.Sprite):
         face = pg.image.load('./ab_images/hero/' + name + '.png').convert_alpha()
         width = face.get_width()
         height = face.get_height() 
-        desired_height = self.screen_height / 7.2 #150
+        size_scalar = 7.2
+        desired_height = self.screen_height / size_scalar
         self.image = pg.transform.smoothscale(face, ((width / (height / desired_height)), desired_height))
         self.rect = self.image.get_rect(topleft = (self.pos_x, self.pos_y))
         self.width = self.image.get_width()
@@ -108,7 +109,7 @@ class Hero(Config, pg.sprite.Sprite):
         #elif spell["area"] == 0 single target attack
         #elif spell["area"] == 2 heal spell
         #elif buff elif debuff
-    
+        
     def gain_level(self):
         self.level += 1
         self.next_level = self.exp_df.loc[self.exp_df['level'] == self.level, 'exp'].iloc[0]
