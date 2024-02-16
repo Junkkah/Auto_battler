@@ -8,7 +8,7 @@ Python game project for a single player auto battler (with roguelite elements)
 * numpy 1.24.2
 * pandas 2.0.0
 
-# Optional
+### Optional Dependencies
 * matplotlib 3.7.1
 * scikit_learn 1.2.2
 
