@@ -88,13 +88,13 @@ class Shop(Config):
                     talent_type = 'spell'
                     created_hero.add_talent(talent_name, talent_type)
 
-        CONT_TEXT = "CONTINUE"
+        CONT_TEXT = 'CONTINUE'
         CONT_FONT = self.default_font
         CONT_SIZE = self.big_font_size
         CONT_COL = self.black
         COORDS_CONT = (self.screen_width * 0.75, self.screen_height * 0.90)
 
-        BACK_TEXT = "MENU (Esc)"
+        BACK_TEXT = 'MENU (Esc)'
         BACK_FONT = self.default_font
         BACK_SIZE = self.medium_font_size
         BACK_COL = self.black
@@ -163,7 +163,7 @@ class Shop(Config):
                     OFFSET = self.screen_height / 7.1
                     COORDS_INFO_X = shero.pos_x
                     COORDS_INFO_Y = shero.pos_y + OFFSET
-                    info = shero.name.capitalize() + ", " + shero.type.capitalize()
+                    info = shero.name.capitalize() + ', ' + shero.type.capitalize()
                     info_text = self.info_font.render(info, True, self.black)
                     info_text_rect = info_text.get_rect(topleft=(COORDS_INFO_X, COORDS_INFO_Y))
                     self.screen.blit(info_text, info_text_rect)

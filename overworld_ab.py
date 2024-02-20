@@ -58,12 +58,12 @@ class WorldMap(Config):
         elif event.type == pg.MOUSEBUTTONDOWN:
             for obj in self.map_objects:
                 if obj.rect.collidepoint(pg.mouse.get_pos()):
-                    if obj.name == "dark_forest":
+                    if obj.name == 'dark_forest':
                         Config.current_adventure = obj.name
                         self.done = True
 
                     else:
-                        error = "Inaccessible"
+                        error = 'Inaccessible'
                         self.error_text = self.info_font.render((error), True, (self.red))
                         self.error_text_rect = self.error_text.get_rect(topleft=((obj.pos_x), (obj.pos_y))) 
                         self.error = True
@@ -90,7 +90,7 @@ class WorldMap(Config):
             info_text_rect = info_text.get_rect(bottomleft=(obj.pos_x + obj.width // 2, obj.pos_y + obj.height // 2 + 5))
             self.screen.blit(info_text, info_text_rect)
             #create adv list, if obj.name == next item on list
-            if obj.name == "dark_forest":
+            if obj.name == 'dark_forest':
                 pg.draw.rect(self.screen, self.red, obj.rect, 2)
         
         if self.error == True:

@@ -43,3 +43,7 @@ mixkit-troll-warrior-laugh-409
 Ruins:
 Creepy tomb ambience
 mixkit-creepy-tomb-ambience-2500
+
+Tune:
+Acute guitar single string
+mixkit-acute-guitar-single-string-2325

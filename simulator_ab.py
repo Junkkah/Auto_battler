@@ -26,6 +26,9 @@ class Simulator(Config):
         self.results_list = []
         self.simulation_sprites.empty()
         self.help_sprites.empty()
+        self.aura_bonus_speed = 0
+        self.aura_bonus_damage = 0
+        self.aura_bonus_armor = 0
 
     def startup(self):
         self.simulation_hero_sprites = pg.sprite.Group()
@@ -41,8 +44,11 @@ class Simulator(Config):
         self.COUNT = 5000
         self.results_list = []
         self.sim_done = False
+        self.aura_bonus_speed = 0
+        self.aura_bonus_damage = 0
+        self.aura_bonus_armor = 0
 
-        FONT_NAME = "Arial"
+        FONT_NAME = 'Arial'
         COORDS_START = (self.screen_width * 0.50, self.screen_height * 0.40)
         COORDS_FOREST = (self.screen_width * 0.50, self.screen_height * 0.20)
         COORDS_DONE = (self.screen_width * 0.50, self.screen_height * 0.50)
@@ -54,7 +60,7 @@ class Simulator(Config):
         self.forest_button = Button(self.simulation_sprites, FOREST, FONT_NAME, self.medium_font_size, self.black, COORDS_FOREST)
         self.done_button = Button(self.help_sprites, DONE, FONT_NAME, self.medium_font_size, self.black, COORDS_DONE)
 
-        info = "Simulation is running"
+        info = 'Simulation is running'
         self.info_text = self.info_font.render(info, True, self.black)
         self.info_text_rect = self.info_text.get_rect(center=COORDS_DONE)
         
@@ -68,6 +74,9 @@ class Simulator(Config):
         self.exp_reward = 0
         self.simulation_monster_sprites.empty()
         self.simulation_hero_sprites.empty()
+        self.aura_bonus_speed = 0
+        self.aura_bonus_damage = 0
+        self.aura_bonus_armor = 0
     
     def generate_random_path(self, start_node):
         random_path = [start_node]
@@ -159,16 +168,17 @@ class Simulator(Config):
             for party_hero in Config.party_heroes:
                 self.actions_unordered.append(party_hero)
 
+            BattleManager().activate_auras()
             self.actions_ordered = BattleManager().order_sort(self.actions_unordered)
             self.fallen_heroes = []
 
             while Config.party_heroes and Config.room_monsters: #loop combat 
                 Config.acting = self.actions_ordered[0] 
                 if Config.acting.player:
-                    if Config.acting.attack_type == "spell" and Config.acting.spells:
+                    if Config.acting.attack_type == 'spell': #and Config.acting.spells:
                         Config.acting.spell_attack(Config.acting.spells[0]) #passing 1st spell
                     else:
-                        Config.acting.melee_attack()
+                        Config.acting.melee_attack(self.aura_bonus_damage)
                     
                     for fighting_monster in Config.room_monsters:
                         if fighting_monster.health <=0:
@@ -186,6 +196,8 @@ class Simulator(Config):
                             #revive fallen hero for next node
 
                 self.actions_ordered.append(self.actions_ordered.pop(0))
+
+            Config.aura_bonus = {key: 0 for key in Config.aura_bonus}
 
             if Config.party_heroes and self.exp_reward + Config.party_heroes[0].exp >= Config.party_heroes[0].next_level:
                 if self.fallen_heroes:

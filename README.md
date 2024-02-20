@@ -1,6 +1,7 @@
 # Auto_battler
 
 Python game project for a single player auto battler (with roguelite elements)
+Version 1.1
 
 ## Requirements
 * Python 3.9 or higher

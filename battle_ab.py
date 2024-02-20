@@ -2,10 +2,11 @@ import pygame as pg
 from config_ab import Config
 from hero_ab import Hero
 from sprites_ab import Monster
-from animations_ab import Stab, Slash, Blast, Smash
+from animations_ab import Stab, Slash, Blast, Smash, SongAnimation
 from sounds_ab import sound_effect
 import random
 
+# Shop not resetting to hero selection if defeated in combat and going for new game
 
 class BattleManager(Config):
     def __init__(self):
@@ -17,8 +18,6 @@ class BattleManager(Config):
         self.combat_mob_sprites = pg.sprite.Group()
         self.animation_sprites = pg.sprite.Group()
         self.exp_reward = 0
-        self.temp_stats = [] #buffs etc
-        
         #adjust in settings
         self.combat_delay = 1.1
         self.animation_speed = 0.3
@@ -53,6 +52,7 @@ class BattleManager(Config):
         self.combat_started = False
         self.delay_timer = 0.0
 
+        Config.aura_bonus = {key: 0 for key in Config.aura_bonus}
 
     #hero method? get len(Config.party_heroes), check find self.name position in Config.party
     #for i in range len(S.party): S.party[i].get_into_position(i + 1) pos1,2,3,4
@@ -90,12 +90,25 @@ class BattleManager(Config):
             self.monster3 = Monster(self.monster_sprites, THREE_MONSTERS_COORDS[2], MONSTER_NAMES[2])
             Config.room_monsters = [self.monster1, self.monster2, self.monster3]
 
+    def activate_auras(self):
+        for aura_hero in Config.party_heroes:
+            if aura_hero.aura:
+                aura_stat_name, stat_val_str = aura_hero.aura.split()
+                aura_stat_val = int(stat_val_str)
+                Config.aura_bonus[aura_stat_name] += aura_stat_val
+
     #tie breaker, first in hero/mob list > lower, hero > mob, class prios
     def order_sort(self, incombat: list):
-        def speed_order(par: object): 
-            return par.speed
+        def speed_order(battle_participant: object):
+            if battle_participant.player:
+                hero_speed = battle_participant.speed + Config.aura_bonus['speed']
+                return hero_speed
+            else:
+                monster_speed = battle_participant.speed
+                return monster_speed
         return sorted(incombat, key=speed_order, reverse=True)
-        
+    
+
     def startup(self):
 
         self.combat_started = False
@@ -103,7 +116,6 @@ class BattleManager(Config):
 
         self.position_heroes(Config.party_heroes)
         self.create_monsters()
-        self.gold_loot = self.create_loot()
 
         for room_monster in Config.room_monsters:
             self.combat_mob_sprites.add(room_monster)
@@ -111,7 +123,12 @@ class BattleManager(Config):
         for party_hero in Config.party_heroes:
             self.combat_hero_sprites.add(party_hero)
             self.actions_unordered.append(party_hero)
-        
+
+        for talent_hero in Config.party_heroes:
+            talent_hero.activate_talent_group('location')
+
+        self.activate_auras()
+        self.gold_loot = self.create_loot()
         self.actions_ordered = self.order_sort(self.actions_unordered)
         Config.acting_character = self.actions_ordered[0]
 
@@ -135,31 +152,50 @@ class BattleManager(Config):
         Config.acting_character = self.actions_ordered[0]
         if not Config.acting_character.animation and Config.room_monsters: #animation hasn't started yet
             if Config.acting_character.player: #Attacker is hero
-                if Config.acting_character.attack_type == "spell":
-                    #hero always cast index 0 spell in self.spells
-                    #create hero method for choosing spell to cast
-                    #play sound_effect based on spell type
-                    self.combat_animation = Blast(self.animation_sprites, Config.acting_character.pos_x, Config.acting_character.pos_y, Config.acting_character.spells[0])
+                pos_x = Config.acting_character.pos_x
+                pos_y = Config.acting_character.pos_y
+
+                #Need evaluate method
+                #hero always cast index 0 spell in self.spells
+                #create hero method for choosing spell to cast
+                #play sound_effect based on spell type
+                if Config.acting_character.attack_type == 'spell':
+                    self.combat_animation = Blast(self.animation_sprites, pos_x, pos_y, Config.acting_character.spells[0])
+                
+                elif Config.acting_character.attack_type == 'song':
+                    #sound_effect('tune')
+                    #self.combat_animation = SongAnimation(self.animation_sprites, pos_x, pos_y)
+                    pass
                 else:
                     sound_effect('sword')
-                    pos_x = Config.acting_character.pos_x
-                    pos_y = Config.acting_character.pos_y
                     weapon = Config.acting_character.attack_type
                     self.combat_animation = Stab(self.animation_sprites, weapon, pos_x, pos_y)
 
             elif not Config.acting_character.player:
                 if Config.acting_character.type == 'kobold' or Config.acting_character.type == 'goblin':
                     sound_effect('growl')
-                self.combat_animation = Smash(self.animation_sprites, (Config.acting_character.pos_x + Config.acting_character.width), (Config.acting_character.pos_y + Config.acting_character.height))
-                #self.combat_animation = Slash(self.animation_sprites, (Config.acting_character.pos_x + self.screen_width * 0.1), (Config.acting_character.pos_y + self.screen_height * 0.1))
+                adjusted_pos_x = Config.acting_character.pos_x + Config.acting_character.width
+                adjusted_pos_y = Config.acting_character.pos_y + Config.acting_character.height
+                self.combat_animation = Smash(self.animation_sprites, adjusted_pos_x, adjusted_pos_y)
+                
             else:
                 pass
-            #self.animation_sprites.add(self.combat_animation)
             Config.acting_character.animation = True
             self.combat_animation.animation_start()
 
+        # Call attack methods 
+        #call activate talents here
         if self.combat_animation.animate(self.animation_speed):
-            #Config.acting_character.melee_attack(Config.room_monsters[0]) way to be correct attack type?
+            if Config.acting_character.attack_type == 'spell':
+                #Config.acting_character.activate_combat_talents()
+                Config.acting_character.spell_attack(Config.acting_character.spells[0])
+            else:
+                if Config.acting_character.player:
+                    #Config.acting_character.activate_combat_talents()
+                    Config.acting_character.melee_attack()
+                else:
+                    Config.acting_character.melee_attack()
+            
             self.animation_sprites.remove(self.combat_animation)
             self.actions_ordered.append(self.actions_ordered.pop(0))
             
@@ -177,9 +213,9 @@ class BattleManager(Config):
                         if not Config.room_monsters:
                             sound_effect('victory')
                             self.victory_lines = [
-                            f"Experience earned: {self.exp_reward}",
-                            f"Gold coins earner: {self.gold_loot}",
-                            "Press any key to continue"]
+                            f'Experience earned: {self.exp_reward}',
+                            f'Gold coins earner: {self.gold_loot}',
+                            'Press any key to continue']
                             #self.done = True
 
             elif not Config.acting_character.player:  
@@ -194,6 +230,9 @@ class BattleManager(Config):
                             self.next = 'menu'
                             self.done = True
         
+        #define lastest action text
+        #action_log1,2,3
+        #if latest action not action1-2 is 3, 1 is 2, latest is 1
         self.draw(screen)
 
     def draw(self, screen):
@@ -201,6 +240,9 @@ class BattleManager(Config):
         self.screen.blit(self.ground, (0,0))
         self.combat_hero_sprites.draw(self.screen)
         self.combat_mob_sprites.draw(self.screen)
+
+        gold_text = self.create_gold_text()
+        self.screen.blit(gold_text, self.coords_gold)
 
         for live_monster in Config.room_monsters:
             live_monster.draw_health_bar()
@@ -211,9 +253,17 @@ class BattleManager(Config):
         if Config.acting_character.animation: 
             self.animation_sprites.draw(screen)
 
+        self.combat_log_events = Config.combat_log[-5:]
+        COORDS_LOG = (self.screen_width * 0.15, self.screen_height * 0.70)
+        for i, event in enumerate(reversed(self.combat_log_events)):
+            log_line = f'{event[0]} deals {event[1]} to {event[2]}'
+            log_line_text = self.info_font.render(log_line, True, self.black)
+            log_line_rect = log_line_text.get_rect(topleft=(COORDS_LOG[0], COORDS_LOG[1] + i * self.info_font_size))
+            self.screen.blit(log_line_text, log_line_rect)
+
         if not self.combat_started:
             MONSTERS_NAMES = [monster.type.capitalize() for monster in Config.room_monsters]
-            MONSTERS_TEXT = "Enemies: " + ", ".join(MONSTERS_NAMES)
+            MONSTERS_TEXT = 'Enemies: ' + ', '.join(MONSTERS_NAMES)
             self.MONSTERS_TEXT = self.med_info_font.render(MONSTERS_TEXT, True, self.black)
             COORDS_MONSTERS_TEXT = (self.screen_width * 0.45, self.screen_height * 0.45)
             self.MONSTERS_RECT = self.MONSTERS_TEXT.get_rect(topleft=COORDS_MONSTERS_TEXT)

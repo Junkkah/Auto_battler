@@ -18,20 +18,54 @@ class LevelUp(Config):
     
     def create_talent_sample(self, hero) -> pd.DataFrame:
         #not checking second requirement 
+        #up to 1.1 no talent has second requirement
         talent_df = get_talent_data(hero.type)
         while True:
             random_rows = talent_df.sample(n=2)
             new_df = pd.DataFrame(random_rows)
-            req1 = new_df['req1'].iloc[0]
-            req2 = new_df['req1'].iloc[1]
-            #req3 = new_df['req2'].iloc[0]
-            #req4 = new_df['req2'].iloc[1]
-            req1_met = req1 is None or req1 in hero.talents
-            req2_met = req2 is None or req2 in hero.talents
-            if req1_met and req2_met:
+            talent1_req1 = new_df['req1'].iloc[0]
+            talent2_req1 = new_df['req1'].iloc[1]
+            #talent1_req2 = new_df['req2'].iloc[0]
+            #talent2_req2 = new_df['req2'].iloc[0]
+
+            #check if hero already has either of the talents
+            #ranger can take survival multiple times, not working?
+            name1 = new_df['name'].iloc[0]
+            name2 = new_df['name'].iloc[1]
+            for name in [name1, name2]:
+                if name in hero.talents:
+                    continue 
+            
+            min1 = new_df['min_level'].iloc[0]
+            min2 = new_df['min_level'].iloc[1]
+            if (min1 > hero.level) or (min2 > hero.level):
+                continue
+            
+            # Effect is in spell_types if it is a spell mastery
+            # Fail sample if hero does not have spell that matches masterys type
+            # Note: hero will still only cast spells[0]
+            effect1 = new_df['effect'].iloc[0].split()[0]
+            effect2 = new_df['effect'].iloc[1].split()[0]
+            for effect in [effect1, effect2]:
+                if effect in self.spell_types:
+                    spell_types = [spell['type'] for spell in hero.spells]
+                    if effect not in spell_types:
+                        continue
+
+            talent1_req1_met = talent1_req1 is None or talent1_req1 in hero.talents
+            talent2_req1_met = talent2_req1 is None or talent2_req1 in hero.talents
+
+            # Fail sample if it has aura, hero already has aura and sample aura does not have requirement
+            # Hero can have only one aura. Only valid aura talents are upgrades for the existing aura
+            if ('aura' in new_df['type'].values) and hero.aura:
+                if new_df['type'].iloc[0] == 'aura' and talent1_req1 is None:
+                    continue
+                if new_df['type'].iloc[1] == 'aura' and talent2_req1 is None:
+                    continue
+
+            if talent1_req1_met and talent2_req1_met:
                 return new_df
 
-    
     def cleanup(self):
         for selected_talent in self.talents_selected:
             selected_talent.hero.add_talent(selected_talent.name, selected_talent.type)
@@ -46,7 +80,7 @@ class LevelUp(Config):
         self.talents_selected = []
         self.talent_cards = []
 
-        CONT_TEXT = "CONTINUE"
+        CONT_TEXT = 'CONTINUE'
         CONT_FONT = self.default_font
         CONT_SIZE = self.big_font_size
         CONT_COL = self.black
@@ -64,7 +98,6 @@ class LevelUp(Config):
 
         self.numer_of_heroes = len(Config.party_heroes)
         samples = []
-
 
         for sample_hero in Config.party_heroes:
             sample = self.create_talent_sample(sample_hero)

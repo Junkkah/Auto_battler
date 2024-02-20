@@ -13,7 +13,6 @@ import numpy as np
 
 weapons_data = get_data('weapons')
 
-#Wizard / Bard without spells breaks
 class Stab(Config, pg.sprite.Sprite): #Groupsingle
 	def __init__(self, groups, weapon, pos_x, pos_y):
 		super().__init__()
@@ -52,14 +51,12 @@ class Stab(Config, pg.sprite.Sprite): #Groupsingle
 			if int(self.reach) <= 0:
 
 				self.attack_animation = False
-				#self.image = self.weapon_sprites[int(self.current_sprite)]
-				#
-				#pass weapon information to attack
-				Config.acting_character.melee_attack()
+				#pass combat buff info to attack method
+				#or activate melee_attack where animate returns True
+				#Config.acting_character.melee_attack()
 				return True #return melee/spell?
 
 		self.pos_y -= self.attack_speed
-		#self.image = self.weapon_sprites[int(self.current_sprite)]
 		self.rect = self.image.get_rect()
 		self.rect.bottomright = [self.pos_x, self.pos_y]
 
@@ -118,13 +115,15 @@ class Blast(pg.sprite.Sprite):
 
 		self.attack_animation = False
 		self.spell_sprites = [] 
-		self.attack_spell = spell
+
+		#self.attack_spell = spell
+
 		CAST_IMAGE = pg.image.load('./ab_images/blast/spell.png').convert_alpha()
 		WIDTH, HEIGHT = CAST_IMAGE.get_size()
 		SIZE_SCALAR = 15
 		SCALED_WIDTH = WIDTH / SIZE_SCALAR
 		SCALED_HEIGHT = HEIGHT / SIZE_SCALAR
-		spell_type = spell["type"]
+		spell_type = spell['type']
 
 		for i in range(1, 6):
 			self.spell_sprites.append(pg.transform.smoothscale(CAST_IMAGE, (SCALED_WIDTH, SCALED_HEIGHT)))
@@ -137,22 +136,59 @@ class Blast(pg.sprite.Sprite):
 		self.image = self.spell_sprites[self.current_sprite]
 
 		self.rect = self.image.get_rect()
-		self.rect.topleft = [(pos_x + (Config.width / 16)), (pos_y - (Config.width / 27))] 
+		OFFSET_X = Config.width // 16 #120
+		OFFSET_Y = Config.height // 27 #40
+		self.rect.topleft = [(pos_x + OFFSET_X), (pos_y - OFFSET_Y)] 
 
 	def animation_start(self):
 		self.attack_animation = True
 
-	def animate(self, speed): #attacker is always speedorder[0], target enemy list[0]
+	def animate(self, speed): #attacker is always speedorder[0], target get_taget()
 		if self.attack_animation == True:
 			self.current_sprite += speed
 			if int(self.current_sprite) >= len(self.spell_sprites):
 				self.current_sprite = 0
 				self.attack_animation = False
 				self.image = self.spell_sprites[int(self.current_sprite)]
-				Config.acting_character.spell_attack(self.attack_spell)
+
+				#Config.acting_character.spell_attack(self.attack_spell)
+
 				return True
 
 		self.image = self.spell_sprites[int(self.current_sprite)]
+
+class SongAnimation(pg.sprite.Sprite):
+	def __init__(self, groups, pos_x, pos_y):
+		super().__init__()
+		pg.sprite.Sprite.__init__(self, groups) 
+
+		self.attack_animation = False
+
+		CAST_IMAGE = pg.image.load('./ab_images/song.png').convert_alpha()
+		WIDTH, HEIGHT = CAST_IMAGE.get_size()
+		SIZE_SCALAR = 15
+		SCALED_WIDTH = WIDTH / SIZE_SCALAR
+		SCALED_HEIGHT = HEIGHT / SIZE_SCALAR
+
+		self.image = pg.transform.smoothscale(CAST_IMAGE, (SCALED_WIDTH, SCALED_HEIGHT))
+		
+		self.rect = self.image.get_rect()
+		OFFSET_X = Config.width // 16 #120
+		OFFSET_Y = Config.height // 27 #40
+		self.rect.topleft = [(pos_x + OFFSET_X), (pos_y - OFFSET_Y)] 
+		self.timer = 0
+		self.animation_time = 12
+
+	def animation_start(self):
+		self.attack_animation = True
+
+	def animate(self, speed):
+		if self.attack_animation == True:
+			self.timer += speed
+			if self.timer >= self.animation_time:
+				self.timer = 0
+				self.attack_animation = False
+				return True
 
 #Slash animation not working properly
 #black screen blink in combat start

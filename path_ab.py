@@ -1,6 +1,7 @@
 import pygame as pg
 from config_ab import Config
 from sprites_ab import Location
+from hero_ab import Hero
 from data_ab import get_data, get_monster_encounters
 from sounds_ab import play_music_effect
 import pandas as pd
@@ -22,9 +23,8 @@ class Path(Config):
         probs = encounters_df['Probability'].tolist()
         mob_lists = encounters_df.apply(lambda row: [value for value in row[4:].tolist() if value is not None], axis=1).tolist()
         encounter = random.choices(mob_lists, weights=probs, k=1)[0]
-
         return encounter
-
+    
     def cleanup(self):
         self.path_sprites.empty()
         self.loc_objects = []
@@ -32,6 +32,10 @@ class Path(Config):
 
     def startup(self):
         play_music_effect(Config.current_adventure)
+
+        for talent_hero in Config.party_heroes:
+            talent_hero.activate_talent_group('map')
+
         self.loc_objects = []
         locations_data = get_data(Config.current_adventure)
 
@@ -52,7 +56,6 @@ class Path(Config):
                 if pd.notna(obj_child2_name):
                     obj.child2 = next((child_obj for child_obj in self.loc_objects if child_obj.name == obj_child2_name), None)
         set_children(locations_data)
-    
 
     #randomized paths
     def get_event(self, event):
@@ -104,6 +107,14 @@ class Path(Config):
 
     def draw(self, screen):
         self.screen.blit(self.ground, (0,0))
+
+        gold_text = self.create_gold_text()
+        self.screen.blit(gold_text, self.coords_gold)
+
+        if Config.scout_active:
+            pass
+            #mouseover text defined in get_event
+            #blit mouseover text
 
         radius = self.max_pulse_radius * abs(math.sin(pg.time.get_ticks() * self.pulsation_speed))
 

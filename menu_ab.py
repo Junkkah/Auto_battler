@@ -26,11 +26,11 @@ class Menu(Config):
         COORDS_SIMULATOR = (MENU_BUTTON_XPOS, MENU_BUTTON_YPOS * 4)
         COORDS_QUIT = (MENU_BUTTON_XPOS, MENU_BUTTON_YPOS * 5)
 
-        TITLE = "Auto Battler" 
-        PLAY_TEXT = "New Game"
-        SETTINGS_TEXT = "Settings"
-        SIMULATOR_TEXT = "Simulator"
-        QUIT_TEXT = "Quit"
+        TITLE = 'Auto Battler' 
+        PLAY_TEXT = 'New Game'
+        SETTINGS_TEXT = 'Settings'
+        SIMULATOR_TEXT = 'Simulator'
+        QUIT_TEXT = 'Quit'
 
         title_font = pg.font.SysFont(MENU_FONT, self.title_font_size)
         self.title_text = title_font.render(TITLE, True, self.black)
@@ -40,19 +40,10 @@ class Menu(Config):
         self.settings_button = Button(self.menu_button_sprites, SETTINGS_TEXT, MENU_FONT, self.big_font_size, self.black, COORDS_SETTINGS)
         self.simulator_button = Button(self.menu_button_sprites, SIMULATOR_TEXT, MENU_FONT, self.big_font_size, self.black, COORDS_SIMULATOR)
         self.quit_button = Button(self.menu_button_sprites, QUIT_TEXT, MENU_FONT, self.big_font_size, self.black, COORDS_QUIT)
-        self.menu_buttons.append(self.play_button)
-        self.menu_buttons.append(self.settings_button)
-        self.menu_buttons.append(self.simulator_button)
-        self.menu_buttons.append(self.quit_button)
 
-    def update(self, screen, dt):
-        self.draw(screen)
+        for button in [self.play_button, self.settings_button, self.simulator_button, self.quit_button]:
+            self.menu_buttons.append(button)
 
-    def draw(self, screen):
-        self.screen.fill(self.blue)
-        self.screen.blit(self.title_text, self.title_rect)
-        self.menu_button_sprites.draw(self.screen)
-        
     def get_event(self, event):
         mouse_pos = pg.mouse.get_pos()
         if event.type == pg.KEYDOWN:
@@ -87,3 +78,11 @@ class Menu(Config):
             elif self.quit_button.rect.collidepoint(mouse_pos):
                 sound_effect('click')
                 exit()    
+
+    def update(self, screen, dt):
+        self.draw(screen)
+
+    def draw(self, screen):
+        self.screen.fill(self.blue)
+        self.screen.blit(self.title_text, self.title_rect)
+        self.menu_button_sprites.draw(self.screen)

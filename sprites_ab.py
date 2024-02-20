@@ -36,7 +36,9 @@ class Monster(Config, pg.sprite.Sprite):
         self.width = self.image.get_width()
         self.height = self.image.get_height()
         self.rect = self.image.get_rect(topleft = (self.pos_x, self.pos_y))
-        #self.abilities = ["regenerating": True/False]
+        #monster have 'weapon' column, change to attack_type and give monsters weapons and proper animation
+        self.attack_type = 'claw'
+        #self.abilities = ['regenerating': True/False]
     
     def get_target(self):
         total_menace = sum(hero.menace for hero in Config.party_heroes)
@@ -47,9 +49,19 @@ class Monster(Config, pg.sprite.Sprite):
     def melee_attack(self):
         target = self.get_target()
         self.animation = False
-        DAMAGE = self.damage - target.armor
-        target.health -= DAMAGE
-    
+        DAMAGE = self.damage
+        log_entry = (self.name, str(DAMAGE), target.name)
+        Config.combat_log.append(log_entry)
+        target.take_damage(DAMAGE, 'physical')
+
+    def take_damage(self, damage_amount, damage_type, armor_penalty):
+        ARMOR = max(0, self.armor - armor_penalty)
+        if damage_type == 'physical':
+            taken_damage = damage_amount - ARMOR
+        else:
+            taken_damage = damage_amount
+        self.health -= taken_damage
+
     def draw_health_bar(self, width=100, height=10, border_width_factor=0.01):
 
         health_ratio = self.health / self.max_health
@@ -154,7 +166,7 @@ class TalentCard(Config, pg.sprite.Sprite):
         pg.draw.rect(self.image, self.border_color, self.image.get_rect(), self.border_width)
 
     def render_texts(self):
-        name_surface = self.font.render(self.name + ":", True, self.black)
+        name_surface = self.font.render(self.name + ':', True, self.black)
         desc_surface = self.font.render(self.desc, True, self.black)
         #add padding to width and heights
         padding_x = 10 
