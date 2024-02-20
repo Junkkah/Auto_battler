@@ -2,10 +2,9 @@
 
 ## [1.1] - 2024-02-21
 ### Added
-- Simulator
-- Sounds
-- Weapons
-- Combat log
+- Simulator.
+- Sounds.
+- Combat log.
 
 ### Changed
 - Updated data storage to SQL database.
@@ -17,4 +16,4 @@
 
 ## [1.0] - 2023-03-24
 ### Added
-- Initial release
+- Initial release.
