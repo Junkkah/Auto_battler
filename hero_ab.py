@@ -294,19 +294,13 @@ class Hero(Config, pg.sprite.Sprite):
             self.talent_bonus_damage += total_damage_bonus
     
     def fire_activation(self, rank):
-        #this condition is temporary fix to simulator crash 
-        #create_talent_sample is not discarding non-viable talents as intended
-        if self.spells:
-            damage_bonus_per_rank = self.level // 2
-            total_damage_bonus = damage_bonus_per_rank * rank
-            if self.spells[0]['type'] == 'fire':
-                self.talent_bonus_damage += total_damage_bonus
+        damage_bonus_per_rank = self.level // 2
+        total_damage_bonus = damage_bonus_per_rank * rank
+        if self.spells[0]['type'] == 'fire':
+            self.talent_bonus_damage += total_damage_bonus
     
     def nature_activation(self, rank):
-        #this condition is temporary fix to simulator crash 
-        #create_talent_sample is not discarding non-viable talents as intended
-        if self.spells:
-            damage_bonus_per_rank = self.level // 2
-            total_damage_bonus = damage_bonus_per_rank * rank
-            if self.spells[0]['type'] == 'nature':
-                self.talent_bonus_damage += total_damage_bonus
+        damage_bonus_per_rank = self.level // 2
+        total_damage_bonus = damage_bonus_per_rank * rank
+        if self.spells[0]['type'] == 'nature':
+            self.talent_bonus_damage += total_damage_bonus

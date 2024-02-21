@@ -15,10 +15,10 @@ class LevelUp(Config):
         self.levelup_hero_sprites = pg.sprite.Group()
         self.levelup_sprites = pg.sprite.Group()
     
-    # Name condition and spell_type condition fail to filter out talents that should not be in the sample. 
     def create_talent_sample(self, hero) -> pd.DataFrame:
         talent_df = get_talent_data(hero.type)
         while True:
+            discard_sample = False
             random_rows = talent_df.sample(n=2)
             new_df = pd.DataFrame(random_rows)
             talent1_req1 = new_df['req1'].iloc[0]
@@ -27,40 +27,43 @@ class LevelUp(Config):
             name1 = new_df['name'].iloc[0]
             name2 = new_df['name'].iloc[1]
 
+            if talent1_req1 and talent1_req1 not in hero.talents:
+                discard_sample = True
+            if talent2_req1 and talent2_req1 not in hero.talents:
+                discard_sample = True
+
             for name in [name1, name2]:
-                normalized_name = name.lower()
-                if normalized_name in [talent.lower() for talent in hero.talents]:
-                    continue
+                if name in [talent for talent in hero.talents]:
+                    discard_sample = True
             
             min1 = new_df['min_level'].iloc[0]
             min2 = new_df['min_level'].iloc[1]
-            if (min1 > hero.level) or (min2 > hero.level):
-                continue
+            if min1 > hero.level or min2 > hero.level:
+                discard_sample = True
             
             # Effect is in spell_types if it is a spell mastery
             # Fail sample if hero does not have spell that matches masterys type
-            # Note: hero will still only cast spells[0]
+            #hero will still only cast spells[0]
             effect1 = new_df['effect'].iloc[0].split()[0]
             effect2 = new_df['effect'].iloc[1].split()[0]
             for effect in [effect1, effect2]:
                 if effect in self.spell_types:
                     hero_spell_types = [spell['type'] for spell in hero.spells]
                     if effect not in hero_spell_types:
-                        continue
-
-            talent1_req1_met = talent1_req1 is None or talent1_req1 in hero.talents
-            talent2_req1_met = talent2_req1 is None or talent2_req1 in hero.talents
+                        discard_sample = True
 
             # Fail sample if it has aura, hero already has aura and sample aura does not have requirement
             # Hero can have only one aura. Only valid aura talents are upgrades for the existing aura
             if ('aura' in new_df['type'].values) and hero.aura:
                 if new_df['type'].iloc[0] == 'aura' and talent1_req1 is None:
-                    continue
+                    discard_sample = True
                 if new_df['type'].iloc[1] == 'aura' and talent2_req1 is None:
-                    continue
-
-            if talent1_req1_met and talent2_req1_met:
-                return new_df
+                    discard_sample = True
+            
+            if discard_sample:
+                continue
+                
+            return new_df
 
     def cleanup(self):
         for selected_talent in self.talents_selected:
