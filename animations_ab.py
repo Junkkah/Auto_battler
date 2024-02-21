@@ -36,7 +36,6 @@ class Stab(Config, pg.sprite.Sprite): #Groupsingle
 
 		self.image = pg.transform.smoothscale(weapon_image, (SCALED_WIDTH, SCALED_HEIGHT))
 		self.rect = self.image.get_rect()
-		#bottomleft?
 		self.rect.bottomright = [self.pos_x, self.pos_y]
 
 		self.reach = 10
@@ -44,69 +43,18 @@ class Stab(Config, pg.sprite.Sprite): #Groupsingle
 		
 	def animation_start(self):
 		self.attack_animation = True
-	
-	def animate(self, speed): #speed = Combat.animation_speed
+
+	#speed = Combat.animation_speed
+	def animate(self, speed): 
 		if self.attack_animation == True:
 			self.reach -= speed
 			if int(self.reach) <= 0:
-
 				self.attack_animation = False
-				#pass combat buff info to attack method
-				#or activate melee_attack where animate returns True
-				#Config.acting_character.melee_attack()
-				return True #return melee/spell?
+				return True
 
 		self.pos_y -= self.attack_speed
 		self.rect = self.image.get_rect()
 		self.rect.bottomright = [self.pos_x, self.pos_y]
-
-
-class Staby(Config, pg.sprite.Sprite): #Groupsingle
-	def __init__(self, groups, weapon, pos_x, pos_y):
-		super().__init__()
-		pg.sprite.Sprite.__init__(self, groups) 
-		self.attack_animation = False
-		self.weapon_sprites = [] 
-		weapon_image = pg.image.load('./ab_images/weapons/dagger.png').convert_alpha()
-		WIDTH, HEIGHT = weapon_image.get_size()
-		SIZE_SCALAR = 5
-		SCALED_WIDTH = WIDTH / SIZE_SCALAR
-		SCALED_HEIGHT = HEIGHT / SIZE_SCALAR
-		POS_X_ADJUST = 20
-		POS_Y_ADJUST = 12
-		pos_x += POS_X_ADJUST
-		pos_y += POS_Y_ADJUST
-
-		self.pos_y = pos_y
-		self.pos_x = pos_x
-		self.stab_speed = 3 
-
-		for i in range(0, 10):
-			self.weapon_sprites.append(pg.transform.smoothscale(weapon_image, (SCALED_WIDTH, SCALED_HEIGHT)))
-	
-		self.current_sprite = 0
-		self.image = self.weapon_sprites[self.current_sprite]
-		self.rect = self.image.get_rect()
-		#bottomleft?
-		self.rect.bottomright = [self.pos_x, self.pos_y]
-
-	def animation_start(self):
-		self.attack_animation = True
-
-	def animate(self, speed): 
-		if self.attack_animation == True:
-			self.current_sprite += speed
-			if int(self.current_sprite) >= len(self.weapon_sprites):
-				self.current_sprite = 0
-				self.attack_animation = False
-				self.image = self.weapon_sprites[int(self.current_sprite)]
-				Config.acting_character.melee_attack()
-				return True #return melee/spell?
-		self.pos_y -= 3
-		self.image = self.weapon_sprites[int(self.current_sprite)]
-		self.rect = self.image.get_rect()
-		self.rect.bottomright = [self.pos_x, self.pos_y]
-
 
 class Blast(pg.sprite.Sprite):
 	def __init__(self, groups, pos_x, pos_y, spell):
@@ -115,8 +63,6 @@ class Blast(pg.sprite.Sprite):
 
 		self.attack_animation = False
 		self.spell_sprites = [] 
-
-		#self.attack_spell = spell
 
 		CAST_IMAGE = pg.image.load('./ab_images/blast/spell.png').convert_alpha()
 		WIDTH, HEIGHT = CAST_IMAGE.get_size()
@@ -143,16 +89,13 @@ class Blast(pg.sprite.Sprite):
 	def animation_start(self):
 		self.attack_animation = True
 
-	def animate(self, speed): #attacker is always speedorder[0], target get_taget()
+	def animate(self, speed):
 		if self.attack_animation == True:
 			self.current_sprite += speed
 			if int(self.current_sprite) >= len(self.spell_sprites):
 				self.current_sprite = 0
 				self.attack_animation = False
 				self.image = self.spell_sprites[int(self.current_sprite)]
-
-				#Config.acting_character.spell_attack(self.attack_spell)
-
 				return True
 
 		self.image = self.spell_sprites[int(self.current_sprite)]
@@ -189,9 +132,10 @@ class SongAnimation(pg.sprite.Sprite):
 				self.timer = 0
 				self.attack_animation = False
 				return True
+	
 
 #Slash animation not working properly
-#black screen blink in combat start
+#black screen blink at beginning of battle
 class Slash(pg.sprite.Sprite):
 	def __init__(self, groups, pos_x, pos_y):
 		super().__init__()
@@ -224,7 +168,6 @@ class Slash(pg.sprite.Sprite):
 				self.current_sprite = 0
 				self.attack_animation = False
 				self.image = self.claw_sprites[int(self.current_sprite)]
-				Config.acting_character.melee_attack() #Config.party_heroes[0]
 				return True
 
 		self.image = self.claw_sprites[int(self.current_sprite)]
@@ -241,9 +184,7 @@ class Smash(pg.sprite.Sprite):
 		CLUB_IMAGE = pg.image.load('./ab_images/claw.png').convert_alpha()
 		#CLUB_IMAGE = pg.image.load('./ab_images/weapons/club.png').convert_alpha()
 		WIDTH, HEIGHT = CLUB_IMAGE.get_size()
-		#claw skalar
 		SIZE_SCALAR = 15
-		#SIZE_SCALAR = 5
 		SCALED_WIDTH = WIDTH / SIZE_SCALAR
 		SCALED_HEIGHT = HEIGHT / SIZE_SCALAR
 		INITIAL_ANGLE = 150
@@ -276,7 +217,6 @@ class Smash(pg.sprite.Sprite):
 			if self.rotation_remaining <= 0:
 				self.attack_animation = False
 				self.image = pg.transform.rotozoom(self.club, np.degrees(self.rotation), 1)
-				Config.acting_character.melee_attack()
 				return True
 		
 		XOFFSET, YOFFSET = np.cos(self.rotation) * self.offset, -np.sin(self.rotation) * self.offset

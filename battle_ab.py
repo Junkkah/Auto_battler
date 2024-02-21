@@ -6,7 +6,6 @@ from animations_ab import Stab, Slash, Blast, Smash, SongAnimation
 from sounds_ab import sound_effect
 import random
 
-# Shop not resetting to hero selection if defeated in combat and going for new game
 
 class BattleManager(Config):
     def __init__(self):
@@ -18,7 +17,6 @@ class BattleManager(Config):
         self.combat_mob_sprites = pg.sprite.Group()
         self.animation_sprites = pg.sprite.Group()
         self.exp_reward = 0
-        #adjust in settings
         self.combat_delay = 1.1
         self.animation_speed = 0.3
 
@@ -38,6 +36,7 @@ class BattleManager(Config):
         self.actions_unordered = []
         self.temp_stats = []
         Config.room_monsters = []
+        Config.combat_log = []
         Config.gold_count += self.gold_loot
 
         for risen_hero in self.defeated_heroes:
@@ -51,13 +50,12 @@ class BattleManager(Config):
         self.gold_loot = 0
         self.combat_started = False
         self.delay_timer = 0.0
-
         Config.aura_bonus = {key: 0 for key in Config.aura_bonus}
 
-    #hero method? get len(Config.party_heroes), check find self.name position in Config.party
+    #adjust for variable hero count
+    #hero method: get len(Config.party_heroes), check find self.name position in Config.party
     #for i in range len(S.party): S.party[i].get_into_position(i + 1) pos1,2,3,4
     def position_heroes(self, heroes: list):
-        #adjust for variable hero count
         HEROPOS_X = (self.screen_width * 0.3)
         HEROPOS_Y = (self.screen_height * 0.6)
         HERO_GAP = (self.screen_width * 0.2)
@@ -100,7 +98,7 @@ class BattleManager(Config):
     #tie breaker, first in hero/mob list > lower, hero > mob, class prios
     def order_sort(self, incombat: list):
         def speed_order(battle_participant: object):
-            if battle_participant.player:
+            if battle_participant.is_player:
                 hero_speed = battle_participant.speed + Config.aura_bonus['speed']
                 return hero_speed
             else:
@@ -150,36 +148,33 @@ class BattleManager(Config):
                 return
 
         Config.acting_character = self.actions_ordered[0]
-        if not Config.acting_character.animation and Config.room_monsters: #animation hasn't started yet
-            if Config.acting_character.player: #Attacker is hero
+        # Attack animation has not started and atleast one monster is present
+        if not Config.acting_character.animation and Config.room_monsters: 
+            if Config.acting_character.is_player:
                 pos_x = Config.acting_character.pos_x
                 pos_y = Config.acting_character.pos_y
 
-                #Need evaluate method
                 #hero always cast index 0 spell in self.spells
-                #create hero method for choosing spell to cast
-                #play sound_effect based on spell type
                 if Config.acting_character.attack_type == 'spell':
+                    #play sound_effect based on spell type
                     self.combat_animation = Blast(self.animation_sprites, pos_x, pos_y, Config.acting_character.spells[0])
                 
                 elif Config.acting_character.attack_type == 'song':
-                    #sound_effect('tune')
-                    #self.combat_animation = SongAnimation(self.animation_sprites, pos_x, pos_y)
-                    pass
+                    sound_effect('tune')
+                    self.combat_animation = SongAnimation(self.animation_sprites, pos_x, pos_y)
                 else:
                     sound_effect('sword')
+                    #weapon = Config.acting_character.held_weapon
                     weapon = Config.acting_character.attack_type
                     self.combat_animation = Stab(self.animation_sprites, weapon, pos_x, pos_y)
 
-            elif not Config.acting_character.player:
-                if Config.acting_character.type == 'kobold' or Config.acting_character.type == 'goblin':
+            elif not Config.acting_character.is_player:
+                if Config.acting_character.type in ['kobold', 'goblin']:
                     sound_effect('growl')
                 adjusted_pos_x = Config.acting_character.pos_x + Config.acting_character.width
                 adjusted_pos_y = Config.acting_character.pos_y + Config.acting_character.height
                 self.combat_animation = Smash(self.animation_sprites, adjusted_pos_x, adjusted_pos_y)
                 
-            else:
-                pass
             Config.acting_character.animation = True
             self.combat_animation.animation_start()
 
@@ -187,26 +182,27 @@ class BattleManager(Config):
         #call activate talents here
         if self.combat_animation.animate(self.animation_speed):
             if Config.acting_character.attack_type == 'spell':
-                #Config.acting_character.activate_combat_talents()
+                Config.acting_character.activate_talent_group('combat')
                 Config.acting_character.spell_attack(Config.acting_character.spells[0])
+            elif Config.acting_character.attack_type == 'song':
+                Config.acting_character.activate_talent_group('song')
+                Config.acting_character.song_attack()
             else:
-                if Config.acting_character.player:
-                    #Config.acting_character.activate_combat_talents()
-                    Config.acting_character.melee_attack()
-                else:
-                    Config.acting_character.melee_attack()
-            
+                if Config.acting_character.is_player:
+                    Config.acting_character.activate_talent_group('combat')
+                Config.acting_character.melee_attack()
+
             self.animation_sprites.remove(self.combat_animation)
             self.actions_ordered.append(self.actions_ordered.pop(0))
             
-            if Config.acting_character.player:
+            if Config.acting_character.is_player:
                 for fighting_monster in Config.room_monsters:
                     if fighting_monster.health <=0:
                         self.combat_mob_sprites.remove(fighting_monster)
                         self.actions_ordered.remove(fighting_monster)
                         self.exp_reward += fighting_monster.exp
                         if self.exp_reward + Config.party_heroes[0].exp >= Config.party_heroes[0].next_level:
-                            self.next = 'levelup' #problem if level up from last node?
+                            self.next = 'levelup'
                         else:
                             self.next = 'path'
                         Config.room_monsters.remove(fighting_monster)
@@ -216,23 +212,20 @@ class BattleManager(Config):
                             f'Experience earned: {self.exp_reward}',
                             f'Gold coins earner: {self.gold_loot}',
                             'Press any key to continue']
-                            #self.done = True
 
-            elif not Config.acting_character.player:  
+            elif not Config.acting_character.is_player:  
                 for fighting_hero in Config.party_heroes:
                     if fighting_hero.health <=0:
                         self.combat_hero_sprites.remove(fighting_hero)
                         self.actions_ordered.remove(fighting_hero)
                         Config.party_heroes.remove(fighting_hero)
                         self.defeated_heroes.append(fighting_hero)
-                        if not Config.party_heroes: #do loss screen
+                        #missing loss screen
+                        if not Config.party_heroes: 
                             Config.current_location = None
                             self.next = 'menu'
                             self.done = True
-        
-        #define lastest action text
-        #action_log1,2,3
-        #if latest action not action1-2 is 3, 1 is 2, latest is 1
+
         self.draw(screen)
 
     def draw(self, screen):
@@ -253,12 +246,12 @@ class BattleManager(Config):
         if Config.acting_character.animation: 
             self.animation_sprites.draw(screen)
 
-        self.combat_log_events = Config.combat_log[-5:]
-        COORDS_LOG = (self.screen_width * 0.15, self.screen_height * 0.70)
+        self.combat_log_events = Config.combat_log[-10:]
+        COORDS_LOG = (self.screen_width * 0.05, self.screen_height * 0.60)
         for i, event in enumerate(reversed(self.combat_log_events)):
-            log_line = f'{event[0]} deals {event[1]} to {event[2]}'
-            log_line_text = self.info_font.render(log_line, True, self.black)
-            log_line_rect = log_line_text.get_rect(topleft=(COORDS_LOG[0], COORDS_LOG[1] + i * self.info_font_size))
+            log_line = "{} deals {:>4} to {}".format(event[0].capitalize().ljust(14), event[1], event[2].capitalize())
+            log_line_text = self.log_font.render(log_line, True, self.black)
+            log_line_rect = log_line_text.get_rect(topleft=(COORDS_LOG[0], COORDS_LOG[1] + i * self.log_font_size))
             self.screen.blit(log_line_text, log_line_rect)
 
         if not self.combat_started:

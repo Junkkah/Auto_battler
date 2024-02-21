@@ -4,7 +4,7 @@ import random
 from config_ab import Config
 from hero_ab import Hero
 from sprites_ab import Button
-from data_ab import get_data, enter_simulation_result
+from data_ab import get_data, enter_simulation_result, get_talent_data
 from battle_ab import BattleManager
 from sounds_ab import sound_effect
 from path_ab import Path
@@ -41,7 +41,7 @@ class Simulator(Config):
         self.simu_paths = []
         self.names_df = get_data('names')
         self.talent_lists = get_data('talents')
-        self.COUNT = 5000
+        self.COUNT = 100
         self.results_list = []
         self.sim_done = False
         self.aura_bonus_speed = 0
@@ -125,6 +125,23 @@ class Simulator(Config):
             Config.party_heroes.append(self.simulated_hero)
             self.simulation_hero_sprites.add(self.simulated_hero)
         
+        for created_hero in Config.party_heroes:
+            if created_hero.type == 'wizard':
+                wizard_df = (get_talent_data('wizard'))
+                wizard_spells = wizard_df[wizard_df['type'] == 'spell']
+                random_row = wizard_spells.sample(n=1)
+                talent_name = random_row['name'].iloc[0]  
+                talent_type = 'spell'
+                created_hero.add_talent(talent_name, talent_type)
+
+            if created_hero.type == 'bard':
+                bard_df = (get_talent_data('bard'))
+                bard_spells = bard_df[bard_df['type'] == 'spell']
+                random_row = bard_spells.sample(n=1)
+                talent_name = random_row['name'].iloc[0]  
+                talent_type = 'spell'
+                created_hero.add_talent(talent_name, talent_type)
+        
         self.sim_loc_df = get_data(Config.current_adventure)
 
         #create adventure independent starting location list
@@ -169,16 +186,23 @@ class Simulator(Config):
                 self.actions_unordered.append(party_hero)
 
             BattleManager().activate_auras()
+            for location_talent_hero in Config.party_heroes:
+                location_talent_hero.activate_talent_group('location')
             self.actions_ordered = BattleManager().order_sort(self.actions_unordered)
             self.fallen_heroes = []
 
             while Config.party_heroes and Config.room_monsters: #loop combat 
-                Config.acting = self.actions_ordered[0] 
-                if Config.acting.player:
-                    if Config.acting.attack_type == 'spell': #and Config.acting.spells:
-                        Config.acting.spell_attack(Config.acting.spells[0]) #passing 1st spell
+                Config.acting_character = self.actions_ordered[0] 
+                if Config.acting_character.is_player:
+                    if Config.acting_character.attack_type == 'spell':
+                        Config.acting_character.activate_talent_group('combat')
+                        Config.acting_character.spell_attack(Config.acting_character.spells[0]) #passing 1st spell
+                    elif Config.acting_character.attack_type == 'song':
+                        Config.acting_character.activate_talent_group('song')
+                        Config.acting_character.song_attack()
                     else:
-                        Config.acting.melee_attack(self.aura_bonus_damage)
+                        Config.acting_character.activate_talent_group('combat')
+                        Config.acting_character.melee_attack()
                     
                     for fighting_monster in Config.room_monsters:
                         if fighting_monster.health <=0:
@@ -186,8 +210,8 @@ class Simulator(Config):
                             self.exp_reward += fighting_monster.exp
 
                             Config.room_monsters.remove(fighting_monster)
-                elif not Config.acting.player:
-                    Config.acting.melee_attack()
+                elif not Config.acting_character.is_player:
+                    Config.acting_character.melee_attack()
                     for fighting_hero in Config.party_heroes:
                         if fighting_hero.health <=0:
                             self.actions_ordered.remove(fighting_hero)
@@ -198,6 +222,8 @@ class Simulator(Config):
                 self.actions_ordered.append(self.actions_ordered.pop(0))
 
             Config.aura_bonus = {key: 0 for key in Config.aura_bonus}
+            for map_talent_hero in Config.party_heroes:
+                map_talent_hero.activate_talent_group('map')
 
             if Config.party_heroes and self.exp_reward + Config.party_heroes[0].exp >= Config.party_heroes[0].next_level:
                 if self.fallen_heroes:

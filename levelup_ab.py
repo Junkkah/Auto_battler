@@ -8,7 +8,6 @@ from sprites_ab import Button, TalentCard
 from battle_ab import BattleManager
 from sounds_ab import sound_effect
 
-# HeroManagement
 class LevelUp(Config): 
     def __init__(self):
         Config.__init__(self)
@@ -16,25 +15,22 @@ class LevelUp(Config):
         self.levelup_hero_sprites = pg.sprite.Group()
         self.levelup_sprites = pg.sprite.Group()
     
+    # Name condition and spell_type condition fail to filter out talents that should not be in the sample. 
     def create_talent_sample(self, hero) -> pd.DataFrame:
-        #not checking second requirement 
-        #up to 1.1 no talent has second requirement
         talent_df = get_talent_data(hero.type)
         while True:
             random_rows = talent_df.sample(n=2)
             new_df = pd.DataFrame(random_rows)
             talent1_req1 = new_df['req1'].iloc[0]
             talent2_req1 = new_df['req1'].iloc[1]
-            #talent1_req2 = new_df['req2'].iloc[0]
-            #talent2_req2 = new_df['req2'].iloc[0]
-
-            #check if hero already has either of the talents
-            #ranger can take survival multiple times, not working?
+            
             name1 = new_df['name'].iloc[0]
             name2 = new_df['name'].iloc[1]
+
             for name in [name1, name2]:
-                if name in hero.talents:
-                    continue 
+                normalized_name = name.lower()
+                if normalized_name in [talent.lower() for talent in hero.talents]:
+                    continue
             
             min1 = new_df['min_level'].iloc[0]
             min2 = new_df['min_level'].iloc[1]
@@ -48,8 +44,8 @@ class LevelUp(Config):
             effect2 = new_df['effect'].iloc[1].split()[0]
             for effect in [effect1, effect2]:
                 if effect in self.spell_types:
-                    spell_types = [spell['type'] for spell in hero.spells]
-                    if effect not in spell_types:
+                    hero_spell_types = [spell['type'] for spell in hero.spells]
+                    if effect not in hero_spell_types:
                         continue
 
             talent1_req1_met = talent1_req1 is None or talent1_req1 in hero.talents

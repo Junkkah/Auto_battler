@@ -20,7 +20,7 @@ class Monster(Config, pg.sprite.Sprite):
         self.pos_x = pos[0]
         self.pos_y = pos[1]
         self.type = monster_type
-        self.player = False
+        self.is_player = False
         self.animation = False
         self.attacked = False
 
@@ -36,9 +36,9 @@ class Monster(Config, pg.sprite.Sprite):
         self.width = self.image.get_width()
         self.height = self.image.get_height()
         self.rect = self.image.get_rect(topleft = (self.pos_x, self.pos_y))
-        #monster have 'weapon' column, change to attack_type and give monsters weapons and proper animation
+        
         self.attack_type = 'claw'
-        #self.abilities = ['regenerating': True/False]
+        
     
     def get_target(self):
         total_menace = sum(hero.menace for hero in Config.party_heroes)
@@ -50,7 +50,7 @@ class Monster(Config, pg.sprite.Sprite):
         target = self.get_target()
         self.animation = False
         DAMAGE = self.damage
-        log_entry = (self.name, str(DAMAGE), target.name)
+        log_entry = (self.name, DAMAGE, target.name)
         Config.combat_log.append(log_entry)
         target.take_damage(DAMAGE, 'physical')
 
@@ -85,7 +85,7 @@ class Adventure(pg.sprite.Sprite):
         self.pos = (self.pos_x, self.pos_y)
 
         self.image = pg.transform.smoothscale(scenery, (self.width, self.height))
-        self.rect = self.image.get_rect(center = (self.pos_x, self.pos_y)) #topleft
+        self.rect = self.image.get_rect(center = (self.pos_x, self.pos_y))
         self.desc = desc
         self.name = name
         self.child = child

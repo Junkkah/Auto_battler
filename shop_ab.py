@@ -9,8 +9,6 @@ from sounds_ab import sound_effect
 import pandas as pd
 
 
-#needs hire buttons
-#HeroManager
 class Shop(Config):
     def __init__(self):
         Config.__init__(self)
