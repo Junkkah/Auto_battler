@@ -17,6 +17,8 @@ class LevelUp(Config):
     
     def create_talent_sample(self, hero) -> pd.DataFrame:
         talent_df = get_talent_data(hero.type)
+        #Filter out talents hero already has
+        talent_df = talent_df[~talent_df['name'].isin(hero.talents)]
         while True:
             discard_sample = False
             random_rows = talent_df.sample(n=2)
@@ -24,17 +26,16 @@ class LevelUp(Config):
             talent1_req1 = new_df['req1'].iloc[0]
             talent2_req1 = new_df['req1'].iloc[1]
             
-            name1 = new_df['name'].iloc[0]
-            name2 = new_df['name'].iloc[1]
-
             if talent1_req1 and talent1_req1 not in hero.talents:
                 discard_sample = True
             if talent2_req1 and talent2_req1 not in hero.talents:
                 discard_sample = True
 
-            for name in [name1, name2]:
-                if name in [talent for talent in hero.talents]:
-                    discard_sample = True
+            #name1 = new_df['name'].iloc[0]
+            #name2 = new_df['name'].iloc[1]
+            #for name in [name1, name2]:
+            #    if name in [talent for talent in hero.talents]:
+            #        discard_sample = True
             
             min1 = new_df['min_level'].iloc[0]
             min2 = new_df['min_level'].iloc[1]

@@ -31,7 +31,7 @@ class Config(object):
         self.menu_button_sprites = pg.sprite.Group()
 
         self.max_party_size = 3
-        self.spell_types = ['fire', 'cold', 'lightning', 'nature', 'holy', 'acid']
+        self.spell_types = {'fire', 'cold', 'lightning', 'nature', 'holy', 'acid'}
         
         self.ground = pg.image.load('./ab_images/game_bg.png').convert()
         self.red = (255, 0, 0)

@@ -32,7 +32,6 @@ class Path(Config):
 
     def startup(self):
         play_music_effect(Config.current_adventure)
-
         for talent_hero in Config.party_heroes:
             talent_hero.activate_talent_group('map')
 

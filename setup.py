@@ -6,8 +6,8 @@ setup(
     packages=find_packages(),
     python_requires='>=3.9',
     install_requires=[
-        'numpy==1.24.2',
-        'pygame==2.3.0',
+        'numpy==1.23.4',
+        'pygame==2.1.2',
         'pandas==2.0.0'
     ],
 )
