@@ -28,7 +28,6 @@ class Path(Config):
     def cleanup(self):
         self.path_sprites.empty()
         self.loc_objects = []
-        #stop music
 
     def startup(self):
         play_music_effect(Config.current_adventure)
@@ -65,8 +64,8 @@ class Path(Config):
         elif event.type == pg.MOUSEBUTTONDOWN:
 
             clicked_location = None
-            if self.current_location:
-                for child in [self.current_location.child1, self.current_location.child2]:
+            if Config.current_location:
+                for child in [Config.current_location.child1, Config.current_location.child2]:
                     if child and child.rect.collidepoint(pg.mouse.get_pos()):
                         clicked_location = child
                         break  
@@ -77,33 +76,23 @@ class Path(Config):
                         clicked_location = locs_click
                         break 
 
-            if clicked_location and clicked_location.type == 'fight':
+            if clicked_location and clicked_location.type in  ['fight', 'boss']:
                 Config.room_monsters = self.create_encounter(clicked_location.tier)
-
-                self.current_location = clicked_location
-                self.next = 'battle'
-                self.done = True
-            
-            if clicked_location and clicked_location.type == 'boss':
-                Config.room_monsters = self.create_encounter(clicked_location.tier)
-                self.current_location = clicked_location
+                Config.current_location = clicked_location
                 self.next = 'battle'
                 self.done = True
             
             if clicked_location and clicked_location.type == 'shop':
-                self.current_location = clicked_location
+                Config.current_location = clicked_location
                 self.next = 'shop'
                 self.done = True
-
 
     def update(self, screen, dt):
         self.draw(screen)
 
-
     def draw_circle(self, color, center, radius, thickness):
         pg.draw.circle(self.screen, color, center, radius, thickness)
     
-
     def draw(self, screen):
         self.screen.blit(self.ground, (0,0))
 
@@ -117,10 +106,10 @@ class Path(Config):
 
         radius = self.max_pulse_radius * abs(math.sin(pg.time.get_ticks() * self.pulsation_speed))
 
-        if self.current_location:
-            self.draw_circle(self.white, self.current_location.child1.pos, int(radius), 2)
-            if self.current_location.child2:
-                self.draw_circle(self.white, self.current_location.child2.pos, int(radius), 2)
+        if Config.current_location:
+            self.draw_circle(self.white, Config.current_location.child1.pos, int(radius), 2)
+            if Config.current_location.child2:
+                self.draw_circle(self.white, Config.current_location.child2.pos, int(radius), 2)
         else:
             for locs_draw in self.loc_objects:
                 if locs_draw.parent1 is None:

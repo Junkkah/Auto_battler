@@ -5,6 +5,7 @@ from sprites_ab import Monster
 from animations_ab import Stab, Slash, Blast, Smash, SongAnimation
 from sounds_ab import sound_effect
 import random
+import pygame.mixer
 
 
 class BattleManager(Config):
@@ -28,6 +29,14 @@ class BattleManager(Config):
             total_max_gold += loot_monster.gold_max
         total_loot = random.randint(total_min_gold, total_max_gold)
         return total_loot
+    
+    def reset_adventure(self):
+        self.defeated_heroes = []
+        Config.current_adventure = None
+        Config.current_location = None
+        Config.acting_character = None
+        Config.gold_count = 50
+        Config.scout_active = False
  
     def cleanup(self):
         self.animation_sprites.empty()
@@ -108,7 +117,9 @@ class BattleManager(Config):
     
 
     def startup(self):
-
+        #
+        if Config.current_location.type == 'boss':
+            sound_effect(Config.current_location.name)
         self.combat_started = False
         self.delay_timer = 0.0
 
@@ -133,6 +144,17 @@ class BattleManager(Config):
     def get_event(self, event):
         if event.type == pg.KEYDOWN:
             if not Config.room_monsters:
+                if Config.current_location.type == 'boss':
+                    #dark forest adventure cleared
+                    #continue to decrepit ruins adventure
+                    pg.mixer.stop()
+                    self.reset_adventure()
+                    self.next = 'menu'
+                self.done = True
+            if not Config.party_heroes:
+                pg.mixer.stop()
+                self.reset_adventure()
+                self.next = 'menu'
                 self.done = True
         elif event.type == pg.MOUSEBUTTONDOWN:
             pass
@@ -148,8 +170,8 @@ class BattleManager(Config):
                 return
 
         Config.acting_character = self.actions_ordered[0]
-        # Attack animation has not started and atleast one monster is present
-        if not Config.acting_character.animation and Config.room_monsters: 
+        # Attack animation has not started and both monster and hero lists have list items
+        if not Config.acting_character.animation and Config.room_monsters and Config.party_heroes: 
             if Config.acting_character.is_player:
                 pos_x = Config.acting_character.pos_x
                 pos_y = Config.acting_character.pos_y
@@ -213,6 +235,7 @@ class BattleManager(Config):
                             f'Gold coins earner: {self.gold_loot}',
                             'Press any key to continue']
 
+
             elif not Config.acting_character.is_player:  
                 for fighting_hero in Config.party_heroes:
                     if fighting_hero.health <=0:
@@ -220,11 +243,11 @@ class BattleManager(Config):
                         self.actions_ordered.remove(fighting_hero)
                         Config.party_heroes.remove(fighting_hero)
                         self.defeated_heroes.append(fighting_hero)
-                        #missing loss screen
-                        if not Config.party_heroes: 
-                            Config.current_location = None
-                            self.next = 'menu'
-                            self.done = True
+                        if not Config.party_heroes:
+                            sound_effect('lose')
+                            self.lose_lines = [
+                            'Your heroes were defeated',
+                            'Press any key to continue']
 
         self.draw(screen)
 
@@ -271,9 +294,17 @@ class BattleManager(Config):
             self.screen.blit(VICTORY_TEXT, VICTORY_TEXT_RECT)
             
             VICTORY_HEIGHT = VICTORY_TEXT.get_height() // 2
-            COORDS_VIC = (self.screen_width * 0.50, self.screen_width * 0.20 + VICTORY_HEIGHT)
+            COORDS_VIC = (self.screen_width * 0.50, self.screen_height * 0.35 + VICTORY_HEIGHT)
 
             for i, victory_line in enumerate(self.victory_lines):
                 vic_line_text = self.info_font.render(victory_line, True, self.black)
                 vic_line_rect = vic_line_text.get_rect(center=(COORDS_VIC[0], COORDS_VIC[1] + i * self.info_font_size))
                 self.screen.blit(vic_line_text, vic_line_rect)
+
+        if not Config.party_heroes:
+            COORDS_LOSE = (self.screen_width * 0.50, self.screen_height * 0.40)
+
+            for i, lose_line in enumerate(self.lose_lines):
+                lose_line_text = self.info_font.render(lose_line, True, self.black)
+                lose_line_rect = lose_line_text.get_rect(center=(COORDS_LOSE[0], COORDS_LOSE[1] + i * self.info_font_size))
+                self.screen.blit(lose_line_text, lose_line_rect)

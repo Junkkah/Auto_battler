@@ -113,11 +113,15 @@ class Shop(Config):
                 sound_effect('click')
                 self.next = 'menu'
                 self.done = True
+
             if self.continue_button.rect.collidepoint(pg.mouse.get_pos()) and len(Config.party_heroes) == self.max_party_size:
                 sound_effect('click')
-                if Config.current_adventure is not None:
+                if Config.current_adventure is None:
+                    self.next = 'map'
+                else:
                     self.next = 'path'
                 self.done = True
+
             elif self.continue_button.rect.collidepoint(pg.mouse.get_pos()):
                 sound_effect('error')
 

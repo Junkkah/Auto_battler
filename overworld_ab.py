@@ -18,7 +18,9 @@ class WorldMap(Config):
         self.map_sprites.empty()
 
     def startup(self):
-        #similar method in locations
+        self.error = False
+        self.line_thickness = 10
+
         map_data = get_data('adventures')
         self.map_objects = []
         for index, row in map_data.iterrows():
@@ -60,6 +62,7 @@ class WorldMap(Config):
                 if obj.rect.collidepoint(pg.mouse.get_pos()):
                     if obj.name == 'dark_forest':
                         Config.current_adventure = obj.name
+                        self.next = 'path'
                         self.done = True
 
                     else:

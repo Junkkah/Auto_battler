@@ -47,3 +47,15 @@ mixkit-creepy-tomb-ambience-2500
 Tune:
 Acute guitar single string
 mixkit-acute-guitar-single-string-2325
+
+Lose:
+Losing bleeps
+mixkit-losing-bleeps-2026
+
+Mace:
+Blow breaking the air
+mixkit-blow-breaking-the-air-2057
+
+Arrow:
+Arrow shot through air
+mixkit-arrow-shot-through-air-2771
