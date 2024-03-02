@@ -61,9 +61,7 @@ class BattleManager(Config):
         self.delay_timer = 0.0
         Config.aura_bonus = {key: 0 for key in Config.aura_bonus}
 
-    #adjust for variable hero count
-    #hero method: get len(Config.party_heroes), check find self.name position in Config.party
-    #for i in range len(S.party): S.party[i].get_into_position(i + 1) pos1,2,3,4
+    #move to Config?
     def position_heroes(self, heroes: list):
         HEROPOS_X = (self.screen_width * 0.3)
         HEROPOS_Y = (self.screen_height * 0.6)

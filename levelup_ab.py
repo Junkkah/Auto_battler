@@ -31,12 +31,6 @@ class LevelUp(Config):
             if talent2_req1 and talent2_req1 not in hero.talents:
                 discard_sample = True
 
-            #name1 = new_df['name'].iloc[0]
-            #name2 = new_df['name'].iloc[1]
-            #for name in [name1, name2]:
-            #    if name in [talent for talent in hero.talents]:
-            #        discard_sample = True
-            
             min1 = new_df['min_level'].iloc[0]
             min2 = new_df['min_level'].iloc[1]
             if min1 > hero.level or min2 > hero.level:

@@ -22,6 +22,7 @@ class Config(object):
         self.screen_width = 1920
         self.screen_height = 1080
         self.screen = pg.display.set_mode((self.screen_width, self.screen_height))
+        self.primary_mouse_button = 1
 
         self.hero_sprites = pg.sprite.Group()
         self.monster_sprites = pg.sprite.Group()

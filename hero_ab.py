@@ -54,6 +54,7 @@ class Hero(Config, pg.sprite.Sprite):
 
         self.held_weapon = ""
         self.talent_bonus_damage = 0
+        self.tempt_talent_bonuses = {'damage' : 0, 'armor' : 0}
         self.spells = []
         self.talents = []
         self.talent_groups = {'combat' : {}, 'location' : {}, 'map' : {}, 'song' : {}}
@@ -92,7 +93,8 @@ class Hero(Config, pg.sprite.Sprite):
         armor_penalty = self.enemy_armor_penalty
         self.enemy_armor_penalty = 0
         self.talent_bonus_damage = 0
-        log_entry = (self.name, DAMAGE, target.name)
+        LOG_DAMAGE = DAMAGE - max(0, target.armor - armor_penalty)
+        log_entry = (self.name, LOG_DAMAGE, target.name)
         Config.combat_log.append(log_entry)
         target.take_damage(DAMAGE, 'physical', armor_penalty)
 
@@ -125,6 +127,7 @@ class Hero(Config, pg.sprite.Sprite):
         Config.combat_log.append(log_entry)
 
     def take_damage(self, damage_amount, damage_type):
+        #activate defensive talent
         if damage_type == 'physical':
             taken_damage = max(0, damage_amount - self.armor - Config.aura_bonus['armor'])
         else:
@@ -237,6 +240,12 @@ class Hero(Config, pg.sprite.Sprite):
 
     def scout_activation(self, rank):
         Config.scout_active = True 
+    
+    def surprise_activation(self, rank):
+        speed_penalty_per_rank = 3
+        total_speed_penalty = speed_penalty_per_rank * rank
+        for surprised_monster in Config.room_monsters:
+            surprised_monster.speed -= total_speed_penalty
 
     def berserk_activation(self, rank):
         damage_bonus_per_rank = 3
@@ -280,27 +289,42 @@ class Hero(Config, pg.sprite.Sprite):
         target = self.get_target()
         armor_penalty = 0
         target.take_damage(DAMAGE, 'physical', armor_penalty)
+    
+    def gladiator_activation(self, rank):
+        damage_bonus_per_rank = 4
+        total_damage_bonus = damage_bonus_per_rank * rank
+        #def actiatio
+        #armor_bonus_per_rank = 1
+        if len(Config.party_heroes) == 1:
+            self.talent_bonus_damage += total_damage_bonus
 
+    #testing more powerful spell mastery talents
     def lightning_activation(self, rank):
-        damage_bonus_per_rank = self.level // 2
+        damage_bonus_per_rank = self.level #// 2
         total_damage_bonus = damage_bonus_per_rank * rank
         if self.spells[0]['type'] == 'lightning':
             self.talent_bonus_damage += total_damage_bonus
 
     def acid_activation(self, rank):
-        damage_bonus_per_rank = self.level // 2
+        damage_bonus_per_rank = self.level #// 2
         total_damage_bonus = damage_bonus_per_rank * rank
         if self.spells[0]['type'] == 'acid':
             self.talent_bonus_damage += total_damage_bonus
     
     def fire_activation(self, rank):
-        damage_bonus_per_rank = self.level // 2
+        damage_bonus_per_rank = self.level #// 2
         total_damage_bonus = damage_bonus_per_rank * rank
         if self.spells[0]['type'] == 'fire':
             self.talent_bonus_damage += total_damage_bonus
     
+    def cold_activation(self, rank):
+        damage_bonus_per_rank = self.level #// 2
+        total_damage_bonus = damage_bonus_per_rank * rank
+        if self.spells[0]['type'] == 'cold':
+            self.talent_bonus_damage += total_damage_bonus
+    
     def nature_activation(self, rank):
-        damage_bonus_per_rank = self.level // 2
+        damage_bonus_per_rank = self.level #// 2
         total_damage_bonus = damage_bonus_per_rank * rank
         if self.spells[0]['type'] == 'nature':
             self.talent_bonus_damage += total_damage_bonus

@@ -25,8 +25,8 @@ python main.py
 ```
 
 ## Troubleshooting: Sound Issues with Pygame 2.3.0
- * Symptoms: Sounds may not play properly or may exhibit unexpected behavior.
- * Resolution: To ensure proper sound functionality, it is recommended to use Pygame version 2.1.2.
+* Symptoms: Sounds may not play properly or may exhibit unexpected behavior.
+* Resolution: To ensure proper sound functionality, it is recommended to use Pygame version 2.1.2.
 
 ## Future Updates
 

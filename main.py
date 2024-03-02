@@ -46,6 +46,7 @@ from battle_ab import BattleManager
 from config_ab import Config
 from levelup_ab import LevelUp
 from simulator_ab import Simulator
+from inventory_ab import Inventory
 
 #Control and States class state machine code from
 #https://python-forum.io/thread-336.html 
@@ -99,7 +100,8 @@ state_dict = {
     'path': Path(),
     'battle': BattleManager(),
     'levelup': LevelUp(),
-    'simulator': Simulator()
+    'simulator': Simulator(),
+    'inventory': Inventory()
 }
 app.setup_states(state_dict, 'menu') 
 app.state.startup()

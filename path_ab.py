@@ -60,6 +60,9 @@ class Path(Config):
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_ESCAPE:
                 exit()
+            if event.key ==pg.K_i:
+                self.next = 'inventory'
+                self.done = True
 
         elif event.type == pg.MOUSEBUTTONDOWN:
 

@@ -50,7 +50,8 @@ class Monster(Config, pg.sprite.Sprite):
         target = self.get_target()
         self.animation = False
         DAMAGE = self.damage
-        log_entry = (self.name, DAMAGE, target.name)
+        LOG_DAMAGE = DAMAGE - target.armor
+        log_entry = (self.name, LOG_DAMAGE, target.name)
         Config.combat_log.append(log_entry)
         target.take_damage(DAMAGE, 'physical')
 
@@ -180,10 +181,12 @@ class TalentCard(Config, pg.sprite.Sprite):
 
         return combined_surface
 
-
+#magic item data
 class MagicItem(): 
-    def __init__(self, name: str, desc: str, effect: str, type: str):
-        self.name_text = name
-        self.desc_text = desc
+    def __init__(self, name: str, desc: str, effect: str, item_type: str):
+        self.name = name
+        self.desc = desc
         self.effect = effect
-        self.type = type
+        self.item_type = item_type
+        item_image = pg.image.load('./ab_images/items/' + self.image_name + '.png').convert_alpha()
+        icon_image = pg.image.load('./ab_images/items/icons/' + self.icon_name + '.png').convert_alpha()

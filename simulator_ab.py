@@ -19,16 +19,22 @@ class Simulator(Config):
 
     def cleanup(self):
         self.party = []
-        Config.party_heroes = []
+        self.results_list = []
         self.simu_paths = []
+        Config.party_heroes = []
+        Config.current_adventure = None
+        Config.current_location = None
+        Config.acting_character = None
+        Config.scout_active = False
+        Config.gold_count = 50
         self.party_exp = 0
         self.exp_reward = 0
-        self.results_list = []
-        self.simulation_sprites.empty()
-        self.help_sprites.empty()
         self.aura_bonus_speed = 0
         self.aura_bonus_damage = 0
         self.aura_bonus_armor = 0
+        self.simulation_sprites.empty()
+        self.help_sprites.empty()
+        
 
     def startup(self):
         self.simulation_hero_sprites = pg.sprite.Group()
@@ -41,7 +47,7 @@ class Simulator(Config):
         self.simu_paths = []
         self.names_df = get_data('names')
         self.talent_lists = get_data('talents')
-        self.COUNT = 1
+        self.COUNT = 5
         self.results_list = []
         self.sim_done = False
         self.aura_bonus_speed = 0
