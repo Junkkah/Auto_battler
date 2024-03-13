@@ -115,19 +115,22 @@ class Location(pg.sprite.Sprite):
         self.treasure = []
 
 class Button(Config, pg.sprite.Sprite):
-    def __init__(self, groups, text, font, font_size, color, center):
+    def __init__(self, groups, text, font, font_size, text_color, center):
         super().__init__() 
         pg.sprite.Sprite.__init__(self, groups) 
 
         self.text = text
         self.font = pg.font.SysFont(font, font_size)
-        self.color = color
-        text_surface = self.font.render(self.text, True, self.color)
+        self.text_color = text_color
+        text_surface = self.font.render(self.text, True, self.text_color)
         text_rect = text_surface.get_rect()
+        self.button_color = self.grey
         padding_x = 20 
         padding_y = 10
-        self.image = pg.Surface((text_rect.width + 2 * padding_x, text_rect.height + 2 * padding_y), pg.SRCALPHA)
-        self.image.fill((0, 0, 0, 0))
+        button_width = text_rect.width + 2 * padding_x
+        button_height = text_rect.height + 2 * padding_y
+        self.image = pg.Surface((button_width, button_height))
+        self.image.fill(self.button_color)
         self.image.blit(text_surface, (padding_x, padding_y))
         self.rect = self.image.get_rect(center=center)
         self.border_width = 2
@@ -175,11 +178,30 @@ class TalentCard(Config, pg.sprite.Sprite):
         combined_width = max(name_surface.get_width(), desc_surface.get_width()) + padding_x
         combined_height = name_surface.get_height() + desc_surface.get_height() + padding_y
         combined_surface = pg.Surface((combined_width, combined_height), pg.SRCALPHA)
-        #combined_surface.fill(self.white)
         combined_surface.blit(name_surface, (5, 0))
         combined_surface.blit(desc_surface, (5, name_surface.get_height()))
-
         return combined_surface
+
+class EquipmentSlot(Config):
+    def __init__(self, pos, width, height):
+        super().__init__()
+        pos_x = pos[0]
+        pos_y = pos[1]
+        self.rect = pg.Rect(pos_x, pos_y, width, height)
+        self.item = None
+
+        self.border_width = 2
+        self.border_color = (self.black)
+        self.draw_border()
+
+    def draw_border(self):
+        pg.draw.rect(self.screen, self.border_color, self.rect, self.border_width)
+
+class EqSlotHandler(Config):
+    def __init__(self, hero_positions, slot_width, slot_height, slot_spacing):
+        super().__init__() 
+        self.slot_width = slot_width
+        self.slot_height = slot_height
 
 #magic item data
 class MagicItem(): 
@@ -190,3 +212,13 @@ class MagicItem():
         self.item_type = item_type
         item_image = pg.image.load('./ab_images/items/' + self.image_name + '.png').convert_alpha()
         icon_image = pg.image.load('./ab_images/items/icons/' + self.icon_name + '.png').convert_alpha()
+
+class Weapon(): 
+    def __init__(self, name: str, magic: str):
+        self.name = name
+        item_image = pg.image.load('./ab_images/weapon/' + self.image_name + '.png').convert_alpha()
+
+class Armor(): 
+    def __init__(self, name: str, magic: str, item_type: str):
+        self.name = name
+        icon_image = pg.image.load('./ab_images/icons/' + self.icon_name + '.png').convert_alpha()

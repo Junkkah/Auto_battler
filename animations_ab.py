@@ -20,7 +20,7 @@ class Stab(Config, pg.sprite.Sprite): #Groupsingle
 		self.attack_animation = False
 
 		weapon_df = weapons_data[weapons_data['name'] == weapon].reset_index(drop=True)
-		weapon_image = pg.image.load('./ab_images/weapons/' + weapon + '.png').convert_alpha()
+		weapon_image = pg.image.load('./ab_images/weapon/' + weapon + '.png').convert_alpha()
 		WIDTH, HEIGHT = weapon_image.get_size()
 		SIZE_SCALAR = weapon_df.loc[0, 'size_scalar']
 		SCALED_WIDTH = WIDTH / SIZE_SCALAR

@@ -30,8 +30,8 @@ class Hero(Config, pg.sprite.Sprite):
         width = face.get_width()
         height = face.get_height() 
         size_scalar = 7.2
-        desired_height = self.screen_height / size_scalar
-        self.image = pg.transform.smoothscale(face, ((width / (height / desired_height)), desired_height))
+        standard_height = self.screen_height / size_scalar
+        self.image = pg.transform.smoothscale(face, ((width / (height / standard_height)), standard_height))
         self.rect = self.image.get_rect(topleft = (self.pos_x, self.pos_y))
         self.width = self.image.get_width()
         self.height = self.image.get_height()
@@ -42,17 +42,19 @@ class Hero(Config, pg.sprite.Sprite):
         self.name = name
         self.is_player = True
         self.type = hero_type
+        self.inventory_spot = None
 
         self.level = 1
         self.exp_df = exp_data
         self.next_level = self.exp_df.at[0, 'exp']
+        self.worn_items = {'head': '', 'amulet': '', 'body': '', 'hand1': '', 'hand2': '', 'consumable': ''}
 
         self.df = hero_data[hero_data['type'] == self.type].reset_index(drop=True)
         # Assign stats type, health, max_health, damage, speed, exp, menace, armor, attack_type
         for stat_name in self.df.columns:
             setattr(self, stat_name, int(self.df.at[0, stat_name]) if str(self.df.at[0, stat_name]).isdigit() else self.df.at[0, stat_name])
 
-        self.held_weapon = ""
+        self.held_weapon = ''
         self.talent_bonus_damage = 0
         self.tempt_talent_bonuses = {'damage' : 0, 'armor' : 0}
         self.spells = []

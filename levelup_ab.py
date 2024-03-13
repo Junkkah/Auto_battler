@@ -74,13 +74,7 @@ class LevelUp(Config):
         self.talents_selected = []
         self.talent_cards = []
 
-        CONT_TEXT = 'CONTINUE'
-        CONT_FONT = self.default_font
-        CONT_SIZE = self.big_font_size
-        CONT_COL = self.black
-        COORDS_CONT = (self.screen_width * 0.75, self.screen_height * 0.88)
-
-        self.continue_button = Button(self.levelup_sprites, CONT_TEXT, CONT_FONT, CONT_SIZE, CONT_COL, COORDS_CONT)
+        self.continue_button = Button(self.levelup_sprites, self.CONT_TEXT, self.CONT_FONT, self.CONT_SIZE, self.CONT_COL, self.COORDS_CONT)
 
         #position heroes 
         battle_instance = BattleManager()

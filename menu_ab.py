@@ -83,6 +83,8 @@ class Menu(Config):
         self.draw(screen)
 
     def draw(self, screen):
-        self.screen.fill(self.blue)
+        self.menu_bg = pg.image.load('./ab_images/background/menu_bg.png').convert()
+        self.screen.blit(self.menu_bg, (0,0))
+        #self.screen.fill(self.blue)
         self.screen.blit(self.title_text, self.title_rect)
         self.menu_button_sprites.draw(self.screen)

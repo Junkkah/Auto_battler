@@ -33,8 +33,7 @@ class Config(object):
 
         self.max_party_size = 3
         self.spell_types = {'fire', 'cold', 'lightning', 'nature', 'holy', 'acid'}
-        
-        self.ground = pg.image.load('./ab_images/game_bg.png').convert()
+        self.ground = pg.image.load('./ab_images/background/game_bg.png').convert()
         self.red = (255, 0, 0)
         self.black = (0, 0, 0)
         self.white = (255, 255, 255)
@@ -59,6 +58,16 @@ class Config(object):
         self.large_info_font = pg.font.SysFont(INFO_FONT_NAME, self.big_font_size)
         self.title_font = pg.font.SysFont(INFO_FONT_NAME, self.title_font_size)
 
+        self.CONT_TEXT = 'CONTINUE'
+        self.CONT_FONT = self.default_font
+        self.CONT_SIZE = self.big_font_size
+        self.CONT_COL = self.black
+        self.COORDS_CONT = (self.screen_width * 0.75, self.screen_height * 0.90)
+
+        self.BACK_FONT = self.default_font
+        self.BACK_SIZE = self.medium_font_size
+        self.BACK_COL = self.black
+        self.COORDS_BACK = (self.screen_width * 0.10, self.screen_height * 0.90)
 
         self.coords_gold = (10, 10)
         self.gold_font_name = 'Verdana'

@@ -2,7 +2,7 @@ import pygame as pg
 import sys
 from config_ab import Config
 from sounds_ab import sound_effect
-from sprites_ab import Button, MagicItem
+from sprites_ab import Button, EquipmentSlot
 from hero_ab import Hero
 from battle_ab import BattleManager
 
@@ -12,11 +12,14 @@ class Inventory(Config):
         self.next = 'path' 
 
     def cleanup(self):
-        #reorder party_heroes to match spots
+        Config.party_heroes.sort(key=lambda hero: hero.inventory_spot)
         self.inventory_buttons = []
         self.hero_spots = []
+        self.eq_slots = []
         self.inventory_sprites.empty()
         self.inventory_button_sprites.empty()
+        self.inventory_icon_sprites.empty()
+        #self.equipment_slot_sprites.empty()
         self.dragging = False
         self.dragged_hero = None
         self.original_spot = None
@@ -24,20 +27,20 @@ class Inventory(Config):
 
     def startup(self):
         self.inventory_buttons = []
+        self.eq_slots = []
         self.inventory_sprites = pg.sprite.Group()
         self.inventory_button_sprites = pg.sprite.Group()
+        self.inventory_icon_sprites = pg.sprite.Group()
+        #self.equipment_slot_sprites = pg.sprite.Group()
         self.dragging = False
         self.dragged_hero = None
         self.original_spot = None
         self.spot_found = False
+        # Hardcoded largest hero image width for creating uniform size hero spots
+        self.hero_width_scalar = 7.5
+        self.max_hero_width = self.screen_height // self.hero_width_scalar #144 with witdth 1080
 
-        CONT_TEXT = 'CONTINUE'
-        CONT_FONT = self.default_font
-        CONT_SIZE = self.big_font_size
-        CONT_COL = self.black
-        COORDS_CONT = (self.screen_width * 0.75, self.screen_height * 0.90)
-
-        self.continue_button = Button(self.inventory_button_sprites, CONT_TEXT, CONT_FONT, CONT_SIZE, CONT_COL, COORDS_CONT)
+        self.continue_button = Button(self.inventory_button_sprites, self.CONT_TEXT, self.CONT_FONT, self.CONT_SIZE, self.CONT_COL, self.COORDS_CONT)
 
         #position heroes 
         battle_instance = BattleManager()
@@ -46,11 +49,22 @@ class Inventory(Config):
             self.inventory_sprites.add(inv_hero)
         
         self.hero_spots = []
-        for pos_hero in Config.party_heroes:
-            hero_rect = pos_hero.rect
-            hero_spot_rect = pg.Rect(hero_rect.x - 5, hero_rect.y - 5, hero_rect.width + 10, hero_rect.height + 10)
-            self.hero_spots.append(hero_spot_rect)
-
+        for i in range(len(Config.party_heroes)):
+            var_name = f"hero_spot{i + 1}"
+            hero_rect = Config.party_heroes[i].rect
+            value = pg.Rect(hero_rect.x - 5, hero_rect.y - 5, self.max_hero_width + 10, hero_rect.height + 10)
+            setattr(self, var_name, value)
+            inv_spot = getattr(self, var_name)
+            self.hero_spots.append(inv_spot)
+            Config.party_heroes[i].inventory_spot = inv_spot
+        
+        eq_slot_size_scalar = 30
+        head_slot_spot = (self.screen_width *  0.32, self.screen_height * 0.10)
+        head_slot_width = self.screen_width // eq_slot_size_scalar
+        head_slot_height = self.screen_height // eq_slot_size_scalar
+        self.head_slot = EquipmentSlot(head_slot_spot, head_slot_width, head_slot_width)
+        self.eq_slots.append(self.head_slot)
+        
     def get_event(self, event):
         mouse_pos = pg.mouse.get_pos()
         if event.type == pg.KEYDOWN:
@@ -68,7 +82,7 @@ class Inventory(Config):
                     if Config.party_heroes[i].rect.collidepoint(mouse_pos) and not self.dragging:
                         self.dragging = True
                         self.dragged_hero = Config.party_heroes[i]
-                        self.original_spot = i
+                        self.original_spot = self.dragged_hero.inventory_spot
                         self.offset_x = mouse_pos[0] - self.dragged_hero.rect.x
                         self.offset_y = mouse_pos[1] - self.dragged_hero.rect.y
                         
@@ -78,13 +92,19 @@ class Inventory(Config):
                 if self.dragging:
                     for hero_spot in self.hero_spots:
                         if hero_spot.colliderect(self.dragged_hero.rect):
+                            for bumped_hero in Config.party_heroes:
+                                if bumped_hero.inventory_spot == hero_spot:
+                                    bumped_hero.rect.x = self.original_spot.x
+                                    bumped_hero.rect.y = self.original_spot.y
+                                    bumped_hero.inventory_spot = self.original_spot
                             self.dragged_hero.rect.x = hero_spot.x
                             self.dragged_hero.rect.y = hero_spot.y
                             self.spot_found = True
-                            #bump currect occupant to self.original_spot
-                    if not self.spot_found:    
-                        self.dragged_hero.rect.x = self.hero_spots[self.original_spot].x
-                        self.dragged_hero.rect.y = self.hero_spots[self.original_spot].y
+                            self.dragged_hero.inventory_spot = hero_spot
+
+                    if not self.spot_found:   
+                        self.dragged_hero.rect.x = self.original_spot.x
+                        self.dragged_hero.rect.y = self.original_spot.y
                     self.dragging = False
                     self.spot_found = False
                     
@@ -100,7 +120,11 @@ class Inventory(Config):
         self.screen.fill(self.grey)
         self.inventory_sprites.draw(self.screen)
         self.inventory_button_sprites.draw(self.screen)
-        #self.screen.blit(backpack_item_image, backpack_item_rect)
+        #self.equipment_slot_sprites
+        self.inventory_icon_sprites.draw(self.screen)
+        
+        for slot in self.eq_slots:
+            slot.draw_border()
 
         for spot in self.hero_spots:
             pg.draw.rect(self.screen, self.black, spot, 3)
@@ -110,5 +134,4 @@ class Inventory(Config):
 
         if self.dragging:
             pass
-        #draw rects of the drop points
-        #highlight correct drop point if collide?
+        #highlight correct drop point if collide

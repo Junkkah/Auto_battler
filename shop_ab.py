@@ -86,20 +86,10 @@ class Shop(Config):
                     talent_type = 'spell'
                     created_hero.add_talent(talent_name, talent_type)
 
-        CONT_TEXT = 'CONTINUE'
-        CONT_FONT = self.default_font
-        CONT_SIZE = self.big_font_size
-        CONT_COL = self.black
-        COORDS_CONT = (self.screen_width * 0.75, self.screen_height * 0.90)
-
         BACK_TEXT = 'MENU (Esc)'
-        BACK_FONT = self.default_font
-        BACK_SIZE = self.medium_font_size
-        BACK_COL = self.black
-        COORDS_BACK = (self.screen_width * 0.10, self.screen_height * 0.90)
+        self.back_button = Button(self.selection_button_sprites, BACK_TEXT, self.BACK_FONT, self.BACK_SIZE, self.BACK_COL, self.COORDS_BACK)
+        self.continue_button = Button(self.selection_button_sprites, self.CONT_TEXT, self.CONT_FONT, self.CONT_SIZE, self.CONT_COL, self.COORDS_CONT)
 
-        self.back_button = Button(self.selection_button_sprites, BACK_TEXT, BACK_FONT, BACK_SIZE, BACK_COL, COORDS_BACK)
-        self.continue_button = Button(self.selection_button_sprites, CONT_TEXT, CONT_FONT, CONT_SIZE, CONT_COL, COORDS_CONT)
         self.selection_buttons.append(self.continue_button)
         
 
