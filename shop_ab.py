@@ -20,6 +20,9 @@ class Shop(Config):
         self.selection_buttons = []
         self.selection_sprites.empty()
         self.selection_button_sprites.empty()
+        if not Config.current_adventure:
+            for starting_hero in Config.party_heroes:
+                starting_hero.equip_starting_weapon()
 
     def startup(self):
         self.screen.fill(self.white)

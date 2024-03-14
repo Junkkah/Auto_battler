@@ -1,6 +1,7 @@
 import pygame as pg
 from data_ab import row_to_dict, get_data, get_talent_data
 from config_ab import Config
+from sprites_ab import Weapon
 import numpy as np
 import pandas as pd
 import random
@@ -47,14 +48,13 @@ class Hero(Config, pg.sprite.Sprite):
         self.level = 1
         self.exp_df = exp_data
         self.next_level = self.exp_df.at[0, 'exp']
-        self.worn_items = {'head': '', 'amulet': '', 'body': '', 'hand1': '', 'hand2': '', 'consumable': ''}
+        self.worn_items = {'head': None, 'body': None, 'hand1': None, 'hand2': None, 'consumable': None}
 
         self.df = hero_data[hero_data['type'] == self.type].reset_index(drop=True)
         # Assign stats type, health, max_health, damage, speed, exp, menace, armor, attack_type
         for stat_name in self.df.columns:
             setattr(self, stat_name, int(self.df.at[0, stat_name]) if str(self.df.at[0, stat_name]).isdigit() else self.df.at[0, stat_name])
 
-        self.held_weapon = ''
         self.talent_bonus_damage = 0
         self.tempt_talent_bonuses = {'damage' : 0, 'armor' : 0}
         self.spells = []
@@ -144,6 +144,11 @@ class Hero(Config, pg.sprite.Sprite):
         self.next_level = self.exp_df.loc[self.exp_df['level'] == self.level, 'exp'].iloc[0]
         self.max_health += self.level_health
         self.gain_health(self.level_health)  
+    
+    def equip_starting_weapon(self):
+        if self.attack_type != 'spell':
+            weapon = Weapon(self.attack_type, False)
+            self.worn_items['hand1'] = weapon
 
     def add_stat(self, stat_bonus):
         stat_name, stat_val_str = stat_bonus.split()

@@ -3,6 +3,7 @@ import pygame as pg
 class Config(object):
     party_heroes = []
     room_monsters = []
+    party_backpack = []
     gold_count = 50
     current_location = None
     current_adventure = None
@@ -22,6 +23,7 @@ class Config(object):
         self.screen_width = 1920
         self.screen_height = 1080
         self.screen = pg.display.set_mode((self.screen_width, self.screen_height))
+        self.eq_slot_size_scalar = 25
         self.primary_mouse_button = 1
 
         self.hero_sprites = pg.sprite.Group()

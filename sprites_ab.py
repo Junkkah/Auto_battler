@@ -7,7 +7,7 @@ import random
 import sys
 
 monster_data = get_data('monsters')
-
+#weapons_data = get_data('weapons')
 
 class Monster(Config, pg.sprite.Sprite):
     def __init__(self, groups, pos, monster_type: str):
@@ -183,25 +183,16 @@ class TalentCard(Config, pg.sprite.Sprite):
         return combined_surface
 
 class EquipmentSlot(Config):
-    def __init__(self, pos, width, height):
+    def __init__(self, pos_x, pos_y, width, height):
         super().__init__()
-        pos_x = pos[0]
-        pos_y = pos[1]
         self.rect = pg.Rect(pos_x, pos_y, width, height)
-        self.item = None
-
+        self.equipped_item = None
         self.border_width = 2
         self.border_color = (self.black)
         self.draw_border()
 
     def draw_border(self):
         pg.draw.rect(self.screen, self.border_color, self.rect, self.border_width)
-
-class EqSlotHandler(Config):
-    def __init__(self, hero_positions, slot_width, slot_height, slot_spacing):
-        super().__init__() 
-        self.slot_width = slot_width
-        self.slot_height = slot_height
 
 #magic item data
 class MagicItem(): 
@@ -213,12 +204,36 @@ class MagicItem():
         item_image = pg.image.load('./ab_images/items/' + self.image_name + '.png').convert_alpha()
         icon_image = pg.image.load('./ab_images/items/icons/' + self.icon_name + '.png').convert_alpha()
 
-class Weapon(): 
-    def __init__(self, name: str, magic: str):
+class Weapon(Config, pg.sprite.Sprite): 
+    def __init__(self, name: str, magic: bool):
+        super().__init__()
+        pg.sprite.Sprite.__init__(self)
         self.name = name
-        item_image = pg.image.load('./ab_images/weapon/' + self.image_name + '.png').convert_alpha()
+        #item_image = pg.image.load('./ab_images/weapon/' + self.image_name + '.png').convert_alpha()
+        icon_image = pg.image.load('./ab_images/icon/' + self.name + '_icon.png').convert_alpha()
+        slot_side_length = self.screen_width // self.eq_slot_size_scalar
+        icon_width = slot_side_length - 2
+        icon_height = slot_side_length - 2
+        self.pos_x = 0
+        self.pos_y = 0
 
-class Armor(): 
-    def __init__(self, name: str, magic: str, item_type: str):
+        self.image = pg.transform.smoothscale(icon_image, (icon_width, icon_height))
+        self.rect = self.image.get_rect(topleft = (self.pos_x, self.pos_y))
+
+        self.speed_mod = 1
+        self.base_damage = 1
+        self.magical = magic
+        self.desc = name
+        self.effect = None
+
+class Armor(Config, pg.sprite.Sprite): 
+    def __init__(self, name: str, magic: bool, item_type: str):
+        super().__init__()
+        pg.sprite.Sprite.__init__(self)
         self.name = name
-        icon_image = pg.image.load('./ab_images/icons/' + self.icon_name + '.png').convert_alpha()
+        icon_image = pg.image.load('./ab_images/icon/' + self.name + '_icon.png').convert_alpha()
+        self.armor_value = 0
+        self.magical= False
+        self.desc = name
+        self.effect = None
+        self.armor_type = 'body'
