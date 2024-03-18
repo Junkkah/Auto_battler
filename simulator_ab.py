@@ -6,7 +6,7 @@ from hero_ab import Hero
 from sprites_ab import Button
 from data_ab import get_data, enter_simulation_result, get_talent_data
 from battle_ab import BattleManager
-from sounds_ab import sound_effect
+from sounds_ab import play_sound_effect
 from path_ab import Path
 from levelup_ab import LevelUp
 
@@ -280,7 +280,7 @@ class Simulator(Config):
             if self.start_button.rect.collidepoint(pg.mouse.get_pos()):
                 if Config.current_adventure:  
                     self.sim_done = False
-                    sound_effect('click')
+                    play_sound_effect('click')
                     for _ in range(self.COUNT):
                         result = self.run_simulation()
                         self.results_list.append(result)
@@ -294,14 +294,14 @@ class Simulator(Config):
                     self.sim_done = True
 
                 else:
-                    sound_effect('error')
+                    play_sound_effect('error')
 
             elif self.forest_button.rect.collidepoint(pg.mouse.get_pos()):
-                sound_effect('click')
+                play_sound_effect('click')
                 Config.current_adventure = 'dark_forest'
             
             elif self.done_button.rect.collidepoint(pg.mouse.get_pos()):
-                sound_effect('click')
+                play_sound_effect('click')
                 self.sim_done = False
 
     def update(self, screen, dt):

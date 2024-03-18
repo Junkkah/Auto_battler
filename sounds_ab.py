@@ -7,7 +7,7 @@ SFX_volume = 0.3
 music_volume = 0.5
 #pg.mixer.stop()
 
-def sound_effect(effect: str):
+def play_sound_effect(effect: str):
     sound_effect = pygame.mixer.Sound('./ab_sounds/' + effect + '.wav')
     sound_effect.set_volume(SFX_volume)
     sound_effect.play()

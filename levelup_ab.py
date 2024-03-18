@@ -6,7 +6,7 @@ from config_ab import Config
 from data_ab import get_data, get_talent_data
 from sprites_ab import Button, TalentCard
 from battle_ab import BattleManager
-from sounds_ab import sound_effect
+from sounds_ab import play_sound_effect
 
 class LevelUp(Config): 
     def __init__(self):
@@ -119,19 +119,19 @@ class LevelUp(Config):
         elif event.type == pg.MOUSEBUTTONDOWN:
             mouse_pos = pg.mouse.get_pos()
             if self.continue_button.rect.collidepoint(mouse_pos) and len(self.talents_selected) == self.numer_of_heroes:
-                sound_effect('click')
+                play_sound_effect('click')
                 self.done = True
             elif self.continue_button.rect.collidepoint(mouse_pos):
-                sound_effect('error')
+                play_sound_effect('error')
 
             for talent_card in self.talent_cards:
                 if talent_card[0].rect.collidepoint(mouse_pos):
-                    sound_effect('click')
+                    play_sound_effect('click')
                     talent_card[0].selected = not talent_card[0].selected
                     talent_card[1].selected = False
 
                 elif talent_card[1].rect.collidepoint(mouse_pos):
-                    sound_effect('click')
+                    play_sound_effect('click')
                     talent_card[1].selected = not talent_card[1].selected
                     talent_card[0].selected = False
 

@@ -20,6 +20,8 @@ class WorldMap(Config):
     def startup(self):
         self.error = False
         self.line_thickness = 10
+        self.rect_thickness = 2
+        self.text_offset_y = 5
 
         map_data = get_data('adventures')
         self.map_objects = []
@@ -45,8 +47,8 @@ class WorldMap(Config):
         hood = pg.image.load('./ab_images/hood.png').convert_alpha()
         COORDS_BUBBLE  = (self.screen_width * 0.12, self.screen_height * 0.85)
         COORDS_HOOD = (self.screen_width * 0.05, self.screen_height * 0.80)
-        SCALAR_BUBBLE = ((bubble.get_width() / 7), (bubble.get_height() / 7))
-        SCALAR_HOOD = ((hood.get_width() / 8), (hood.get_height() / 8))
+        SCALAR_BUBBLE = ((bubble.get_width() / self.speech_bubble_size_scalar), (bubble.get_height() / self.speech_bubble_size_scalar))
+        SCALAR_HOOD = ((hood.get_width() / self.npc_size_scalar), (hood.get_height() / self.npc_size_scalar))
 
         self.bubble = pg.transform.smoothscale(bubble, SCALAR_BUBBLE)
         self.hood = pg.transform.smoothscale(hood, SCALAR_HOOD)
@@ -90,11 +92,11 @@ class WorldMap(Config):
         if collided_objects:
             obj = collided_objects[0]
             info_text = self.info_font.render(obj.desc, True, self.black)
-            info_text_rect = info_text.get_rect(bottomleft=(obj.pos_x + obj.width // 2, obj.pos_y + obj.height // 2 + 5))
+            info_text_rect = info_text.get_rect(bottomleft=(obj.pos_x + obj.width // 2, obj.pos_y + obj.height // 2 + self.text_offset_y))
             self.screen.blit(info_text, info_text_rect)
             #create adv list, if obj.name == next item on list
             if obj.name == 'dark_forest':
-                pg.draw.rect(self.screen, self.red, obj.rect, 2)
+                pg.draw.rect(self.screen, self.red, obj.rect, self.rect_thickness)
         
         if self.error == True:
             self.screen.blit(self.error_text, self.error_text_rect)

@@ -5,7 +5,7 @@ from config_ab import Config
 from hero_ab import Hero
 from sprites_ab import Button
 from data_ab import get_data, get_talent_data
-from sounds_ab import sound_effect
+from sounds_ab import play_sound_effect
 import pandas as pd
 
 
@@ -32,15 +32,14 @@ class Shop(Config):
         self.selection_buttons = []
         self.selection = []
         SELECTABLE_HEROES = 8
-        NPC_SIZE_SCALAR = 8
-        
+
         #move to config, bubble1, bubble2, bubble3
         bubble = pg.image.load('./ab_images/menu_bubble.png').convert_alpha()
         hood = pg.image.load('./ab_images/hood.png').convert_alpha()
         COORDS_BUBBLE  = (self.screen_width * 0.12, self.screen_height * 0.75)
         COORDS_HOOD = (self.screen_width * 0.05, self.screen_height * 0.70)
-        SCALAR_BUBBLE = ((bubble.get_width() / NPC_SIZE_SCALAR), (bubble.get_height() / NPC_SIZE_SCALAR))
-        SCALAR_HOOD = ((hood.get_width() / NPC_SIZE_SCALAR), (hood.get_height() / NPC_SIZE_SCALAR))
+        SCALAR_BUBBLE = ((bubble.get_width() / self.speech_bubble_size_scalar), (bubble.get_height() / self.speech_bubble_size_scalar))
+        SCALAR_HOOD = ((hood.get_width() / self.npc_size_scalar), (hood.get_height() / self.npc_size_scalar))
         
         self.bubble = pg.transform.smoothscale(bubble, SCALAR_BUBBLE)
         self.hood = pg.transform.smoothscale(hood, SCALAR_HOOD)
@@ -103,12 +102,12 @@ class Shop(Config):
 
         elif event.type == pg.MOUSEBUTTONDOWN:
             if self.back_button.rect.collidepoint(pg.mouse.get_pos()):
-                sound_effect('click')
+                play_sound_effect('click')
                 self.next = 'menu'
                 self.done = True
 
             if self.continue_button.rect.collidepoint(pg.mouse.get_pos()) and len(Config.party_heroes) == self.max_party_size:
-                sound_effect('click')
+                play_sound_effect('click')
                 if Config.current_adventure is None:
                     self.next = 'map'
                 else:
@@ -116,7 +115,7 @@ class Shop(Config):
                 self.done = True
 
             elif self.continue_button.rect.collidepoint(pg.mouse.get_pos()):
-                sound_effect('error')
+                play_sound_effect('error')
 
             for selected_hero in self.selection:
                 if selected_hero.rect.collidepoint(pg.mouse.get_pos()):

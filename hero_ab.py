@@ -44,6 +44,7 @@ class Hero(Config, pg.sprite.Sprite):
         self.is_player = True
         self.type = hero_type
         self.inventory_spot = None
+        self.inventory_spot_number = None
 
         self.level = 1
         self.exp_df = exp_data
@@ -149,6 +150,13 @@ class Hero(Config, pg.sprite.Sprite):
         if self.attack_type != 'spell':
             weapon = Weapon(self.attack_type, False)
             self.worn_items['hand1'] = weapon
+
+    def equip_item(self, item):
+        slot = item.slot_type
+        self.worn_items[slot] = item
+    
+    def drop_item(self, slot):
+        self.worn_items[slot] = None
 
     def add_stat(self, stat_bonus):
         stat_name, stat_val_str = stat_bonus.split()

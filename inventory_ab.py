@@ -1,58 +1,80 @@
 import pygame as pg
 import sys
 from config_ab import Config
-from sounds_ab import sound_effect
+from sounds_ab import play_sound_effect
 from sprites_ab import Button, EquipmentSlot
 from hero_ab import Hero
 from battle_ab import BattleManager
+from data_ab import get_slots_data
 
 class Inventory(Config):
     def __init__(self):
-        Config.__init__(self)
+        super().__init__()
+        #Config.__init__(self)
         self.next = 'path' 
 
-    def cleanup(self):
+    def reorder_party(self):
         Config.party_heroes.sort(key=lambda hero: hero.inventory_spot)
+        for i, hero in enumerate(Config.party_heroes, start=1):
+            hero.inventory_spot_number = i
+
+    def cleanup(self):
         self.inventory_buttons = []
         self.hero_spots = []
         self.eq_slots = []
         self.figure_coords = []
+        self.inventory_items = []
         self.inventory_sprites.empty()
         self.inventory_button_sprites.empty()
         self.inventory_icon_sprites.empty()
-        self.dragging = False
-        self.dragged_hero = None
+        self.dragging_hero = False
+        self.dragging_item = False
+        self.dragged_object = None
         self.original_spot = None
         self.spot_found = False
+        self.startup_done = False
 
-    def icons_to_slots(self):
+    def worn_items_in_slots(self):
+        for clean_slot in self.eq_slots:
+            clean_slot.equipped_item = None
         for i, eq_hero in enumerate(Config.party_heroes, start = 1):
-            hand1_item = eq_hero.worn_items.get('hand1')
-            
-            if hand1_item is not None:
-                slot_name = f"hand1_slot{i}"
-                slot_x = getattr(self, slot_name).rect.x
-                slot_y = getattr(self, slot_name).rect.y
-                hand1_item.rect.x = slot_x
-                hand1_item.rect.y = slot_y
-                self.inventory_icon_sprites.add(hand1_item)
+            worn_items = eq_hero.worn_items
+            for item_slot, item in worn_items.items():
+                if item is not None:
+                    slot_name = f'{item_slot}_slot{i}'
+                    equipment_slot = getattr(self, slot_name)
+                    slot_x = equipment_slot.rect.x
+                    slot_y = equipment_slot.rect.y
+                    item.rect.x = slot_x
+                    item.rect.y = slot_y
+                    item.inventory_spot = equipment_slot
+                    equipment_slot.equipped_item = item
+
+                    if not self.startup_done:
+                        #add backpack items to backpack slots
+                        self.inventory_items.append(item)
+                        self.inventory_icon_sprites.add(item)
 
     def startup(self):
         self.inventory_buttons = []
         self.eq_slots = []
         self.figure_coords = []
+        self.inventory_items = []
         self.inventory_sprites = pg.sprite.Group()
         self.inventory_button_sprites = pg.sprite.Group()
         self.inventory_icon_sprites = pg.sprite.Group()
-        self.dragging = False
-        self.dragged_hero = None
+        self.dragging_hero = False
+        self.dragging_item = False
+        self.dragged_object = None
         self.original_spot = None
         self.spot_found = False
-        # Hardcoded largest hero image width for creating uniform size hero spots
+        self.startup_done = False
+        # With hero_width_scalar value 7.5 all heroes fit to hero_spots
+        # Used for uniform size hero spot size
         self.hero_width_scalar = 7.5
-        self.max_hero_width = self.screen_height // self.hero_width_scalar #144 with witdth 1080
-
+        self.max_hero_width = self.screen_height // self.hero_width_scalar
         self.continue_button = Button(self.inventory_button_sprites, self.CONT_TEXT, self.CONT_FONT, self.CONT_SIZE, self.CONT_COL, self.COORDS_CONT)
+        slots_data = get_slots_data()
 
         # Position heroes 
         battle_instance = BattleManager()
@@ -62,127 +84,160 @@ class Inventory(Config):
         
         # Create rect objects for hero spots
         self.hero_spots = []
-        for i in range(len(Config.party_heroes)):
-            var_name = f"hero_spot{i + 1}"
-            hero_rect = Config.party_heroes[i].rect
+        for i, hero in enumerate(Config.party_heroes, start = 1):
+            var_name = f'hero_spot{i}'
+            hero_rect = hero.rect
             value = pg.Rect(hero_rect.x - 5, hero_rect.y - 5, self.max_hero_width + 10, hero_rect.height + 10)
             setattr(self, var_name, value)
             inv_spot = getattr(self, var_name)
             self.hero_spots.append(inv_spot)
-            Config.party_heroes[i].inventory_spot = inv_spot
+            hero.inventory_spot = inv_spot
+            hero.inventory_spot_number = i
 
-        self.figure1_coords = (self.screen_width * 0.27, self.screen_height * 0.10)
-        self.figure2_coords = (self.screen_width * 0.47, self.screen_height * 0.10)
-        self.figure3_coords = (self.screen_width * 0.67, self.screen_height * 0.10)
-        for figure_coords in [self.figure1_coords, self.figure2_coords, self.figure3_coords]:
-            self.figure_coords.append(figure_coords)
-        figure = pg.image.load('./ab_images/figure.png').convert_alpha()
-        HEIGHT = figure.get_height()
-        WIDTH = figure.get_width()
+        figure_count = 3
         figure_size_scalar = 3
-        SCALAR_W = WIDTH / figure_size_scalar
-        SCALAR_H = HEIGHT / figure_size_scalar
-        self.figure_image = pg.transform.smoothscale(figure, (SCALAR_W, SCALAR_H))
-
-        #lists for head, body, hands
-        #when dragging 'head' item, check collision with head_slot_list items only
-        slot_side_length = self.screen_width // self.eq_slot_size_scalar
+        figure = pg.image.load('./ab_images/figure.png').convert_alpha()
+        scalar_width = figure.get_width() // figure_size_scalar
+        scalar_height = figure.get_height() // figure_size_scalar
+        self.figure_image = pg.transform.smoothscale(figure, (scalar_width, scalar_height))
+        self.figure_coords = [(self.screen_width * (0.27 + 0.2 * i), self.screen_height * 0.10) for i in range(figure_count)]
 
         # Create equipment slots for each equippable item on character figures
-        head_slot_ratios = [(0.31, 0.11), (0.51, 0.11), (0.71, 0.11)]
-        for i, (x_ratio, y_ratio) in enumerate(head_slot_ratios, start=1):
-            pos_x = self.screen_width * x_ratio
-            pos_y = self.screen_height * y_ratio
-            slot = EquipmentSlot(pos_x, pos_y, slot_side_length, slot_side_length)
-            setattr(self, f'head_slot{i}', slot)
-            self.eq_slots.append(slot)
+        slot_side_length = self.screen_width // self.eq_slot_size_scalar
 
-        body_slot_ratios = [(0.31, 0.21), (0.51, 0.21), (0.71, 0.21)]
-        for i, (x_ratio, y_ratio) in enumerate(body_slot_ratios, start=1):
-            pos_x = self.screen_width * x_ratio
-            pos_y = self.screen_height * y_ratio
-            slot = EquipmentSlot(pos_x, pos_y, slot_side_length, slot_side_length)
-            setattr(self, f'body_slot{i}', slot)
-            self.eq_slots.append(slot)
-
-        hand1_slot_ratios = [(0.26, 0.27), (0.46, 0.27), (0.66, 0.27)]
-        for i, (x_ratio, y_ratio) in enumerate(hand1_slot_ratios, start=1):
-            pos_x = self.screen_width * x_ratio
-            pos_y = self.screen_height * y_ratio
-            slot = EquipmentSlot(pos_x, pos_y, slot_side_length, slot_side_length)
-            setattr(self, f'hand1_slot{i}', slot)
-            self.eq_slots.append(slot)
-
-        hand2_slot_ratios = [(0.37, 0.27), (0.57, 0.27), (0.77, 0.27)]
-        for i, (x_ratio, y_ratio) in enumerate(hand2_slot_ratios, start=1):
-            pos_x = self.screen_width * x_ratio
-            pos_y = self.screen_height * y_ratio
-            slot = EquipmentSlot(pos_x, pos_y, slot_side_length, slot_side_length)
-            setattr(self, f'hand2_slot{i}', slot)
-            self.eq_slots.append(slot)
-
-        consumable_slot_ratios = [(0.31, 0.45), (0.51, 0.45), (0.71, 0.45)]
-        for i, (x_ratio, y_ratio) in enumerate(consumable_slot_ratios, start=1):
-            pos_x = self.screen_width * x_ratio
-            pos_y = self.screen_height * y_ratio
-            slot = EquipmentSlot(pos_x, pos_y, slot_side_length, slot_side_length)
-            setattr(self, f'consumable_slot{i}', slot)
-            self.eq_slots.append(slot)
+        for slot_type, slot_ratios in slots_data.items():
+            for i, (x_ratio, y_ratio) in enumerate(slot_ratios, start=1):
+                pos_x = self.screen_width * x_ratio
+                pos_y = self.screen_height * y_ratio
+                spot_number = i
+                slot = EquipmentSlot(pos_x, pos_y, slot_side_length, slot_side_length, slot_type, spot_number)
+                setattr(self, f'{slot_type}_slot{i}', slot)
+                self.eq_slots.append(slot)
 
         backpack_slot_spot = (self.screen_width * 0.85, self.screen_height * 0.10)
-        self.icons_to_slots()
-        #self.worn_items = {'head': None, 'body': None, 'hand1': None, 'hand2': None, 'consumable': None}
-
+        self.worn_items_in_slots()
+        self.startup_done = True
+        
     def get_event(self, event):
         mouse_pos = pg.mouse.get_pos()
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_ESCAPE:
                 exit()
-        
-        elif event.type == pg.MOUSEBUTTONDOWN:
-            if self.continue_button.rect.collidepoint(mouse_pos):
-                sound_effect('click')
+            if event.key == pg.K_i:
                 self.next = 'path'
                 self.done = True
         
+        elif event.type == pg.MOUSEBUTTONDOWN:
+            if self.continue_button.rect.collidepoint(mouse_pos):
+                play_sound_effect('click')
+                self.next = 'path'
+                self.done = True
+        
+            # Start dragging hero or item with mouse
             if event.button == self.primary_mouse_button:
-                for i in range(len(Config.party_heroes)): 
-                    if Config.party_heroes[i].rect.collidepoint(mouse_pos) and not self.dragging:
-                        self.dragging = True
-                        self.dragged_hero = Config.party_heroes[i]
-                        self.original_spot = self.dragged_hero.inventory_spot
-                        self.offset_x = mouse_pos[0] - self.dragged_hero.rect.x
-                        self.offset_y = mouse_pos[1] - self.dragged_hero.rect.y
-                        
+                for move_hero in Config.party_heroes: 
+                    if move_hero.rect.collidepoint(mouse_pos):
+                        self.dragging_hero = True
+                        self.dragged_object = move_hero
+                        self.original_spot = self.dragged_object.inventory_spot
+                        self.offset_x = mouse_pos[0] - self.dragged_object.rect.x
+                        self.offset_y = mouse_pos[1] - self.dragged_object.rect.y
 
+                for move_item in self.inventory_items:
+                    if move_item.rect.collidepoint(mouse_pos):
+                        self.dragging_item = True
+                        self.dragged_object = move_item
+                        self.original_spot = self.dragged_object.inventory_spot
+                        self.offset_x = mouse_pos[0] - self.dragged_object.rect.x
+                        self.offset_y = mouse_pos[1] - self.dragged_object.rect.y
+   
+        # Drop hero or item that is being dragged with mouse
+        # Object returns to original location if not dropped in valid location
+        # If drop location already has object, that object is bumped to the original location
         elif event.type == pg.MOUSEBUTTONUP:
             if event.button == self.primary_mouse_button:  
-                if self.dragging:
+                if self.dragging_hero:
                     for hero_spot in self.hero_spots:
-                        if hero_spot.colliderect(self.dragged_hero.rect):
+                        if hero_spot.colliderect(self.dragged_object.rect):
                             for bumped_hero in Config.party_heroes:
                                 if bumped_hero.inventory_spot == hero_spot:
                                     bumped_hero.rect.x = self.original_spot.x
                                     bumped_hero.rect.y = self.original_spot.y
                                     bumped_hero.inventory_spot = self.original_spot
-                            self.dragged_hero.rect.x = hero_spot.x
-                            self.dragged_hero.rect.y = hero_spot.y
+                            self.dragged_object.rect.x = hero_spot.x
+                            self.dragged_object.rect.y = hero_spot.y
                             self.spot_found = True
-                            self.dragged_hero.inventory_spot = hero_spot
+                            self.dragged_object.inventory_spot = hero_spot
 
+                            self.reorder_party ()
+                            self.worn_items_in_slots()
                     if not self.spot_found:   
-                        self.dragged_hero.rect.x = self.original_spot.x
-                        self.dragged_hero.rect.y = self.original_spot.y
-                    self.dragging = False
+                        self.dragged_object.rect.x = self.original_spot.x
+                        self.dragged_object.rect.y = self.original_spot.y
+                    self.dragging_hero = False
                     self.spot_found = False
-                    
+                    self.original_spot = None
+                    self.dragged_object = None
+                       #we are tagging equipped_item = None so that if drop_slot.equipped_item is None:
+                        #is True even when the drop_slot did actually have an item
+                        #condition evaluates True if drop_slot had item
+                if self.dragging_item:
+                    for drop_slot in self.eq_slots:
+                        if drop_slot.rect.colliderect(self.dragged_object.rect) and drop_slot.slot_type == self.dragged_object.slot_type:
+                            if drop_slot.equipped_item:
+                                bumped_item = drop_slot.equipped_item
+                                bumped_item.rect.x = self.original_spot.rect.x
+                                bumped_item.rect.y = self.original_spot.rect.y
+                                bumped_item.inventory_spot = self.original_spot
+                                #drop_slot.equipped_item = None
+                         
+                                for origin_hero in Config.party_heroes:
+                                    origin_spot_number = self.original_spot.spot_number
+                                    if origin_hero.inventory_spot_number == origin_spot_number:
+                                        origin_hero.drop_item(bumped_item.slot_type)
+                                        origin_hero.equip_item(bumped_item)
+                                        break
+                                self.original_spot.equipped_item = None
+                                self.original_spot.equipped_item = bumped_item
+
+                            if drop_slot.equipped_item is None: 
+                                self.original_spot.equipped_item = None
+                                for origin_hero in Config.party_heroes:
+                                    origin_spot_number = self.original_spot.spot_number
+                                    if origin_hero.inventory_spot_number == origin_spot_number:
+                                        slot_to_drop = self.original_spot.slot_type
+                                        origin_hero.drop_item(slot_to_drop)
+                                        break
+
+                            for drop_hero in Config.party_heroes:
+                                drop_spot_number = drop_slot.spot_number
+                                if drop_hero.inventory_spot_number == drop_spot_number:
+                                    item_to_equip = self.dragged_object
+                                    drop_hero.equip_item(item_to_equip)
+                                    break
+                            
+                            drop_slot.equipped_item = self.dragged_object
+                            self.dragged_object.rect.x = drop_slot.rect.x
+                            self.dragged_object.rect.y = drop_slot.rect.y
+                            self.dragged_object.inventory_spot = drop_slot
+                            self.spot_found = True
+                            play_sound_effect('drop')
+                            
+                    if not self.spot_found:   
+                        self.dragged_object.rect.x = self.original_spot.rect.x
+                        self.dragged_object.rect.y = self.original_spot.rect.y
+                        play_sound_effect('drop')
+                    self.dragging_item = False
+                    self.spot_found = False
+                    self.dragged_object = None
+                    self.original_spot = None
 
     def update(self, screen, dt):
-        if self.dragging:
+        if self.dragging_hero or self.dragging_item:
             mouse_x, mouse_y = pg.mouse.get_pos()
-            self.dragged_hero.rect.x = mouse_x - self.offset_x
-            self.dragged_hero.rect.y = mouse_y - self.offset_y
-        #place equipped items to correct figures after moving heroes
+            self.dragged_object.rect.x = mouse_x - self.offset_x
+            self.dragged_object.rect.y = mouse_y - self.offset_y
+
         self.draw(screen)
 
     def draw(self, screen):
@@ -202,6 +257,6 @@ class Inventory(Config):
         gold_text = self.create_gold_text()
         self.screen.blit(gold_text, self.coords_gold)
 
-        if self.dragging:
-            pass
+        #if self.dragging:
+        #    pass
         #highlight correct drop point if collide

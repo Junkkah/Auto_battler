@@ -25,6 +25,8 @@ class Config(object):
         self.screen = pg.display.set_mode((self.screen_width, self.screen_height))
         self.eq_slot_size_scalar = 25
         self.primary_mouse_button = 1
+        self.npc_size_scalar = 8
+        self.speech_bubble_size_scalar = 7
 
         self.hero_sprites = pg.sprite.Group()
         self.monster_sprites = pg.sprite.Group()

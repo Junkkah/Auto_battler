@@ -3,7 +3,7 @@ from config_ab import Config
 from hero_ab import Hero
 from sprites_ab import Monster
 from animations_ab import Stab, Slash, Blast, Smash, SongAnimation
-from sounds_ab import sound_effect
+from sounds_ab import play_sound_effect
 import random
 import pygame.mixer
 
@@ -117,7 +117,7 @@ class BattleManager(Config):
     def startup(self):
         #
         if Config.current_location.type == 'boss':
-            sound_effect(Config.current_location.name)
+            play_sound_effect(Config.current_location.name)
         self.combat_started = False
         self.delay_timer = 0.0
 
@@ -176,21 +176,21 @@ class BattleManager(Config):
 
                 #hero always cast index 0 spell in self.spells
                 if Config.acting_character.attack_type == 'spell':
-                    #play sound_effect based on spell type
+                    #play play_sound_effect based on spell type
                     self.combat_animation = Blast(self.animation_sprites, pos_x, pos_y, Config.acting_character.spells[0])
                 
                 elif Config.acting_character.attack_type == 'song':
-                    sound_effect('tune')
+                    play_sound_effect('tune')
                     self.combat_animation = SongAnimation(self.animation_sprites, pos_x, pos_y)
                 else:
-                    sound_effect('sword')
+                    play_sound_effect('sword')
                     #weapon = Config.acting_character.held_weapon
                     weapon = Config.acting_character.attack_type
                     self.combat_animation = Stab(self.animation_sprites, weapon, pos_x, pos_y)
 
             elif not Config.acting_character.is_player:
                 if Config.acting_character.type in ['kobold', 'goblin']:
-                    sound_effect('growl')
+                    play_sound_effect('growl')
                 adjusted_pos_x = Config.acting_character.pos_x + Config.acting_character.width
                 adjusted_pos_y = Config.acting_character.pos_y + Config.acting_character.height
                 self.combat_animation = Smash(self.animation_sprites, adjusted_pos_x, adjusted_pos_y)
@@ -227,7 +227,7 @@ class BattleManager(Config):
                             self.next = 'path'
                         Config.room_monsters.remove(fighting_monster)
                         if not Config.room_monsters:
-                            sound_effect('victory')
+                            play_sound_effect('victory')
                             self.victory_lines = [
                             f'Experience earned: {self.exp_reward}',
                             f'Gold coins earner: {self.gold_loot}',
@@ -242,7 +242,7 @@ class BattleManager(Config):
                         Config.party_heroes.remove(fighting_hero)
                         self.defeated_heroes.append(fighting_hero)
                         if not Config.party_heroes:
-                            sound_effect('lose')
+                            play_sound_effect('lose')
                             self.lose_lines = [
                             'Your heroes were defeated',
                             'Press any key to continue']

@@ -183,10 +183,14 @@ class TalentCard(Config, pg.sprite.Sprite):
         return combined_surface
 
 class EquipmentSlot(Config):
-    def __init__(self, pos_x, pos_y, width, height):
+    def __init__(self, pos_x, pos_y, width: int, height: int, slot_type: str, spot_number: int):
         super().__init__()
-        self.rect = pg.Rect(pos_x, pos_y, width, height)
+        self.pos_x = pos_x
+        self.pos_y = pos_y
+        self.rect = pg.Rect(self.pos_x, self.pos_y, width, height)
         self.equipped_item = None
+        self.slot_type = slot_type
+        self.spot_number = spot_number
         self.border_width = 2
         self.border_color = (self.black)
         self.draw_border()
@@ -194,26 +198,19 @@ class EquipmentSlot(Config):
     def draw_border(self):
         pg.draw.rect(self.screen, self.border_color, self.rect, self.border_width)
 
-#magic item data
-class MagicItem(): 
-    def __init__(self, name: str, desc: str, effect: str, item_type: str):
-        self.name = name
-        self.desc = desc
-        self.effect = effect
-        self.item_type = item_type
-        item_image = pg.image.load('./ab_images/items/' + self.image_name + '.png').convert_alpha()
-        icon_image = pg.image.load('./ab_images/items/icons/' + self.icon_name + '.png').convert_alpha()
-
 class Weapon(Config, pg.sprite.Sprite): 
     def __init__(self, name: str, magic: bool):
         super().__init__()
         pg.sprite.Sprite.__init__(self)
         self.name = name
-        #item_image = pg.image.load('./ab_images/weapon/' + self.image_name + '.png').convert_alpha()
+        self.item_type = 'weapon'
+        self.slot_type = 'hand1'
+        #self.spot_number = None
+        self.inventory_spot = None
         icon_image = pg.image.load('./ab_images/icon/' + self.name + '_icon.png').convert_alpha()
         slot_side_length = self.screen_width // self.eq_slot_size_scalar
-        icon_width = slot_side_length - 2
-        icon_height = slot_side_length - 2
+        icon_width = slot_side_length 
+        icon_height = slot_side_length 
         self.pos_x = 0
         self.pos_y = 0
 

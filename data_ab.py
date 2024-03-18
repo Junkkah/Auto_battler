@@ -1,5 +1,6 @@
 import sqlite3
 import pandas as pd
+import json
 
 
 def row_to_dict(dataframe, name) -> dict:
@@ -14,6 +15,11 @@ def get_data(table: str) -> pd.DataFrame:
     df = pd.read_sql_query(query, db)
     db.close()
     return df
+
+def get_slots_data() -> dict:
+    with open('./ab_data/inventory_slots.json') as s:
+        slots_data = json.load(s)
+    return slots_data
 
 def get_monster_encounters(adventure: str, tier: int) -> pd.DataFrame:
     db = sqlite3.connect('./ab_data/stats.db')

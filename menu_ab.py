@@ -1,7 +1,7 @@
 import pygame as pg
 import sys
 from config_ab import Config
-from sounds_ab import sound_effect
+from sounds_ab import play_sound_effect
 from sprites_ab import Button
 
 class Menu(Config):
@@ -14,8 +14,9 @@ class Menu(Config):
         self.menu_button_sprites.empty()
 
     def startup(self):
+        menu_bg = pg.image.load('./ab_images/background/menu_bg_og.png').convert()
+        self.menu_bg = pg.transform.scale(menu_bg, (self.screen_width, self.screen_height))
         self.menu_buttons = []
-
         MENU_BUTTON_XPOS = self.screen_width * 0.50
         MENU_BUTTON_YPOS = self.screen_height * 0.16
         MENU_FONT = self.default_font
@@ -61,30 +62,28 @@ class Menu(Config):
         
         elif event.type == pg.MOUSEBUTTONDOWN:
             if self.play_button.rect.collidepoint(mouse_pos):
-                sound_effect('click')
+                play_sound_effect('click')
                 self.next = 'shop'
                 self.done = True
 
             elif self.settings_button.rect.collidepoint(mouse_pos):
-                sound_effect('error')
+                play_sound_effect('error')
                 #self.next = 'settings'
                 #self.done = True
 
             elif self.simulator_button.rect.collidepoint(mouse_pos):
-                sound_effect('click')
+                play_sound_effect('click')
                 self.next = 'simulator'
                 self.done = True
 
             elif self.quit_button.rect.collidepoint(mouse_pos):
-                sound_effect('click')
+                play_sound_effect('click')
                 exit()    
 
     def update(self, screen, dt):
         self.draw(screen)
 
     def draw(self, screen):
-        self.menu_bg = pg.image.load('./ab_images/background/menu_bg.png').convert()
         self.screen.blit(self.menu_bg, (0,0))
-        #self.screen.fill(self.blue)
         self.screen.blit(self.title_text, self.title_rect)
         self.menu_button_sprites.draw(self.screen)
