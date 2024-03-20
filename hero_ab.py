@@ -75,6 +75,8 @@ class Hero(Config, pg.sprite.Sprite):
                 #compare melee, spell
             #if spell compare spells
                 #aoe vs single target
+    def calculate_item_bonuses(self):
+        pass
 
     def get_target(self):
         total_menace = sum(monster.menace for monster in Config.room_monsters)
@@ -87,7 +89,6 @@ class Hero(Config, pg.sprite.Sprite):
             activation_method = talent_info['activation_method']
             rank = talent_info['rank']
             activation_method(rank)
-
 
     def melee_attack(self):
         target = self.get_target()

@@ -24,6 +24,7 @@ class Config(object):
         self.screen_height = 1080
         self.screen = pg.display.set_mode((self.screen_width, self.screen_height))
         self.eq_slot_size_scalar = 25
+        self.slot_side_length = self.screen_width // self.eq_slot_size_scalar
         self.primary_mouse_button = 1
         self.npc_size_scalar = 8
         self.speech_bubble_size_scalar = 7
@@ -66,7 +67,9 @@ class Config(object):
         self.CONT_FONT = self.default_font
         self.CONT_SIZE = self.big_font_size
         self.CONT_COL = self.black
-        self.COORDS_CONT = (self.screen_width * 0.75, self.screen_height * 0.90)
+        cont_x_ration = 0.90
+        cont_y_ration = 0.90
+        self.COORDS_CONT = (self.screen_width * cont_x_ration, self.screen_height * cont_y_ration)
 
         self.BACK_FONT = self.default_font
         self.BACK_SIZE = self.medium_font_size

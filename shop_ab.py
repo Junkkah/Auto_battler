@@ -3,7 +3,8 @@ import sys
 import random
 from config_ab import Config
 from hero_ab import Hero
-from sprites_ab import Button
+from sprites_ab import Button, EquipmentSlot
+from inventory_ab import Inventory
 from data_ab import get_data, get_talent_data
 from sounds_ab import play_sound_effect
 import pandas as pd
@@ -18,19 +19,23 @@ class Shop(Config):
         self.names = []
         self.selection = []
         self.selection_buttons = []
+        self.backpack_slots = []
+        self.backpack_items = []
         self.selection_sprites.empty()
         self.selection_button_sprites.empty()
+        self.shop_icon_sprites.empty()
         if not Config.current_adventure:
             for starting_hero in Config.party_heroes:
                 starting_hero.equip_starting_weapon()
 
     def startup(self):
-        self.screen.fill(self.white)
-        self.screen.blit(self.ground, (0,0))
-        self.selection_button_sprites = pg.sprite.Group()
-        self.selection_sprites = pg.sprite.Group()
-        self.selection_buttons = []
         self.selection = []
+        self.selection_buttons = []
+        self.backpack_slots = []
+        self.backpack_items = []
+        self.selection_sprites = pg.sprite.Group()
+        self.selection_button_sprites = pg.sprite.Group()
+        self.shop_icon_sprites = pg.sprite.Group()
         SELECTABLE_HEROES = 8
 
         #move to config, bubble1, bubble2, bubble3
@@ -88,13 +93,16 @@ class Shop(Config):
                     talent_type = 'spell'
                     created_hero.add_talent(talent_name, talent_type)
 
-        BACK_TEXT = 'MENU (Esc)'
+        if Config.current_adventure:
+            inventory_instance = Inventory()
+            inventory_instance.create_backpack_slots(self.backpack_slots)
+            inventory_instance.backpack_to_slots(self.backpack_items, self.shop_icon_sprites)
+        
+        BACK_TEXT = 'EXIT (Esc)'
         self.back_button = Button(self.selection_button_sprites, BACK_TEXT, self.BACK_FONT, self.BACK_SIZE, self.BACK_COL, self.COORDS_BACK)
         self.continue_button = Button(self.selection_button_sprites, self.CONT_TEXT, self.CONT_FONT, self.CONT_SIZE, self.CONT_COL, self.COORDS_CONT)
-
         self.selection_buttons.append(self.continue_button)
         
-
     def get_event(self, event):
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_ESCAPE:
@@ -103,8 +111,7 @@ class Shop(Config):
         elif event.type == pg.MOUSEBUTTONDOWN:
             if self.back_button.rect.collidepoint(pg.mouse.get_pos()):
                 play_sound_effect('click')
-                self.next = 'menu'
-                self.done = True
+                exit()
 
             if self.continue_button.rect.collidepoint(pg.mouse.get_pos()) and len(Config.party_heroes) == self.max_party_size:
                 play_sound_effect('click')
@@ -138,11 +145,15 @@ class Shop(Config):
         self.screen.blit(gold_text, self.coords_gold)
 
         if Config.current_adventure:
-            COORDS_SHOP = (self.screen_width * 0.50, self.screen_height * 0.15)
+            COORDS_SHOP = (self.screen_width * 0.50, self.screen_height * 0.10)
             shop = 'Shop'
             shop_text = self.large_info_font.render(shop, True, self.black)
             shop_text_rect = shop_text.get_rect(center=COORDS_SHOP)
             self.screen.blit(shop_text, shop_text_rect)
+
+            for backpack_slot in self.backpack_slots:
+                backpack_slot.draw_border()
+            self.shop_icon_sprites.draw(self.screen)
 
         if not Config.current_adventure:
             self.screen.blit(self.bubble, self.bubble_rect)
