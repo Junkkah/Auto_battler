@@ -35,6 +35,7 @@ class Config(object):
         self.map_sprites = pg.sprite.Group()
         self.path_sprites = pg.sprite.Group()
         self.menu_button_sprites = pg.sprite.Group()
+        self.sounds_button_sprites = pg.sprite.Group()
 
         self.max_party_size = 3
         self.spell_types = {'fire', 'cold', 'lightning', 'nature', 'holy', 'acid'}

@@ -1,7 +1,6 @@
 import pygame as pg
 import pygame.mixer
 
-
 pg.mixer.init()
 SFX_volume = 0.3
 music_volume = 0.5
@@ -31,6 +30,3 @@ def get_sfx_volume() -> float:
 
 def get_music_volume() -> float:
     return music_volume
-
-def menu_effect():
-    pass

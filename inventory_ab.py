@@ -45,6 +45,7 @@ class Inventory(Config):
                 setattr(self, f'{slot_type}_slot{i}', slot)
                 self.eq_slots.append(slot)
     
+    #create slot_loader in Config to preload slots into memory
     def create_backpack_slots(self, slot_list):
         first_slot_x_ratio = 0.05
         first_slot_y_ratio = 0.11
@@ -246,6 +247,7 @@ class Inventory(Config):
                     self.dragged_object = None
 
                 if self.dragging_item:
+                    # Dropping item to equipped slot
                     for drop_slot in self.eq_slots:
                         if drop_slot.rect.colliderect(self.dragged_object.rect) and drop_slot.slot_type == self.dragged_object.slot_type:
                             if drop_slot.equipped_item:
@@ -272,6 +274,7 @@ class Inventory(Config):
                             play_sound_effect('drop')
 
                     for backpack_drop_slot in self.backpack_slots:
+                        # Dropping item to backpack slot
                         if backpack_drop_slot.rect.collidepoint(mouse_pos):
                             if backpack_drop_slot.equipped_item:
                                 self.bumped_item = backpack_drop_slot.equipped_item
@@ -292,6 +295,7 @@ class Inventory(Config):
                             self.dragged_object.rect.x = backpack_drop_slot.rect.x
                             self.dragged_object.rect.y = backpack_drop_slot.rect.y
                             self.dragged_object.inventory_spot = backpack_drop_slot
+                            Config.party_backpack.append(self.dragged_object)
                             self.spot_found = True
                             play_sound_effect('drop')
 

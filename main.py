@@ -38,7 +38,7 @@ Usage Example:
 """
 import pygame as pg
 import sys
-from menu_ab import Menu
+from menu_ab import MainMenu, SettingsMenu
 from shop_ab import Shop
 from overworld_ab import WorldMap
 from path_ab import Path
@@ -94,7 +94,8 @@ settings = {
 
 app = Control(**settings)
 state_dict = {
-    'menu': Menu(),
+    'menu': MainMenu(),
+    'settings': SettingsMenu(),
     'shop': Shop(),
     'map': WorldMap(),
     'path': Path(),
