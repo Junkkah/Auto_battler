@@ -16,10 +16,10 @@ def get_data(table: str) -> pd.DataFrame:
     db.close()
     return df
 
-def get_slots_data() -> dict:
-    with open('./ab_data/inventory_slots.json') as s:
-        slots_data = json.load(s)
-    return slots_data
+def get_json_data(file_name: str) -> dict:
+    with open('./ab_data/' + file_name + '.json') as j:
+        json_data = json.load(j)
+    return json_data
 
 def get_monster_encounters(adventure: str, tier: int) -> pd.DataFrame:
     db = sqlite3.connect('./ab_data/stats.db')

@@ -220,8 +220,9 @@ class Weapon(Config, pg.sprite.Sprite):
         self.speed_mod = 1
         self.base_damage = 1
         self.magical = magic
-        self.desc = name
+        self.desc = name #desc = '{self.prefix} {self.name} {self.suffix}
         self.effect = None
+
 
 class Armor(Config, pg.sprite.Sprite): 
     def __init__(self, name: str, magic: bool, item_type: str):

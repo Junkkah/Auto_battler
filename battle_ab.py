@@ -32,12 +32,15 @@ class BattleManager(Config):
     
     def reset_adventure(self):
         self.defeated_heroes = []
+        Config.party_backpack = []
+        Config.backpack_slots = []
+        Config.equipment_slots = []
         Config.current_adventure = None
         Config.current_location = None
         Config.acting_character = None
         Config.gold_count = 50
         Config.scout_active = False
- 
+
     def cleanup(self):
         self.animation_sprites.empty()
         self.combat_hero_sprites.empty()

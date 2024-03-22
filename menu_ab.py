@@ -3,6 +3,7 @@ import sys
 from config_ab import Config
 from sounds_ab import play_sound_effect, set_sfx_volume, set_music_volume, get_sfx_volume, get_music_volume
 from sprites_ab import Button
+from data_ab import get_json_data
 
 class MainMenu(Config):
     def __init__(self):
@@ -16,33 +17,28 @@ class MainMenu(Config):
     def startup(self):
         menu_bg = pg.image.load('./ab_images/background/menu_bg_og.png').convert()
         self.menu_bg = pg.transform.scale(menu_bg, (self.screen_width, self.screen_height))
-        self.menu_buttons = []
-        MENU_BUTTON_XPOS = self.screen_width * 0.50
-        MENU_BUTTON_YPOS = self.screen_height * 0.16
         MENU_FONT = self.default_font
 
-        COORDS_TITLE = (MENU_BUTTON_XPOS, MENU_BUTTON_YPOS)
-        COORDS_PLAY = (MENU_BUTTON_XPOS, MENU_BUTTON_YPOS * 2)
-        COORDS_SETTINGS = (MENU_BUTTON_XPOS, MENU_BUTTON_YPOS * 3)
-        COORDS_SIMULATOR = (MENU_BUTTON_XPOS, MENU_BUTTON_YPOS * 4)
-        COORDS_QUIT = (MENU_BUTTON_XPOS, MENU_BUTTON_YPOS * 5)
-
-        TITLE = 'Auto Battler' 
-        PLAY_TEXT = 'New Game'
-        SETTINGS_TEXT = 'Settings'
-        SIMULATOR_TEXT = 'Simulator'
-        QUIT_TEXT = 'Quit'
-
+        COORDS_TITLE = (self.screen_width * 0.50, self.screen_height * 0.16)
+        TITLE = 'Auto Battler'
         title_font = pg.font.SysFont(MENU_FONT, self.title_font_size)
         self.title_text = title_font.render(TITLE, True, self.black)
         self.title_rect = self.title_text.get_rect(center=COORDS_TITLE)
 
-        self.play_button = Button(self.menu_button_sprites, PLAY_TEXT, MENU_FONT, self.big_font_size, self.black, COORDS_PLAY)
-        self.settings_button = Button(self.menu_button_sprites, SETTINGS_TEXT, MENU_FONT, self.big_font_size, self.black, COORDS_SETTINGS)
-        self.simulator_button = Button(self.menu_button_sprites, SIMULATOR_TEXT, MENU_FONT, self.big_font_size, self.black, COORDS_SIMULATOR)
-        self.quit_button = Button(self.menu_button_sprites, QUIT_TEXT, MENU_FONT, self.big_font_size, self.black, COORDS_QUIT)
-
-        for button in [self.play_button, self.settings_button, self.simulator_button, self.quit_button]:
+        menu_button_data = volume_button_data = get_json_data('menu_buttons')
+        button_texts = ['New Game', 'Settings', 'Simulator', 'Quit']
+        self.menu_buttons = []
+        for i, (button_name, (x, y)) in enumerate(menu_button_data.items()):
+            button_text = button_texts[i]
+            button = Button(
+                self.menu_button_sprites,
+                button_text,
+                MENU_FONT,
+                self.big_font_size,
+                self.black,
+                (self.screen_width * x, self.screen_height * y)
+            )
+            setattr(self, button_name, button)
             self.menu_buttons.append(button)
 
     def get_event(self, event):
@@ -63,7 +59,7 @@ class MainMenu(Config):
         elif event.type == pg.MOUSEBUTTONDOWN:
             if self.play_button.rect.collidepoint(mouse_pos):
                 play_sound_effect('click')
-                self.next = 'shop'
+                self.next = 'initialize'
                 self.done = True
 
             elif self.settings_button.rect.collidepoint(mouse_pos):
@@ -96,31 +92,28 @@ class SettingsMenu(Config):
         self.minimum_volume =  0.0
 
     def cleanup(self):
-        self.sounds_button_sprites.empty()
-        self.SOUNDS_BUTTONS = []
+        self.volume_button_sprites.empty()
+        self.volume_buttons = []
     
     def startup(self):
-        self.SOUNDS_BUTTONS = []
-        MENU_FONT = "Arial"
-
-        SOUNDS_BUTTON_XPOS = self.screen_width * 0.50
-        SOUNDS_BUTTON_YPOS = self.screen_height * 0.10
-        COORDS_SFX_PLUS = (SOUNDS_BUTTON_XPOS, SOUNDS_BUTTON_YPOS * 3)
-        COORDS_SFX_MINUS = (SOUNDS_BUTTON_XPOS, SOUNDS_BUTTON_YPOS * 4)
-        COORDS_MUSIC_PLUS = (SOUNDS_BUTTON_XPOS, SOUNDS_BUTTON_YPOS * 6)
-        COORDS_MUSIC_MINUS = (SOUNDS_BUTTON_XPOS, SOUNDS_BUTTON_YPOS * 7)
-
+        MENU_FONT = self.default_font
         PLUS_TEXT = "+"
         MINUS_TEXT = "-"
+        volume_button_data = get_json_data('volume_buttons')
 
-        self.sfx_plus_button = Button(self.sounds_button_sprites, PLUS_TEXT, MENU_FONT, self.big_font_size, self.black, COORDS_SFX_PLUS)
-        self.sfx_minus_button = Button(self.sounds_button_sprites, MINUS_TEXT, MENU_FONT, self.big_font_size, self.black, COORDS_SFX_MINUS)
-        self.music_plus_button = Button(self.sounds_button_sprites, PLUS_TEXT, MENU_FONT, self.big_font_size, self.black, COORDS_MUSIC_PLUS)
-        self.music_minus_button = Button(self.sounds_button_sprites, MINUS_TEXT, MENU_FONT, self.big_font_size, self.black, COORDS_MUSIC_MINUS)
-        self.SOUNDS_BUTTONS.append(self.sfx_plus_button)
-        self.SOUNDS_BUTTONS.append(self.sfx_minus_button)
-        self.SOUNDS_BUTTONS.append(self.music_plus_button)
-        self.SOUNDS_BUTTONS.append(self.music_minus_button)
+        self.volume_buttons = []
+        for button_name, (x, y) in volume_button_data.items():
+            button_text = PLUS_TEXT if len(self.volume_buttons) % 2 == 0 else MINUS_TEXT
+            button = Button(
+                self.volume_button_sprites,
+                button_text,
+                MENU_FONT,
+                self.big_font_size,
+                self.black,
+                (self.screen_width * x, self.screen_height * y)
+            )
+            setattr(self, button_name, button)
+            self.volume_buttons.append(button)
 
     def get_event(self, event):
         if event.type == pg.KEYDOWN:
@@ -128,7 +121,7 @@ class SettingsMenu(Config):
                 self.done = True
                 
         if event.type == pg.MOUSEMOTION:
-            for sounds_button in self.SOUNDS_BUTTONS:
+            for sounds_button in self.volume_buttons:
                 if sounds_button.rect.collidepoint(pg.mouse.get_pos()):
                     sounds_button.border_color = (self.white)
                     sounds_button.draw_border()
@@ -170,15 +163,13 @@ class SettingsMenu(Config):
                     vol -= 0.1
                     vol = max(0.0, round(vol, 1))
                     set_music_volume(vol)
-            #else:
-            #    pass   
 
     def update(self, screen, dt):
         self.draw(screen)
 
     def draw(self, screen):
         self.screen.fill(self.grey)
-        self.sounds_button_sprites.draw(self.screen)
+        self.volume_button_sprites.draw(self.screen)
 
         SFX_TEXT = "Sound effect volume"
         MUSIC_TEXT = "Music volume"

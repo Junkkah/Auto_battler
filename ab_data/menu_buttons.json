@@ -1,0 +1,6 @@
+{
+    "play_button": [0.50, 0.32],
+    "settings_button": [0.50, 0.46],
+    "simulator_button": [0.50, 0.62],
+    "quit_button": [0.50, 0.78]
+}
