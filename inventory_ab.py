@@ -242,11 +242,9 @@ class Inventory(Config):
                                     self.move_bumped_item()
 
                                 if drop_slot.equipped_item is None: 
-                                    print('empty')
                                     self.clear_origin_slot()
                                 
                                 self.drop_spot_number = drop_slot.spot_number
-                                print(self.drop_spot_number)
                                 if self.drop_spot_number == 0:
                                     self.drop_spot_number = None
                                 else:
