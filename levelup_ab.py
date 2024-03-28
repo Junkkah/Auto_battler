@@ -17,7 +17,7 @@ class LevelUp(Config):
     
     def create_talent_sample(self, hero) -> pd.DataFrame:
         talent_df = get_talent_data(hero.type)
-        #Filter out talents hero already has
+        # Filter out talents the hero already has
         talent_df = talent_df[~talent_df['name'].isin(hero.talents)]
         while True:
             discard_sample = False

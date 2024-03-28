@@ -19,7 +19,6 @@ class Shop(Config):
         self.names = []
         self.selection = []
         self.selection_buttons = []
-        self.backpack_slots = []
         self.backpack_items = []
         self.selection_sprites.empty()
         self.selection_button_sprites.empty()
@@ -31,7 +30,6 @@ class Shop(Config):
     def startup(self):
         self.selection = []
         self.selection_buttons = []
-        self.backpack_slots = []
         self.backpack_items = []
         self.selection_sprites = pg.sprite.Group()
         self.selection_button_sprites = pg.sprite.Group()
@@ -95,7 +93,6 @@ class Shop(Config):
 
         if Config.current_adventure:
             inventory_instance = Inventory()
-            inventory_instance.create_backpack_slots(self.backpack_slots)
             inventory_instance.backpack_to_slots(self.backpack_items, self.shop_icon_sprites)
         
         BACK_TEXT = 'EXIT (Esc)'
@@ -151,7 +148,7 @@ class Shop(Config):
             shop_text_rect = shop_text.get_rect(center=COORDS_SHOP)
             self.screen.blit(shop_text, shop_text_rect)
 
-            for backpack_slot in self.backpack_slots:
+            for backpack_slot in Config.backpack_slots:
                 backpack_slot.draw_border()
             self.shop_icon_sprites.draw(self.screen)
 

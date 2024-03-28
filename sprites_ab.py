@@ -7,7 +7,7 @@ import random
 import sys
 
 monster_data = get_data('monsters')
-#weapons_data = get_data('weapons')
+weapons_data = get_data('weapons')
 
 class Monster(Config, pg.sprite.Sprite):
     def __init__(self, groups, pos, monster_type: str):
@@ -96,6 +96,7 @@ class Location(pg.sprite.Sprite):
     def __init__(self, groups, df):
         super().__init__(groups)
 
+        #item_power variable for determining drop and shop item strength
         # Assign id, name, type, y_coord, size_scalar, tier, depth, desc, image_name, parent1, parent2, child1, child2
         for stat_name in df.index:
             setattr(self, stat_name, int(df[stat_name]) if str(df[stat_name]).isdigit() else df[stat_name])
@@ -192,11 +193,45 @@ class EquipmentSlot(Config):
         self.slot_type = slot_type
         self.spot_number = spot_number
         self.border_width = 2
+        self.default_color = (self.black)
+        self.valid_spot_color = (self.green)
         self.border_color = (self.black)
         self.draw_border()
 
     def draw_border(self):
         pg.draw.rect(self.screen, self.border_color, self.rect, self.border_width)
+
+class Equipment(Config, pg.sprite.Sprite): 
+    def __init__(self, name: str, magic: bool, item_type: str, slot_type: str, prefix: str, suffix: str):
+        super().__init__()
+        pg.sprite.Sprite.__init__(self)
+        self.name = name
+        self.item_type = item_type
+        self.slot_type = slot_type
+        self.inventory_spot = None
+        icon_image = pg.image.load('./ab_images/icon/' + self.name + '_icon.png').convert_alpha()
+        slot_side_length = self.screen_width // self.eq_slot_size_scalar
+        icon_width = slot_side_length 
+        icon_height = slot_side_length 
+        self.pos_x = 0
+        self.pos_y = 0
+        self.image = pg.transform.smoothscale(icon_image, (icon_width, icon_height))
+        self.rect = self.image.get_rect(topleft = (self.pos_x, self.pos_y))
+
+        self.base_damage = None
+        if self.item_type == 'weapon':
+            weapon_df = weapons_data[weapons_data['name'] == self.name].reset_index(drop=True)
+            damage = weapon_df.loc[0, 'base_damage']
+            self.base_damage = damage
+        self.prefix = prefix
+        self.suffix = suffix
+        self.prefix_power = None
+        self.suffix_power = None
+        self.speed_mod = 1
+        self.stat_mod_1 = None
+        self.magical = magic
+        self.desc = self.prefix + self.name + ' ' + self.suffix
+        self.effect = None
 
 class Weapon(Config, pg.sprite.Sprite): 
     def __init__(self, name: str, magic: bool):
@@ -205,7 +240,6 @@ class Weapon(Config, pg.sprite.Sprite):
         self.name = name
         self.item_type = 'weapon'
         self.slot_type = 'hand1'
-        #self.spot_number = None
         self.inventory_spot = None
         icon_image = pg.image.load('./ab_images/icon/' + self.name + '_icon.png').convert_alpha()
         slot_side_length = self.screen_width // self.eq_slot_size_scalar
@@ -213,25 +247,54 @@ class Weapon(Config, pg.sprite.Sprite):
         icon_height = slot_side_length 
         self.pos_x = 0
         self.pos_y = 0
-
         self.image = pg.transform.smoothscale(icon_image, (icon_width, icon_height))
         self.rect = self.image.get_rect(topleft = (self.pos_x, self.pos_y))
-
+        weapon_df = weapons_data[weapons_data['name'] == self.name].reset_index(drop=True)
+        damage = weapon_df.loc[0, 'base_damage']
         self.speed_mod = 1
-        self.base_damage = 1
+        self.base_damage = damage
         self.magical = magic
         self.desc = name #desc = '{self.prefix} {self.name} {self.suffix}
         self.effect = None
 
-
 class Armor(Config, pg.sprite.Sprite): 
-    def __init__(self, name: str, magic: bool, item_type: str):
+    def __init__(self, name: str, magic: bool, slot_type: str):
         super().__init__()
         pg.sprite.Sprite.__init__(self)
         self.name = name
+        self.item_type = 'armor'
+        self.slot_type = slot_type
+        self.inventory_spot = None
         icon_image = pg.image.load('./ab_images/icon/' + self.name + '_icon.png').convert_alpha()
+        slot_side_length = self.screen_width // self.eq_slot_size_scalar
+        icon_width = slot_side_length 
+        icon_height = slot_side_length 
+        self.pos_x = 0
+        self.pos_y = 0
+        self.image = pg.transform.smoothscale(icon_image, (icon_width, icon_height))
+        self.rect = self.image.get_rect(topleft = (self.pos_x, self.pos_y))
         self.armor_value = 0
-        self.magical= False
-        self.desc = name
+        self.magical= magic
+        self.desc = name #prefix + name
         self.effect = None
-        self.armor_type = 'body'
+
+class Consumable(Config, pg.sprite.Sprite): 
+    def __init__(self, name: str, magic: bool):
+        super().__init__()
+        pg.sprite.Sprite.__init__(self)
+        self.name = name
+        self.item_type = 'consumable'
+        self.slot_type = 'consumable'
+        self.inventory_spot = None
+        icon_image = pg.image.load('./ab_images/icon/' + self.name + '_icon.png').convert_alpha()
+        slot_side_length = self.screen_width // self.eq_slot_size_scalar
+        icon_width = slot_side_length 
+        icon_height = slot_side_length 
+        self.pos_x = 0
+        self.pos_y = 0
+        self.image = pg.transform.smoothscale(icon_image, (icon_width, icon_height))
+        self.rect = self.image.get_rect(topleft = (self.pos_x, self.pos_y))
+        self.magical= magic
+        self.desc = name #prefix + name
+        self.effect = None
+        self.immediate = False

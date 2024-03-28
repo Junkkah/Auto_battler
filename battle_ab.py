@@ -1,9 +1,10 @@
 import pygame as pg
 from config_ab import Config
 from hero_ab import Hero
-from sprites_ab import Monster
+from sprites_ab import Monster, Equipment
 from animations_ab import Stab, Slash, Blast, Smash, SongAnimation
 from sounds_ab import play_sound_effect
+from data_ab import get_json_data, get_prefix, get_suffix
 import random
 import pygame.mixer
 
@@ -20,8 +21,8 @@ class BattleManager(Config):
         self.exp_reward = 0
         self.combat_delay = 1.1
         self.animation_speed = 0.3
-
-    def create_loot(self):
+    
+    def create_gold_loot(self):
         total_min_gold = 0
         total_max_gold = 0
         for loot_monster in Config.room_monsters:
@@ -29,6 +30,37 @@ class BattleManager(Config):
             total_max_gold += loot_monster.gold_max
         total_loot = random.randint(total_min_gold, total_max_gold)
         return total_loot
+    
+    #create loothandler class
+    def create_magic_item(self, item_type, subtype, item_power):
+        prefix = ''
+        suffix = ''
+        if item_type == 'weapon':
+            slot_type = 'hand1'
+            prefix_df = get_prefix(item_type)
+        elif item_type == 'consumable':
+            slot_type = item_type
+            suffix_df = get_suffix(item_type)
+        else:
+            slot_type = item_type
+            prefix_df = get_prefix(item_type)
+        magic_item = Equipment(subtype, True, item_type, slot_type, prefix, suffix)
+        return magic_item
+
+    def create_item_loot(self):
+        looted_items = []
+        item_probabilities = get_json_data('item_probabilities')
+        drop_chance_bonus = (Config.current_location.tier / 100)
+        for monster in Config.room_monsters:
+            item_drop_chance = monster.loot_roll + drop_chance_bonus
+            if random.random() <= item_drop_chance:
+                item_type = random.choices(list(item_probabilities.keys()), weights=[40, 45, 15])[0]
+                subtype = random.choices(item_probabilities[item_type]['types'], weights=item_probabilities[item_type]['prob'])[0]
+                upper_limit = Config.current_location.tier
+                item_power = random.randint(1, upper_limit)
+                looted_item = self.create_magic_item(item_type, subtype, item_power)
+                looted_items.append(looted_item)
+        return looted_items    
     
     def reset_adventure(self):
         self.defeated_heroes = []
@@ -49,6 +81,9 @@ class BattleManager(Config):
         self.temp_stats = []
         Config.room_monsters = []
         Config.combat_log = []
+        for loot_item in self.item_loot:
+            loot_item.append(Config.party_backpack)
+        self.item_loot = []
         Config.gold_count += self.gold_loot
 
         for risen_hero in self.defeated_heroes:
@@ -118,7 +153,6 @@ class BattleManager(Config):
     
 
     def startup(self):
-        #
         if Config.current_location.type == 'boss':
             play_sound_effect(Config.current_location.name)
         self.combat_started = False
@@ -134,11 +168,13 @@ class BattleManager(Config):
             self.combat_hero_sprites.add(party_hero)
             self.actions_unordered.append(party_hero)
 
-        for talent_hero in Config.party_heroes:
-            talent_hero.activate_talent_group('location')
+        for activation_hero in Config.party_heroes:
+            activation_hero.activate_talent_group('location')
+            #activate item stats and effects
 
         self.activate_auras()
-        self.gold_loot = self.create_loot()
+        self.gold_loot = self.create_gold_loot()
+        self.item_loot = self.create_item_loot()
         self.actions_ordered = self.order_sort(self.actions_unordered)
         Config.acting_character = self.actions_ordered[0]
 
@@ -187,9 +223,11 @@ class BattleManager(Config):
                     self.combat_animation = SongAnimation(self.animation_sprites, pos_x, pos_y)
                 else:
                     play_sound_effect('sword')
-                    #weapon = Config.acting_character.held_weapon
-                    weapon = Config.acting_character.attack_type
-                    self.combat_animation = Stab(self.animation_sprites, weapon, pos_x, pos_y)
+                    if Config.acting_character.worn_items['hand1'] == None:
+                        held_weapon = 'unarmed'
+                    else:
+                        held_weapon = Config.acting_character.worn_items['hand1'].name
+                    self.combat_animation = Stab(self.animation_sprites, held_weapon, pos_x, pos_y)
 
             elif not Config.acting_character.is_player:
                 if Config.acting_character.type in ['kobold', 'goblin']:
@@ -234,8 +272,8 @@ class BattleManager(Config):
                             self.victory_lines = [
                             f'Experience earned: {self.exp_reward}',
                             f'Gold coins earner: {self.gold_loot}',
+                            f'Found: {self.item_loot}',
                             'Press any key to continue']
-
 
             elif not Config.acting_character.is_player:  
                 for fighting_hero in Config.party_heroes:

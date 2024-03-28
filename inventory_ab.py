@@ -2,7 +2,7 @@ import pygame as pg
 import sys
 from config_ab import Config
 from sounds_ab import play_sound_effect
-from sprites_ab import Button, EquipmentSlot
+from sprites_ab import Button, EquipmentSlot, Armor, Consumable
 from hero_ab import Hero
 from battle_ab import BattleManager
 from data_ab import get_json_data
@@ -32,26 +32,6 @@ class Inventory(Config):
         for i, hero in enumerate(Config.party_heroes, start=1):
             hero.inventory_spot_number = i
 
-    def create_backpack_slots(self, slot_list):
-        first_slot_x_ratio = 0.05
-        first_slot_y_ratio = 0.11
-        backpack_row = 5
-        backpack_column = 4
-        gutter = 5
-        backpack_slot_number = 1
-        for row_i in range(backpack_row):
-            for column_j in range(backpack_column):
-                spot_number = 0
-                slot_type = 'backpack'
-                width_gap =  self.slot_side_length + gutter
-                height_gap =  self.slot_side_length + gutter
-                pos_x = self.screen_width * first_slot_x_ratio + (column_j) * width_gap
-                pos_y = self.screen_height * first_slot_y_ratio + (row_i) * height_gap
-                slot = EquipmentSlot(pos_x, pos_y, self.slot_side_length, self.slot_side_length, slot_type, spot_number)
-                setattr(self, f'{slot_type}_slot{backpack_slot_number}', slot)
-                slot_list.append(slot)
-                backpack_slot_number += 1
-
     def worn_items_in_slots(self):
         for eq_slots in Config.equipment_slots:
             for slot_type in eq_slots:
@@ -73,6 +53,8 @@ class Inventory(Config):
                         self.inventory_icon_sprites.add(item)
 
     def backpack_to_slots(self, item_list, sprite_group):
+        for clean_slot in Config.backpack_slots:
+            clean_slot.equipped_item = None
         for i, backpack_item in enumerate(Config.party_backpack):
             equipment_slot = Config.backpack_slots[i]  
             slot_x = equipment_slot.rect.x
@@ -106,22 +88,28 @@ class Inventory(Config):
         self.figure_image = pg.transform.smoothscale(figure, (scalar_width, scalar_height))
         self.figure_coords = [(self.screen_width * (0.27 + 0.2 * i), self.screen_height * 0.10) for i in range(figure_count)]
     
-    def move_bumped_item(self):
-        for origin_hero in Config.party_heroes:
-            origin_spot_number = self.original_spot.spot_number
-            if origin_hero.inventory_spot_number == origin_spot_number:
-                origin_hero.drop_item(self.bumped_item.slot_type)
-                origin_hero.equip_item(self.bumped_item)
-                break
+    def move_bumped_item(self, bumped_item):
+        bumped_item.rect.x = self.original_spot.rect.x
+        bumped_item.rect.y = self.original_spot.rect.y
+        bumped_item.inventory_spot = self.original_spot
+        origin_spot_number = self.original_spot.spot_number
+        if origin_spot_number == 0:
+            Config.party_backpack.append(bumped_item)
+        else:
+            for origin_hero in Config.party_heroes:
+                if origin_hero.inventory_spot_number == origin_spot_number:
+                    origin_hero.drop_item(bumped_item.slot_type)
+                    origin_hero.equip_item(bumped_item)
+                    break
+
         self.original_spot.equipped_item = None
-        self.original_spot.equipped_item = self.bumped_item
-        self.bumped_item = None
+        self.original_spot.equipped_item = bumped_item
     
     def clear_origin_slot(self):
         self.original_spot.equipped_item = None
         origin_spot_number = self.original_spot.spot_number
         if origin_spot_number == 0:
-            pass
+            Config.party_backpack.remove(self.dragged_object)
         else:
             for origin_hero in Config.party_heroes:
                 if origin_hero.inventory_spot_number == origin_spot_number:
@@ -129,12 +117,11 @@ class Inventory(Config):
                     origin_hero.drop_item(slot_to_drop)
                     break
 
-    def equip_drop_item(self):
+    def equip_dropped_item(self, drop_spot_number):
         for drop_hero in Config.party_heroes:
-            if drop_hero.inventory_spot_number == self.drop_spot_number:
+            if drop_hero.inventory_spot_number == drop_spot_number:
                 item_to_equip = self.dragged_object
                 drop_hero.equip_item(item_to_equip)
-                self.drop_spot_number = None
                 break
 
     def startup(self):
@@ -163,7 +150,6 @@ class Inventory(Config):
         
         self.create_hero_spots()
         self.create_figures()
-
         self.worn_items_in_slots()
         self.backpack_to_slots(self.inventory_items, self.inventory_icon_sprites)
         self.startup_done = True
@@ -183,7 +169,7 @@ class Inventory(Config):
                 self.next = 'path'
                 self.done = True
         
-            # Start dragging hero or item with mouse
+            # Start dragging object
             if event.button == self.primary_mouse_button:
                 for move_hero in Config.party_heroes: 
                     if move_hero.rect.collidepoint(mouse_pos):
@@ -227,28 +213,21 @@ class Inventory(Config):
                     self.original_spot = None
                     self.dragged_object = None
 
+                #party_backpack as dict + combine for drop_slot loops
                 if self.dragging_item:
-
                     # Dropping item to equipped slot
                     for eq_slots in Config.equipment_slots:
                         for slot_type in eq_slots:
                             drop_slot = eq_slots[slot_type]
                             if drop_slot.rect.colliderect(self.dragged_object.rect) and drop_slot.slot_type == self.dragged_object.slot_type:
                                 if drop_slot.equipped_item:
-                                    self.bumped_item = drop_slot.equipped_item
-                                    self.bumped_item.rect.x = self.original_spot.rect.x
-                                    self.bumped_item.rect.y = self.original_spot.rect.y
-                                    self.bumped_item.inventory_spot = self.original_spot
-                                    self.move_bumped_item()
-
+                                    bumped_item = drop_slot.equipped_item
+                                    self.move_bumped_item(bumped_item)
                                 if drop_slot.equipped_item is None: 
                                     self.clear_origin_slot()
                                 
-                                self.drop_spot_number = drop_slot.spot_number
-                                if self.drop_spot_number == 0:
-                                    self.drop_spot_number = None
-                                else:
-                                    self.equip_drop_item()
+                                drop_spot_number = drop_slot.spot_number
+                                self.equip_dropped_item(drop_spot_number)
 
                                 drop_slot.equipped_item = self.dragged_object
                                 self.dragged_object.rect.x = drop_slot.rect.x
@@ -261,11 +240,11 @@ class Inventory(Config):
                         # Dropping item to backpack slot
                         if backpack_drop_slot.rect.collidepoint(mouse_pos):
                             if backpack_drop_slot.equipped_item:
-                                self.bumped_item = backpack_drop_slot.equipped_item
-                                self.bumped_item.rect.x = self.original_spot.rect.x
-                                self.bumped_item.rect.y = self.original_spot.rect.y
-                                self.bumped_item.inventory_spot = self.original_spot
-                                self.move_bumped_item()
+                                if self.original_spot.spot_number != 0 and self.dragged_object.slot_type != backpack_drop_slot.equipped_item.slot_type:
+                                    break
+                                bumped_item = backpack_drop_slot.equipped_item
+                                Config.party_backpack.remove(bumped_item)
+                                self.move_bumped_item(bumped_item)
                             if backpack_drop_slot.equipped_item is None:
                                 self.clear_origin_slot()
                             
@@ -273,20 +252,22 @@ class Inventory(Config):
                             if self.drop_spot_number == 0:
                                 self.drop_spot_number = None
                             else:
-                                self.equip_drop_item()
+                                self.equip_dropped_item()
 
                             backpack_drop_slot.equipped_item = self.dragged_object
                             self.dragged_object.rect.x = backpack_drop_slot.rect.x
                             self.dragged_object.rect.y = backpack_drop_slot.rect.y
                             self.dragged_object.inventory_spot = backpack_drop_slot
-                            Config.party_backpack.append(self.dragged_object)
+                            if self.dragged_object not in Config.party_backpack:
+                                Config.party_backpack.append(self.dragged_object)
                             self.spot_found = True
                             play_sound_effect('drop')
+                            break
 
                     if not self.spot_found:   
                         self.dragged_object.rect.x = self.original_spot.rect.x
                         self.dragged_object.rect.y = self.original_spot.rect.y
-                        play_sound_effect('drop')
+                        play_sound_effect('error')
                     self.dragging_item = False
                     self.spot_found = False
                     self.dragged_object = None
@@ -309,19 +290,27 @@ class Inventory(Config):
         
         for worn_slot in Config.equipment_slots:
             for slot_type in worn_slot:
+                if self.dragging_item and self.dragged_object.slot_type == slot_type:
+                    worn_slot[slot_type].border_color = worn_slot[slot_type].valid_spot_color
+                else:
+                    worn_slot[slot_type].border_color = worn_slot[slot_type].default_color
                 worn_slot[slot_type].draw_border()
         
         for backpack_slot in Config.backpack_slots:
+            if self.dragging_item and not backpack_slot.equipped_item:
+                backpack_slot.border_color = backpack_slot.valid_spot_color
+            else:
+                backpack_slot.border_color = backpack_slot.default_color
             backpack_slot.draw_border()
         
         for spot in self.hero_spots:
             pg.draw.rect(self.screen, self.black, spot, 3)
         
-        self.inventory_icon_sprites.draw(self.screen)    
         self.inventory_sprites.draw(self.screen)
+        self.inventory_icon_sprites.draw(self.screen) 
         gold_text = self.create_gold_text()
         self.screen.blit(gold_text, self.coords_gold)
 
         #render log
-        #if mousemotion and self.dragging:
-        #highlight correct drop point if collidepoint
+        #if mousemotion and collidepoint(item)
+        #render item.desc

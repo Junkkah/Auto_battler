@@ -51,11 +51,13 @@ class Hero(Config, pg.sprite.Sprite):
         self.next_level = self.exp_df.at[0, 'exp']
         self.worn_items = {'head': None, 'body': None, 'hand1': None, 'hand2': None, 'consumable': None}
 
+        #self.damage obsolete?
         self.df = hero_data[hero_data['type'] == self.type].reset_index(drop=True)
         # Assign stats type, health, max_health, damage, speed, exp, menace, armor, attack_type
         for stat_name in self.df.columns:
             setattr(self, stat_name, int(self.df.at[0, stat_name]) if str(self.df.at[0, stat_name]).isdigit() else self.df.at[0, stat_name])
 
+        self.unarmed_damage = 1
         self.talent_bonus_damage = 0
         self.tempt_talent_bonuses = {'damage' : 0, 'armor' : 0}
         self.spells = []
@@ -93,7 +95,11 @@ class Hero(Config, pg.sprite.Sprite):
     def melee_attack(self):
         target = self.get_target()
         self.animation = False
-        DAMAGE = self.damage + self.talent_bonus_damage + Config.aura_bonus['damage']
+        if self.worn_items['hand1']:
+            weapon_damage = self.worn_items['hand1'].base_damage
+        else:
+            weapon_damage = self.unarmed_damage
+        DAMAGE = weapon_damage + self.damage + self.talent_bonus_damage + Config.aura_bonus['damage']
         armor_penalty = self.enemy_armor_penalty
         self.enemy_armor_penalty = 0
         self.talent_bonus_damage = 0
@@ -152,14 +158,14 @@ class Hero(Config, pg.sprite.Sprite):
             weapon = Weapon(self.attack_type, False)
             self.worn_items['hand1'] = weapon
 
-    def equip_item(self, item):
+    def equip_item(self, item: object):
         slot = item.slot_type
         self.worn_items[slot] = item
     
-    def drop_item(self, slot):
+    def drop_item(self, slot: object):
         self.worn_items[slot] = None
 
-    def add_stat(self, stat_bonus):
+    def add_stat(self, stat_bonus: str):
         stat_name, stat_val_str = stat_bonus.split()
         stat_val = int(stat_val_str)
         old_val = getattr(self, stat_name, 0)
@@ -298,10 +304,10 @@ class Hero(Config, pg.sprite.Sprite):
         total_critical_chance = critical_chance_per_rank * rank
         random_number = random.random()
         if random_number <= total_critical_chance:
-            self.talent_bonus_damage += self.damage
+            self.talent_bonus_damage += self.worn_items['hand1'].base_damage + self.damage
     
     def ambush_activation(self, rank):
-        DAMAGE = self.damage
+        DAMAGE = self.worn_items['hand1'].base_damage + self.damage
         target = self.get_target()
         armor_penalty = 0
         target.take_damage(DAMAGE, 'physical', armor_penalty)

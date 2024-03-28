@@ -1,0 +1,14 @@
+{
+    "weapon": {
+        "types": ["dagger", "mace", "sword", "battle_axe", "bow"],
+        "prob": [20, 25, 25, 20, 10]
+    },
+    "armor": {
+        "types": ["head", "body"],
+        "prob": [50, 50]
+    },
+    "consumable": {
+        "types": ["potion", "scroll", "book"],
+        "prob": [50, 35, 15]
+    }
+}

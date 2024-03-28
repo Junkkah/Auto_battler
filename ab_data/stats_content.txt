@@ -89,7 +89,7 @@ Columns:
 - id: Unique identifier for each talent.
 - name: Name of the talent.
 - desc: Short description of the talent.
-- effect: Instruction for Hero method how the talent effects the hero.
+- effect: Instruction for how the talent effects the hero.
 - type: Talent types are: stat, spell, special, song.
 - min_level: Minimum level required to learn the talent.
 - req1: Another talent hero needs to have in order to learn the talent.
@@ -118,3 +118,18 @@ Columns:
 - base_damage: How much damage hero deals when wielded.
 - offset_x: Adjustment for weapon's distance from hero.
 - offset_y: Adjustment for weapon's distance from hero.
+
+Table: Item_modifiers
+- Table for magic item prefixes and suffixes.
+Columns:
+- id: Unique identifier for each item type modifier.
+- modifier_name: Name of the modifier.
+- modifier_type: Type of the modifier, prefix or suffix.
+- item_type: Item type that can have the modifier.
+- desc: Description of the modifier.
+- effect: Instruction for how the modifier effects the hero.
+- tier_1: Level one modifier text.
+- tier_2: Level two modifier text.
+- tier_3: Level three modifier text.
+- tier_4: Level four modifier text.
+- tier_5: Level five modifier text.
