@@ -1,9 +1,9 @@
 import pygame as pg
 from config_ab import Config
-from sprites_ab import Location
+from sprites_ab import Location, Button
 from hero_ab import Hero
 from data_ab import get_data, get_monster_encounters
-from sounds_ab import play_music_effect
+from sounds_ab import play_music_effect, play_sound_effect
 import pandas as pd
 import math
 import random
@@ -55,8 +55,12 @@ class Path(Config):
                     obj.child2 = next((child_obj for child_obj in self.loc_objects if child_obj.name == obj_child2_name), None)
         set_children(locations_data)
 
+        INV_TEXT = 'Inventory (i)'
+        self.inventory_button = Button(self.path_sprites, INV_TEXT, self.CONT_FONT, self.CONT_SIZE, self.CONT_COL, self.COORDS_CONT)
+
     #randomized paths
     def get_event(self, event):
+        mouse_pos = pg.mouse.get_pos()
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_ESCAPE:
                 exit()
@@ -65,17 +69,21 @@ class Path(Config):
                 self.done = True
 
         elif event.type == pg.MOUSEBUTTONDOWN:
+            if self.inventory_button.rect.collidepoint(mouse_pos):
+                play_sound_effect('click')
+                self.next = 'inventory'
+                self.done = True
 
             clicked_location = None
             if Config.current_location:
                 for child in [Config.current_location.child1, Config.current_location.child2]:
-                    if child and child.rect.collidepoint(pg.mouse.get_pos()):
+                    if child and child.rect.collidepoint(mouse_pos):
                         clicked_location = child
                         break  
 
             if not clicked_location:
                 for locs_click in self.loc_objects:
-                    if locs_click.parent1 is None and locs_click.rect.collidepoint(pg.mouse.get_pos()):
+                    if locs_click.parent1 is None and locs_click.rect.collidepoint(mouse_pos):
                         clicked_location = locs_click
                         break 
 

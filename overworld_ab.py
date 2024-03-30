@@ -43,22 +43,21 @@ class WorldMap(Config):
                     obj.child = next((child_obj for child_obj in self.map_objects if child_obj.name == obj_child_name), None)
         set_child(map_data)
 
-        bubble = pg.image.load('./ab_images/map_bubble.png').convert_alpha()
         hood = pg.image.load('./ab_images/hood.png').convert_alpha()
-        COORDS_BUBBLE  = (self.screen_width * 0.12, self.screen_height * 0.85)
+        self.coords_dialogue = ((self.screen_width * 0.12, self.screen_height * 0.72))
         COORDS_HOOD = (self.screen_width * 0.05, self.screen_height * 0.80)
-        SCALAR_BUBBLE = ((bubble.get_width() / self.speech_bubble_size_scalar), (bubble.get_height() / self.speech_bubble_size_scalar))
         SCALAR_HOOD = ((hood.get_width() / self.npc_size_scalar), (hood.get_height() / self.npc_size_scalar))
 
-        self.bubble = pg.transform.smoothscale(bubble, SCALAR_BUBBLE)
+        self.overworld_dialogue = ['Choose Dark Forest', 'for first adventure']
+
         self.hood = pg.transform.smoothscale(hood, SCALAR_HOOD)
-        self.bubble_rect = self.bubble.get_rect(bottomleft=COORDS_BUBBLE)
         self.hood_rect = self.hood.get_rect(topleft=COORDS_HOOD)
 
     def get_event(self, event):
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_ESCAPE:
                 exit()
+        
         elif event.type == pg.MOUSEBUTTONDOWN:
             for obj in self.map_objects:
                 if obj.rect.collidepoint(pg.mouse.get_pos()):
@@ -85,7 +84,10 @@ class WorldMap(Config):
 
         self.map_sprites.draw(self.screen)
 
-        self.screen.blit(self.bubble, self.bubble_rect)
+        for i, dia_line in enumerate(self.overworld_dialogue):
+            dia_line_text = self.dialogue_font.render(dia_line, True, self.black)
+            dia_line_rect = dia_line_text.get_rect(center=(self.coords_dialogue[0], self.coords_dialogue[1] + i * self.medium_font_size))
+            self.screen.blit(dia_line_text, dia_line_rect)
         self.screen.blit(self.hood, self.hood_rect)
 
         collided_objects = [obj for obj in self.map_objects if obj.rect.collidepoint(pg.mouse.get_pos())]

@@ -1,7 +1,7 @@
 import pygame as pg
 from data_ab import row_to_dict, get_data, get_talent_data
 from config_ab import Config
-from sprites_ab import Weapon
+from sprites_ab import Equipment
 import numpy as np
 import pandas as pd
 import random
@@ -77,8 +77,10 @@ class Hero(Config, pg.sprite.Sprite):
                 #compare melee, spell
             #if spell compare spells
                 #aoe vs single target
-    def calculate_item_bonuses(self):
-        pass
+    def activate_item_effects(self):
+        for slot_type in self.worn_items:
+            worn_slot[slot_type].border_color = worn_slot[slot_type].valid_spot_color
+            #add stats: speed, damage, menace, armor
 
     def get_target(self):
         total_menace = sum(monster.menace for monster in Config.room_monsters)
@@ -155,7 +157,7 @@ class Hero(Config, pg.sprite.Sprite):
     
     def equip_starting_weapon(self):
         if self.attack_type != 'spell':
-            weapon = Weapon(self.attack_type, False)
+            weapon = Equipment(self.attack_type, 'weapon', 'hand1', '', '', None, 0)
             self.worn_items['hand1'] = weapon
 
     def equip_item(self, item: object):

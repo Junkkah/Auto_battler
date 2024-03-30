@@ -36,17 +36,13 @@ class Shop(Config):
         self.shop_icon_sprites = pg.sprite.Group()
         SELECTABLE_HEROES = 8
 
-        #move to config, bubble1, bubble2, bubble3
-        bubble = pg.image.load('./ab_images/menu_bubble.png').convert_alpha()
         hood = pg.image.load('./ab_images/hood.png').convert_alpha()
-        COORDS_BUBBLE  = (self.screen_width * 0.12, self.screen_height * 0.75)
-        COORDS_HOOD = (self.screen_width * 0.05, self.screen_height * 0.70)
-        SCALAR_BUBBLE = ((bubble.get_width() / self.speech_bubble_size_scalar), (bubble.get_height() / self.speech_bubble_size_scalar))
+        self.coords_dialogue = ((self.screen_width * 0.12, self.screen_height * 0.72))
+        COORDS_HOOD = (self.screen_width * 0.05, self.screen_height * 0.80)
         SCALAR_HOOD = ((hood.get_width() / self.npc_size_scalar), (hood.get_height() / self.npc_size_scalar))
         
-        self.bubble = pg.transform.smoothscale(bubble, SCALAR_BUBBLE)
+        self.shop_dialogue_1 = ['Choose three heroes', 'and press CONTINUE']
         self.hood = pg.transform.smoothscale(hood, SCALAR_HOOD)
-        self.bubble_rect = self.bubble.get_rect(bottomleft=COORDS_BUBBLE)
         self.hood_rect = self.hood.get_rect(topleft=COORDS_HOOD)
 
         #raise rows to make room for hire buttons
@@ -95,8 +91,6 @@ class Shop(Config):
             inventory_instance = Inventory()
             inventory_instance.backpack_to_slots(self.backpack_items, self.shop_icon_sprites)
         
-        BACK_TEXT = 'EXIT (Esc)'
-        self.back_button = Button(self.selection_button_sprites, BACK_TEXT, self.BACK_FONT, self.BACK_SIZE, self.BACK_COL, self.COORDS_BACK)
         self.continue_button = Button(self.selection_button_sprites, self.CONT_TEXT, self.CONT_FONT, self.CONT_SIZE, self.CONT_COL, self.COORDS_CONT)
         self.selection_buttons.append(self.continue_button)
         
@@ -106,10 +100,6 @@ class Shop(Config):
                 exit()
 
         elif event.type == pg.MOUSEBUTTONDOWN:
-            if self.back_button.rect.collidepoint(pg.mouse.get_pos()):
-                play_sound_effect('click')
-                exit()
-
             if self.continue_button.rect.collidepoint(pg.mouse.get_pos()) and len(Config.party_heroes) == self.max_party_size:
                 play_sound_effect('click')
                 if Config.current_adventure is None:
@@ -153,9 +143,13 @@ class Shop(Config):
             self.shop_icon_sprites.draw(self.screen)
 
         if not Config.current_adventure:
-            self.screen.blit(self.bubble, self.bubble_rect)
             self.selection_sprites.draw(self.screen)
-        
+
+            for i, dia_line in enumerate(self.shop_dialogue_1):
+                dia_line_text = self.dialogue_font.render(dia_line, True, self.black)
+                dia_line_rect = dia_line_text.get_rect(center=(self.coords_dialogue[0], self.coords_dialogue[1] + i * self.medium_font_size))
+                self.screen.blit(dia_line_text, dia_line_rect)
+
             for frame_hero in self.selection:
                 if frame_hero.spot_frame:
                     frame_hero.draw_frame()

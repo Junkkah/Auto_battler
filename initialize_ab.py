@@ -21,7 +21,8 @@ class Initialize(Config):
                 pos_y = self.screen_height * y_ratio
                 spot_number = i + 1
                 slot_type = row
-                slot = EquipmentSlot(pos_x, pos_y, self.slot_side_length, self.slot_side_length, slot_type, spot_number)
+                slot_name = slot_type + str(spot_number)
+                slot = EquipmentSlot(slot_name, pos_x, pos_y, self.slot_side_length, self.slot_side_length, slot_type, spot_number)
                 figure_slots[slot_type] = slot
             slot_list.append(figure_slots)
 
@@ -40,9 +41,11 @@ class Initialize(Config):
                 height_gap =  self.slot_side_length + gutter
                 pos_x = self.screen_width * first_slot_x_ratio + (column_j) * width_gap
                 pos_y = self.screen_height * first_slot_y_ratio + (row_i) * height_gap
-                slot = EquipmentSlot(pos_x, pos_y, self.slot_side_length, self.slot_side_length, slot_type, spot_number)
-                setattr(self, f'{slot_type}_slot{backpack_slot_number}', slot)
+                slot_name = f'backpack_slot{backpack_slot_number}'
+                slot = EquipmentSlot(slot_name, pos_x, pos_y, self.slot_side_length, self.slot_side_length, slot_type, spot_number)
+                setattr(self, slot_name, slot)
                 slot_list.append(slot)
+                Config.party_backpack[slot_name] = None
                 backpack_slot_number += 1
     
     def initialize_slots(self):

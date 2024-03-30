@@ -184,8 +184,9 @@ class TalentCard(Config, pg.sprite.Sprite):
         return combined_surface
 
 class EquipmentSlot(Config):
-    def __init__(self, pos_x, pos_y, width: int, height: int, slot_type: str, spot_number: int):
+    def __init__(self, name, pos_x, pos_y, width: int, height: int, slot_type: str, spot_number: int):
         super().__init__()
+        self.name = name
         self.pos_x = pos_x
         self.pos_y = pos_y
         self.rect = pg.Rect(self.pos_x, self.pos_y, width, height)
@@ -202,7 +203,7 @@ class EquipmentSlot(Config):
         pg.draw.rect(self.screen, self.border_color, self.rect, self.border_width)
 
 class Equipment(Config, pg.sprite.Sprite): 
-    def __init__(self, name: str, magic: bool, item_type: str, slot_type: str, prefix: str, suffix: str):
+    def __init__(self, name: str, item_type: str, slot_type: str, prefix: str, suffix: str, effect: str, tier: int):
         super().__init__()
         pg.sprite.Sprite.__init__(self)
         self.name = name
@@ -225,13 +226,14 @@ class Equipment(Config, pg.sprite.Sprite):
             self.base_damage = damage
         self.prefix = prefix
         self.suffix = suffix
-        self.prefix_power = None
-        self.suffix_power = None
+        self.modifier_tier = tier
         self.speed_mod = 1
-        self.stat_mod_1 = None
-        self.magical = magic
-        self.desc = self.prefix + self.name + ' ' + self.suffix
-        self.effect = None
+        self.desc = f'{self.prefix} {self.name} {self.suffix}'
+        #self.desc = self.prefix + ' ' + self.name + ' ' + self.suffix
+        self.effect = effect
+    #prefix = stat, suffix non stat
+    def equipment_effect(self):
+        return (self.effect, self.tier)
 
 class Weapon(Config, pg.sprite.Sprite): 
     def __init__(self, name: str, magic: bool):
@@ -254,7 +256,7 @@ class Weapon(Config, pg.sprite.Sprite):
         self.speed_mod = 1
         self.base_damage = damage
         self.magical = magic
-        self.desc = name #desc = '{self.prefix} {self.name} {self.suffix}
+        self.desc = name
         self.effect = None
 
 class Armor(Config, pg.sprite.Sprite): 

@@ -1,12 +1,14 @@
 import pygame as pg
 import sys
+import itertools
 from config_ab import Config
 from sounds_ab import play_sound_effect
-from sprites_ab import Button, EquipmentSlot, Armor, Consumable
+from sprites_ab import Button, EquipmentSlot, Equipment
 from hero_ab import Hero
 from battle_ab import BattleManager
 from data_ab import get_json_data
 
+#possible item duplication issue in backpack slots
 class Inventory(Config):
     def __init__(self):
         Config.__init__(self)
@@ -24,6 +26,7 @@ class Inventory(Config):
         self.dragging_item = False
         self.dragged_object = None
         self.original_spot = None
+        self.hovered_item = None
         self.spot_found = False
         self.startup_done = False
     
@@ -32,7 +35,9 @@ class Inventory(Config):
         for i, hero in enumerate(Config.party_heroes, start=1):
             hero.inventory_spot_number = i
 
-    def worn_items_in_slots(self):
+    # Equipment slots are cleared
+    # Item objects in heroes item dictionaries are moved to slots
+    def worn_items_to_slots(self):
         for eq_slots in Config.equipment_slots:
             for slot_type in eq_slots:
                 eq_slots[slot_type].equipped_item = None
@@ -52,22 +57,29 @@ class Inventory(Config):
                         self.inventory_items.append(item)
                         self.inventory_icon_sprites.add(item)
 
+    # Backpack slots are cleared
+    # Item objects in backpack dictionary are moved to backpack slots
     def backpack_to_slots(self, item_list, sprite_group):
         for clean_slot in Config.backpack_slots:
             clean_slot.equipped_item = None
-        for i, backpack_item in enumerate(Config.party_backpack):
-            equipment_slot = Config.backpack_slots[i]  
-            slot_x = equipment_slot.rect.x
-            slot_y = equipment_slot.rect.y
-            backpack_item.rect.x = slot_x
-            backpack_item.rect.y = slot_y
-            backpack_item.inventory_spot = equipment_slot
-            equipment_slot.equipped_item = backpack_item
-            item_list.append(backpack_item)
-            sprite_group.add(backpack_item)
+        for slot_key, backpack_item in Config.party_backpack.items():
+            if backpack_item is not None:
+                for slot_object in Config.backpack_slots:
+                    if slot_object.name == slot_key:
+                        equipment_slot = slot_object
+                        slot_x = equipment_slot.rect.x
+                        slot_y = equipment_slot.rect.y
+                        backpack_item.rect.x = slot_x
+                        backpack_item.rect.y = slot_y
+                        backpack_item.inventory_spot = equipment_slot
+                        equipment_slot.equipped_item = backpack_item
+                        item_list.append(backpack_item)
+                        sprite_group.add(backpack_item)
+                        break 
+
 
     def create_hero_spots(self):
-        # Create rect objects for hero spots
+        # Rect objects for hero spots
         self.hero_spots = []
         for i, hero in enumerate(Config.party_heroes, start = 1):
             var_name = f'hero_spot{i}'
@@ -94,7 +106,7 @@ class Inventory(Config):
         bumped_item.inventory_spot = self.original_spot
         origin_spot_number = self.original_spot.spot_number
         if origin_spot_number == 0:
-            Config.party_backpack.append(bumped_item)
+            Config.party_backpack[self.original_spot.name] = bumped_item
         else:
             for origin_hero in Config.party_heroes:
                 if origin_hero.inventory_spot_number == origin_spot_number:
@@ -109,7 +121,7 @@ class Inventory(Config):
         self.original_spot.equipped_item = None
         origin_spot_number = self.original_spot.spot_number
         if origin_spot_number == 0:
-            Config.party_backpack.remove(self.dragged_object)
+            Config.party_backpack[self.original_spot.name] = None
         else:
             for origin_hero in Config.party_heroes:
                 if origin_hero.inventory_spot_number == origin_spot_number:
@@ -133,10 +145,11 @@ class Inventory(Config):
         self.inventory_icon_sprites = pg.sprite.Group()
         self.dragging_hero = False
         self.dragging_item = False
-        self.dragged_object = None
-        self.original_spot = None
         self.spot_found = False
         self.startup_done = False
+        self.dragged_object = None
+        self.original_spot = None
+        self.hovered_item = None
         # With hero_width_scalar value 7.5 all heroes fit to hero_spots
         self.hero_width_scalar = 7.5
         self.max_hero_width = self.screen_height // self.hero_width_scalar
@@ -150,7 +163,7 @@ class Inventory(Config):
         
         self.create_hero_spots()
         self.create_figures()
-        self.worn_items_in_slots()
+        self.worn_items_to_slots()
         self.backpack_to_slots(self.inventory_items, self.inventory_icon_sprites)
         self.startup_done = True
  
@@ -163,6 +176,14 @@ class Inventory(Config):
                 self.next = 'path'
                 self.done = True
         
+        elif event.type == pg.MOUSEMOTION:
+            for hover_item in self.inventory_items:
+                if hover_item.rect.collidepoint(mouse_pos):
+                    self.hovered_item = hover_item
+                    break
+                else:
+                    self.hovered_item = None
+
         elif event.type == pg.MOUSEBUTTONDOWN:
             if self.continue_button.rect.collidepoint(mouse_pos):
                 play_sound_effect('click')
@@ -171,21 +192,19 @@ class Inventory(Config):
         
             # Start dragging object
             if event.button == self.primary_mouse_button:
-                for move_hero in Config.party_heroes: 
-                    if move_hero.rect.collidepoint(mouse_pos):
-                        self.dragging_hero = True
-                        self.dragged_object = move_hero
+                for obj in itertools.chain(Config.party_heroes, self.inventory_items):
+                    if obj.rect.collidepoint(mouse_pos):
+                        if isinstance(obj, Hero):
+                            self.dragging_hero = True
+                        elif isinstance(obj, Equipment):
+                            self.dragging_item = True
+                        
+                        self.dragged_object = obj
                         self.original_spot = self.dragged_object.inventory_spot
                         self.offset_x = mouse_pos[0] - self.dragged_object.rect.x
                         self.offset_y = mouse_pos[1] - self.dragged_object.rect.y
-                for move_item in self.inventory_items:
-                    if move_item.rect.collidepoint(mouse_pos):
-                        self.dragging_item = True
-                        self.dragged_object = move_item
-                        self.original_spot = self.dragged_object.inventory_spot
-                        self.offset_x = mouse_pos[0] - self.dragged_object.rect.x
-                        self.offset_y = mouse_pos[1] - self.dragged_object.rect.y
-   
+                        break 
+
         # Drop dragged hero or item object
         # Object returns to original location if drop location is not valid
         # If drop location already has an object, that object is bumped to the original location
@@ -213,9 +232,7 @@ class Inventory(Config):
                     self.original_spot = None
                     self.dragged_object = None
 
-                #party_backpack as dict + combine for drop_slot loops
                 if self.dragging_item:
-                    # Dropping item to equipped slot
                     for eq_slots in Config.equipment_slots:
                         for slot_type in eq_slots:
                             drop_slot = eq_slots[slot_type]
@@ -237,13 +254,12 @@ class Inventory(Config):
                                 play_sound_effect('drop')
 
                     for backpack_drop_slot in Config.backpack_slots:
-                        # Dropping item to backpack slot
                         if backpack_drop_slot.rect.collidepoint(mouse_pos):
                             if backpack_drop_slot.equipped_item:
                                 if self.original_spot.spot_number != 0 and self.dragged_object.slot_type != backpack_drop_slot.equipped_item.slot_type:
                                     break
                                 bumped_item = backpack_drop_slot.equipped_item
-                                Config.party_backpack.remove(bumped_item)
+                                Config.party_backpack[backpack_drop_slot.name] = None
                                 self.move_bumped_item(bumped_item)
                             if backpack_drop_slot.equipped_item is None:
                                 self.clear_origin_slot()
@@ -258,8 +274,7 @@ class Inventory(Config):
                             self.dragged_object.rect.x = backpack_drop_slot.rect.x
                             self.dragged_object.rect.y = backpack_drop_slot.rect.y
                             self.dragged_object.inventory_spot = backpack_drop_slot
-                            if self.dragged_object not in Config.party_backpack:
-                                Config.party_backpack.append(self.dragged_object)
+                            Config.party_backpack[backpack_drop_slot.name] = self.dragged_object
                             self.spot_found = True
                             play_sound_effect('drop')
                             break
@@ -282,6 +297,7 @@ class Inventory(Config):
         self.draw(screen)
 
     def draw(self, screen):
+        mouse_pos = pg.mouse.get_pos()
         self.screen.fill(self.grey)
         for draw_coords in self.figure_coords:
             self.screen.blit(self.figure_image, draw_coords)
@@ -311,6 +327,9 @@ class Inventory(Config):
         gold_text = self.create_gold_text()
         self.screen.blit(gold_text, self.coords_gold)
 
+        offset_y = self.screen_height // 54
+        if self.hovered_item and not self.dragging_item:
+            desc_text = self.med_info_font.render(self.hovered_item.desc, True, self.black)
+            self.screen.blit(desc_text, (mouse_pos[0], mouse_pos[1] - offset_y))
+
         #render log
-        #if mousemotion and collidepoint(item)
-        #render item.desc

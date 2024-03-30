@@ -31,21 +31,30 @@ class BattleManager(Config):
         total_loot = random.randint(total_min_gold, total_max_gold)
         return total_loot
     
-    #create loothandler class
+    #create itemhandler class
     def create_magic_item(self, item_type, subtype, item_power):
-        prefix = ''
-        suffix = ''
-        if item_type == 'weapon':
-            slot_type = 'hand1'
-            prefix_df = get_prefix(item_type)
-        elif item_type == 'consumable':
-            slot_type = item_type
-            suffix_df = get_suffix(item_type)
+        tier = random.randint(1, item_power)
+        slot_type_mapping = {'weapon': 'hand1', 'armor': subtype}
+
+        if item_type == 'consumable':
+            suffix_df = get_suffix(subtype)
+            random_suffix = suffix_df.sample(n=1)
+            item_tier = 'tier_' + str(tier)
+            suffix = random_suffix[item_tier].iloc[0]
+            effect = random_suffix['effect'].iloc[0]
+            prefix = ''
         else:
-            slot_type = item_type
             prefix_df = get_prefix(item_type)
-        magic_item = Equipment(subtype, True, item_type, slot_type, prefix, suffix)
+            random_prefix = prefix_df.sample(n=1)
+            item_tier = 'tier_' + str(tier)
+            prefix = random_prefix[item_tier].iloc[0]
+            effect = random_prefix['effect'].iloc[0]
+            suffix = ''
+
+        slot_type = slot_type_mapping.get(item_type, item_type)
+        magic_item = Equipment(subtype, item_type, slot_type, prefix, suffix, effect, tier)
         return magic_item
+
 
     def create_item_loot(self):
         looted_items = []
@@ -64,7 +73,7 @@ class BattleManager(Config):
     
     def reset_adventure(self):
         self.defeated_heroes = []
-        Config.party_backpack = []
+        Config.party_backpack = {}
         Config.backpack_slots = []
         Config.equipment_slots = []
         Config.current_adventure = None
@@ -72,6 +81,7 @@ class BattleManager(Config):
         Config.acting_character = None
         Config.gold_count = 50
         Config.scout_active = False
+        self.party_defeated = False
 
     def cleanup(self):
         self.animation_sprites.empty()
@@ -82,7 +92,11 @@ class BattleManager(Config):
         Config.room_monsters = []
         Config.combat_log = []
         for loot_item in self.item_loot:
-            loot_item.append(Config.party_backpack)
+            sorted_keys = sorted(Config.party_backpack.keys(), key=lambda x: int(x.split('slot')[1]))
+            for key in sorted_keys:
+                if Config.party_backpack[key] is None:
+                    Config.party_backpack[key] = loot_item
+                    break 
         self.item_loot = []
         Config.gold_count += self.gold_loot
 
@@ -98,6 +112,8 @@ class BattleManager(Config):
         self.combat_started = False
         self.delay_timer = 0.0
         Config.aura_bonus = {key: 0 for key in Config.aura_bonus}
+        if self.party_defeated:
+            self.reset_adventure()
 
     #move to Config?
     def position_heroes(self, heroes: list):
@@ -153,6 +169,7 @@ class BattleManager(Config):
     
 
     def startup(self):
+        self.party_defeated = False
         if Config.current_location.type == 'boss':
             play_sound_effect(Config.current_location.name)
         self.combat_started = False
@@ -185,12 +202,12 @@ class BattleManager(Config):
                     #dark forest adventure cleared
                     #continue to decrepit ruins adventure
                     pg.mixer.stop()
-                    self.reset_adventure()
+                    self.party_defeated = True
                     self.next = 'menu'
                 self.done = True
             if not Config.party_heroes:
                 pg.mixer.stop()
-                self.reset_adventure()
+                self.party_defeated = True
                 self.next = 'menu'
                 self.done = True
         elif event.type == pg.MOUSEBUTTONDOWN:
@@ -240,7 +257,6 @@ class BattleManager(Config):
             self.combat_animation.animation_start()
 
         # Call attack methods 
-        #call activate talents here
         if self.combat_animation.animate(self.animation_speed):
             if Config.acting_character.attack_type == 'spell':
                 Config.acting_character.activate_talent_group('combat')
@@ -272,7 +288,7 @@ class BattleManager(Config):
                             self.victory_lines = [
                             f'Experience earned: {self.exp_reward}',
                             f'Gold coins earner: {self.gold_loot}',
-                            f'Found: {self.item_loot}',
+                            f'Found {len(self.item_loot)} items',
                             'Press any key to continue']
 
             elif not Config.acting_character.is_player:  

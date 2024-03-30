@@ -3,7 +3,7 @@ import pygame as pg
 class Config(object):
     party_heroes = []
     room_monsters = []
-    party_backpack = []
+    party_backpack = {}
     backpack_slots = []
     equipment_slots = []
     gold_count = 50
@@ -59,12 +59,14 @@ class Config(object):
         self.info_font_size = 20
         self.log_font_size = 20
         INFO_FONT_NAME = 'Arial'
+        DIALOGUE_FONT_NAME = 'Tahoma'
         LOG_FONT_NAME = 'Courier new'
         self.info_font = pg.font.SysFont(INFO_FONT_NAME, self.info_font_size)
         self.log_font = pg.font.SysFont(LOG_FONT_NAME, self.log_font_size)
         self.med_info_font = pg.font.SysFont(INFO_FONT_NAME, self.medium_font_size)
         self.large_info_font = pg.font.SysFont(INFO_FONT_NAME, self.big_font_size)
         self.title_font = pg.font.SysFont(INFO_FONT_NAME, self.title_font_size)
+        self.dialogue_font = pg.font.SysFont(DIALOGUE_FONT_NAME, self.medium_font_size)
 
         self.CONT_TEXT = 'CONTINUE'
         self.CONT_FONT = self.default_font
