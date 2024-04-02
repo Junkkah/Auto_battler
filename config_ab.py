@@ -28,6 +28,7 @@ class Config(object):
         self.eq_slot_size_scalar = 25
         self.slot_side_length = self.screen_width // self.eq_slot_size_scalar
         self.primary_mouse_button = 1
+        self.secondary_mouse_button = 3
         self.npc_size_scalar = 8
         self.speech_bubble_size_scalar = 7
 
@@ -58,14 +59,14 @@ class Config(object):
 
         self.info_font_size = 20
         self.log_font_size = 20
-        INFO_FONT_NAME = 'Arial'
+        self.info_font_name = 'Arial'
         DIALOGUE_FONT_NAME = 'Tahoma'
         LOG_FONT_NAME = 'Courier new'
-        self.info_font = pg.font.SysFont(INFO_FONT_NAME, self.info_font_size)
+        self.info_font = pg.font.SysFont(self.info_font_name, self.info_font_size)
         self.log_font = pg.font.SysFont(LOG_FONT_NAME, self.log_font_size)
-        self.med_info_font = pg.font.SysFont(INFO_FONT_NAME, self.medium_font_size)
-        self.large_info_font = pg.font.SysFont(INFO_FONT_NAME, self.big_font_size)
-        self.title_font = pg.font.SysFont(INFO_FONT_NAME, self.title_font_size)
+        self.med_info_font = pg.font.SysFont(self.info_font_name, self.medium_font_size)
+        self.large_info_font = pg.font.SysFont(self.info_font_name, self.big_font_size)
+        self.title_font = pg.font.SysFont(self.info_font_name, self.title_font_size)
         self.dialogue_font = pg.font.SysFont(DIALOGUE_FONT_NAME, self.medium_font_size)
 
         self.CONT_TEXT = 'CONTINUE'

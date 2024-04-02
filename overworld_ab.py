@@ -48,19 +48,20 @@ class WorldMap(Config):
         COORDS_HOOD = (self.screen_width * 0.05, self.screen_height * 0.80)
         SCALAR_HOOD = ((hood.get_width() / self.npc_size_scalar), (hood.get_height() / self.npc_size_scalar))
 
-        self.overworld_dialogue = ['Choose Dark Forest', 'for first adventure']
+        self.overworld_dialogue = ['"Choose Dark Forest for', 'your first adventure"']
 
-        self.hood = pg.transform.smoothscale(hood, SCALAR_HOOD)
-        self.hood_rect = self.hood.get_rect(topleft=COORDS_HOOD)
+        self.hood_image = pg.transform.smoothscale(hood, SCALAR_HOOD)
+        self.hood_rect = self.hood_image.get_rect(topleft=COORDS_HOOD)
 
     def get_event(self, event):
+        mouse_pos = pg.mouse.get_pos()
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_ESCAPE:
                 exit()
         
         elif event.type == pg.MOUSEBUTTONDOWN:
             for obj in self.map_objects:
-                if obj.rect.collidepoint(pg.mouse.get_pos()):
+                if obj.rect.collidepoint(mouse_pos):
                     if obj.name == 'dark_forest':
                         Config.current_adventure = obj.name
                         self.next = 'path'
@@ -88,7 +89,8 @@ class WorldMap(Config):
             dia_line_text = self.dialogue_font.render(dia_line, True, self.black)
             dia_line_rect = dia_line_text.get_rect(center=(self.coords_dialogue[0], self.coords_dialogue[1] + i * self.medium_font_size))
             self.screen.blit(dia_line_text, dia_line_rect)
-        self.screen.blit(self.hood, self.hood_rect)
+
+        self.screen.blit(self.hood_image, self.hood_rect)
 
         collided_objects = [obj for obj in self.map_objects if obj.rect.collidepoint(pg.mouse.get_pos())]
         if collided_objects:

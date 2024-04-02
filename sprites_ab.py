@@ -116,12 +116,12 @@ class Location(pg.sprite.Sprite):
         self.treasure = []
 
 class Button(Config, pg.sprite.Sprite):
-    def __init__(self, groups, text, font, font_size, text_color, center):
+    def __init__(self, groups, text, font_name, font_size, text_color, center):
         super().__init__() 
         pg.sprite.Sprite.__init__(self, groups) 
 
         self.text = text
-        self.font = pg.font.SysFont(font, font_size)
+        self.font = pg.font.SysFont(font_name, font_size)
         self.text_color = text_color
         text_surface = self.font.render(self.text, True, self.text_color)
         text_rect = text_surface.get_rect()
@@ -229,9 +229,9 @@ class Equipment(Config, pg.sprite.Sprite):
         self.modifier_tier = tier
         self.speed_mod = 1
         self.desc = f'{self.prefix} {self.name} {self.suffix}'
-        #self.desc = self.prefix + ' ' + self.name + ' ' + self.suffix
         self.effect = effect
-    #prefix = stat, suffix non stat
+        self.sell_value = tier
+
     def equipment_effect(self):
         return (self.effect, self.tier)
 
