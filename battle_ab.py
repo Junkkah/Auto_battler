@@ -22,6 +22,39 @@ class BattleManager(Config):
         self.combat_delay = 1.1
         self.animation_speed = 0.3
     
+    def cleanup(self):
+        self.animation_sprites.empty()
+        self.combat_hero_sprites.empty()
+        self.combat_mob_sprites.empty()
+        self.actions_unordered = []
+        Config.room_monsters = []
+        Config.combat_log = []
+        for loot_item in self.item_loot:
+            sorted_keys = sorted(Config.party_backpack.keys(), key=lambda x: int(x.split('slot')[1]))
+            for key in sorted_keys:
+                if Config.party_backpack[key] is None:
+                    Config.party_backpack[key] = loot_item
+                    break 
+        self.item_loot = []
+        Config.gold_count += self.gold_loot
+
+        for risen_hero in self.defeated_heroes:
+            Config.party_heroes.append(risen_hero)
+            risen_hero.health = risen_hero.max_health // 2
+        self.defeated_heroes = []
+
+        for cleanup_hero in Config.party_heroes:
+            cleanup_hero.exp += self.exp_reward
+            cleanup_hero.item_stats_dict = {item_key: 0 for item_key in cleanup_hero.item_stats_dict}
+
+        self.exp_reward = 0
+        self.gold_loot = 0
+        self.combat_started = False
+        self.delay_timer = 0.0
+        Config.aura_bonus = {aura_key: 0 for aura_key in Config.aura_bonus}
+        if self.party_defeated:
+            self.reset_adventure()
+    
     def create_gold_loot(self):
         total_min_gold = 0
         total_max_gold = 0
@@ -83,38 +116,6 @@ class BattleManager(Config):
         Config.scout_active = False
         self.party_defeated = False
 
-    def cleanup(self):
-        self.animation_sprites.empty()
-        self.combat_hero_sprites.empty()
-        self.combat_mob_sprites.empty()
-        self.actions_unordered = []
-        self.temp_stats = []
-        Config.room_monsters = []
-        Config.combat_log = []
-        for loot_item in self.item_loot:
-            sorted_keys = sorted(Config.party_backpack.keys(), key=lambda x: int(x.split('slot')[1]))
-            for key in sorted_keys:
-                if Config.party_backpack[key] is None:
-                    Config.party_backpack[key] = loot_item
-                    break 
-        self.item_loot = []
-        Config.gold_count += self.gold_loot
-
-        for risen_hero in self.defeated_heroes:
-            Config.party_heroes.append(risen_hero)
-            risen_hero.health = risen_hero.max_health // 2
-        self.defeated_heroes = []
-
-        for cleanup_hero in Config.party_heroes:
-            cleanup_hero.exp += self.exp_reward 
-        self.exp_reward = 0
-        self.gold_loot = 0
-        self.combat_started = False
-        self.delay_timer = 0.0
-        Config.aura_bonus = {key: 0 for key in Config.aura_bonus}
-        if self.party_defeated:
-            self.reset_adventure()
-
     #move to Config?
     def position_heroes(self, heroes: list):
         HEROPOS_X = (self.screen_width * 0.3)
@@ -125,30 +126,18 @@ class BattleManager(Config):
            spot_hero.pos_x = HEROPOS_X
            spot_hero.pos_y = HEROPOS_Y
            HEROPOS_X += HERO_GAP
+    
+    def create_monsters(self, monster_count, monster_names):
+        y = 0.2
+        pos_y = self.screen_height * y
+        monster_x_coords = [(i + 1) / (monster_count + 1) for i in range(monster_count)]
 
-    def create_monsters(self):
-        #define monster spots as function of n
-        MONSTER_COUNT = len(Config.room_monsters)
-        MONSTER_NAMES = []
-        MONSTER_NAMES.extend(Config.room_monsters)
-        MONSTERPOS_Y = self.screen_height * 0.2
-        ONE_MONSTER_COORDS = (self.screen_width * 0.5, MONSTERPOS_Y)
-        TWO_MONSTERS_COORDS = ((self.screen_width * 0.33, MONSTERPOS_Y), (self.screen_width * 0.66, MONSTERPOS_Y))
-        THREE_MONSTERS_COORDS = ((self.screen_width * 0.25, MONSTERPOS_Y), (self.screen_width * 0.50, MONSTERPOS_Y), (self.screen_width * 0.75, MONSTERPOS_Y))
+        for j, x in enumerate(monster_x_coords):
+            pos_x = self.screen_width * x
+            monster = Monster(self.monster_sprites, (pos_x, pos_y), monster_names[j])
+            Config.room_monsters.append(monster)
 
-        if MONSTER_COUNT == 1:
-            self.monster1 = Monster(self.monster_sprites, ONE_MONSTER_COORDS, MONSTER_NAMES[0]) 
-            Config.room_monsters = [self.monster1]
-        elif MONSTER_COUNT == 2:
-            self.monster1 = Monster(self.monster_sprites, TWO_MONSTERS_COORDS[0], MONSTER_NAMES[0]) 
-            self.monster2 = Monster(self.monster_sprites, TWO_MONSTERS_COORDS[1], MONSTER_NAMES[1])
-            Config.room_monsters = [self.monster1, self.monster2]
-        elif MONSTER_COUNT == 3:
-            self.monster1 = Monster(self.monster_sprites, THREE_MONSTERS_COORDS[0], MONSTER_NAMES[0]) 
-            self.monster2 = Monster(self.monster_sprites, THREE_MONSTERS_COORDS[1], MONSTER_NAMES[1])
-            self.monster3 = Monster(self.monster_sprites, THREE_MONSTERS_COORDS[2], MONSTER_NAMES[2])
-            Config.room_monsters = [self.monster1, self.monster2, self.monster3]
-
+    #move to hero?
     def activate_auras(self):
         for aura_hero in Config.party_heroes:
             if aura_hero.aura:
@@ -160,7 +149,7 @@ class BattleManager(Config):
     def order_sort(self, incombat: list):
         def speed_order(battle_participant: object):
             if battle_participant.is_player:
-                hero_speed = battle_participant.speed + Config.aura_bonus['speed']
+                hero_speed = battle_participant.total_stat('speed')
                 return hero_speed
             else:
                 monster_speed = battle_participant.speed
@@ -176,7 +165,10 @@ class BattleManager(Config):
         self.delay_timer = 0.0
 
         self.position_heroes(Config.party_heroes)
-        self.create_monsters()
+        monster_count = len(Config.room_monsters)
+        monster_names = Config.room_monsters
+        Config.room_monsters = []
+        self.create_monsters(monster_count, monster_names)
 
         for room_monster in Config.room_monsters:
             self.combat_mob_sprites.add(room_monster)
@@ -185,11 +177,13 @@ class BattleManager(Config):
             self.combat_hero_sprites.add(party_hero)
             self.actions_unordered.append(party_hero)
 
+        #group in activation function
         for activation_hero in Config.party_heroes:
             activation_hero.activate_talent_group('location')
-            #activate item stats and effects
-
+            activation_hero.activate_item_stats()
+            #activation_hero.acticate_item_effects()
         self.activate_auras()
+
         self.gold_loot = self.create_gold_loot()
         self.item_loot = self.create_item_loot()
         self.actions_ordered = self.order_sort(self.actions_unordered)

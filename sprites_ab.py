@@ -41,8 +41,8 @@ class Monster(Config, pg.sprite.Sprite):
         
     
     def get_target(self):
-        total_menace = sum(hero.menace for hero in Config.party_heroes)
-        prob = [hero.menace/total_menace for hero in Config.party_heroes]
+        total_menace = sum(hero.total_stat('menace') for hero in Config.party_heroes)
+        prob = [hero.total_stat('menace')/total_menace for hero in Config.party_heroes]
         target = np.random.choice(Config.party_heroes, p=prob)
         return target
 
@@ -50,7 +50,7 @@ class Monster(Config, pg.sprite.Sprite):
         target = self.get_target()
         self.animation = False
         DAMAGE = self.damage
-        LOG_DAMAGE = DAMAGE - target.armor
+        LOG_DAMAGE = DAMAGE - target.total_stat('armor')
         log_entry = (self.name, LOG_DAMAGE, target.name)
         Config.combat_log.append(log_entry)
         target.take_damage(DAMAGE, 'physical')
@@ -64,7 +64,6 @@ class Monster(Config, pg.sprite.Sprite):
         self.health -= taken_damage
 
     def draw_health_bar(self, width=100, height=10, border_width_factor=0.01):
-
         health_ratio = self.health / self.max_health
         bar_width = int(width * health_ratio)
         border_width = int(width * border_width_factor)
@@ -228,14 +227,26 @@ class Equipment(Config, pg.sprite.Sprite):
         self.suffix = suffix
         self.modifier_tier = tier
         self.speed_mod = 1
-        self.desc = f'{self.prefix} {self.name} {self.suffix}'
         self.effect = effect
         self.sell_value = tier
 
-    def equipment_effect(self):
-        return (self.effect, self.tier)
+    @property
+    def desc(self):
+        prefix_c = self.prefix.capitalize()
+        name_c = self.name.capitalize()
+        if self.suffix:
+            words = self.suffix.split()
+            words[1] = words[1].capitalize()
+            suffix_c = ' '.join(words)
+        else:
+            suffix_c = self.suffix
+        return f'{prefix_c} {name_c} {suffix_c}'
 
-class Weapon(Config, pg.sprite.Sprite): 
+    @property
+    def equipment_effect(self):
+        return (self.effect, self.modifier_tier)
+
+class Weaponz(Config, pg.sprite.Sprite): 
     def __init__(self, name: str, magic: bool):
         super().__init__()
         pg.sprite.Sprite.__init__(self)
@@ -258,45 +269,3 @@ class Weapon(Config, pg.sprite.Sprite):
         self.magical = magic
         self.desc = name
         self.effect = None
-
-class Armor(Config, pg.sprite.Sprite): 
-    def __init__(self, name: str, magic: bool, slot_type: str):
-        super().__init__()
-        pg.sprite.Sprite.__init__(self)
-        self.name = name
-        self.item_type = 'armor'
-        self.slot_type = slot_type
-        self.inventory_spot = None
-        icon_image = pg.image.load('./ab_images/icon/' + self.name + '_icon.png').convert_alpha()
-        slot_side_length = self.screen_width // self.eq_slot_size_scalar
-        icon_width = slot_side_length 
-        icon_height = slot_side_length 
-        self.pos_x = 0
-        self.pos_y = 0
-        self.image = pg.transform.smoothscale(icon_image, (icon_width, icon_height))
-        self.rect = self.image.get_rect(topleft = (self.pos_x, self.pos_y))
-        self.armor_value = 0
-        self.magical= magic
-        self.desc = name #prefix + name
-        self.effect = None
-
-class Consumable(Config, pg.sprite.Sprite): 
-    def __init__(self, name: str, magic: bool):
-        super().__init__()
-        pg.sprite.Sprite.__init__(self)
-        self.name = name
-        self.item_type = 'consumable'
-        self.slot_type = 'consumable'
-        self.inventory_spot = None
-        icon_image = pg.image.load('./ab_images/icon/' + self.name + '_icon.png').convert_alpha()
-        slot_side_length = self.screen_width // self.eq_slot_size_scalar
-        icon_width = slot_side_length 
-        icon_height = slot_side_length 
-        self.pos_x = 0
-        self.pos_y = 0
-        self.image = pg.transform.smoothscale(icon_image, (icon_width, icon_height))
-        self.rect = self.image.get_rect(topleft = (self.pos_x, self.pos_y))
-        self.magical= magic
-        self.desc = name #prefix + name
-        self.effect = None
-        self.immediate = False

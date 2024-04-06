@@ -51,7 +51,6 @@ class Hero(Config, pg.sprite.Sprite):
         self.next_level = self.exp_df.at[0, 'exp']
         self.worn_items = {'head': None, 'body': None, 'hand1': None, 'hand2': None, 'consumable': None}
 
-        #self.damage obsolete?
         self.df = hero_data[hero_data['type'] == self.type].reset_index(drop=True)
         # Assign stats type, health, max_health, damage, speed, exp, menace, armor, attack_type
         for stat_name in self.df.columns:
@@ -59,10 +58,11 @@ class Hero(Config, pg.sprite.Sprite):
 
         self.unarmed_damage = 1
         self.talent_bonus_damage = 0
-        self.tempt_talent_bonuses = {'damage' : 0, 'armor' : 0}
+        self.talent_bonus_armor = 0
         self.spells = []
         self.talents = []
         self.talent_groups = {'combat' : {}, 'location' : {}, 'map' : {}, 'song' : {}}
+        self.item_stats_dict = {'speed': 0, 'damage': 0, 'menace': 0, 'armor': 0}
 
         self.aura = None
         self.enemy_armor_penalty = 0
@@ -77,10 +77,30 @@ class Hero(Config, pg.sprite.Sprite):
                 #compare melee, spell
             #if spell compare spells
                 #aoe vs single target
+    def activate_item_stats(self):
+        for item_slot, item in self.worn_items.items():
+            if item is not None:
+                stat_bonus = self.worn_items[item_slot].equipment_effect #return (self.effect, self.tier)
+                stat = stat_bonus[0]
+                bonus = stat_bonus[1]
+                if stat is not None:
+                    self.item_stats_dict[stat] += bonus
+
+    def total_stat(self, stat):
+        base_value = getattr(self, stat)
+        item_value = self.item_stats_dict[stat]
+        bonus_value = 0
+        if stat == 'damage':
+            bonus_value = self.talent_bonus_damage
+            if self.worn_items['hand1']:
+                base_value = self.worn_items['hand1'].base_damage
+            else:
+                base_value = self.unarmed_damage
+        return base_value + item_value + bonus_value + Config.aura_bonus[stat]
+
     def activate_item_effects(self):
-        for slot_type in self.worn_items:
-            worn_slot[slot_type].border_color = worn_slot[slot_type].valid_spot_color
-            #add stats: speed, damage, menace, armor
+        pass
+        #activate suffixes
 
     def get_target(self):
         total_menace = sum(monster.menace for monster in Config.room_monsters)
@@ -97,19 +117,14 @@ class Hero(Config, pg.sprite.Sprite):
     def melee_attack(self):
         target = self.get_target()
         self.animation = False
-        if self.worn_items['hand1']:
-            weapon_damage = self.worn_items['hand1'].base_damage
-        else:
-            weapon_damage = self.unarmed_damage
-        DAMAGE = weapon_damage + self.damage + self.talent_bonus_damage + Config.aura_bonus['damage']
+        DAMAGE = self.total_stat('damage')
         armor_penalty = self.enemy_armor_penalty
-        self.enemy_armor_penalty = 0
-        self.talent_bonus_damage = 0
         LOG_DAMAGE = DAMAGE - max(0, target.armor - armor_penalty)
         log_entry = (self.name, LOG_DAMAGE, target.name)
         Config.combat_log.append(log_entry)
         target.take_damage(DAMAGE, 'physical', armor_penalty)
-
+        self.enemy_armor_penalty = 0
+        self.talent_bonus_damage = 0
     #Always casting spells[0], needs cast spell as parameter if evaluate_action
 
     def spell_attack(self, spell):
@@ -140,8 +155,9 @@ class Hero(Config, pg.sprite.Sprite):
 
     def take_damage(self, damage_amount, damage_type):
         #activate defensive talent
-        if damage_type == 'physical':
-            taken_damage = max(0, damage_amount - self.armor - Config.aura_bonus['armor'])
+        if damage_type == 'physical':   
+            armor = self.total_stat('armor')
+            taken_damage = max(0, damage_amount - armor)
         else:
             taken_damage = damage_amount
         self.health -= taken_damage
@@ -233,6 +249,11 @@ class Hero(Config, pg.sprite.Sprite):
     def draw_frame(self):
         pg.draw.rect(self.screen, self.red, [self.pos_x, self.pos_y, self.width, self.height], self.frame_width)
     
+    #TalentActivations()
+    #@staticmethod
+    #def invisibility_activation(hero, rank):
+    #    hero.menace = 1
+
     def invisibility_activation(self, rank):
         self.menace = 1
     
@@ -266,6 +287,7 @@ class Hero(Config, pg.sprite.Sprite):
         Config.scout_active = True 
     
     def surprise_activation(self, rank):
+        #set temp debuff function for monsters
         speed_penalty_per_rank = 3
         total_speed_penalty = speed_penalty_per_rank * rank
         for surprised_monster in Config.room_monsters:
@@ -301,15 +323,16 @@ class Hero(Config, pg.sprite.Sprite):
         extra_gold = gold_per_rank * rank
         Config.gold_count += extra_gold
     
+    #5% chance to deal +base dam is weak
     def critical_activation(self, rank):
         critical_chance_per_rank = 0.05
         total_critical_chance = critical_chance_per_rank * rank
         random_number = random.random()
         if random_number <= total_critical_chance:
-            self.talent_bonus_damage += self.worn_items['hand1'].base_damage + self.damage
+            self.talent_bonus_damage += self.worn_items['hand1'].base_damage
     
     def ambush_activation(self, rank):
-        DAMAGE = self.worn_items['hand1'].base_damage + self.damage
+        DAMAGE = self.worn_items['hand1'].base_damage
         target = self.get_target()
         armor_penalty = 0
         target.take_damage(DAMAGE, 'physical', armor_penalty)
@@ -317,12 +340,11 @@ class Hero(Config, pg.sprite.Sprite):
     def gladiator_activation(self, rank):
         damage_bonus_per_rank = 4
         total_damage_bonus = damage_bonus_per_rank * rank
-        #def actiatio
+        #def activation
         #armor_bonus_per_rank = 1
         if len(Config.party_heroes) == 1:
             self.talent_bonus_damage += total_damage_bonus
 
-    #testing more powerful spell mastery talents
     def lightning_activation(self, rank):
         damage_bonus_per_rank = self.level #// 2
         total_damage_bonus = damage_bonus_per_rank * rank

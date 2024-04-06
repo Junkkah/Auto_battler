@@ -66,6 +66,9 @@ class Shop(Config):
                     talent_type = 'spell'
                     created_hero.add_talent(talent_name, talent_type)
 
+    def create_item_selection(self, tier):
+        pass
+
     def sell_item(self, sold_item):
         payment = sold_item.sell_value
         Config.gold_count += payment
@@ -202,8 +205,18 @@ class Shop(Config):
                 
                 offset_y = self.screen_height // 54
                 if self.hovered_item:
-                    desc_text = self.med_info_font.render(self.hovered_item.desc, True, self.black)
-                    self.screen.blit(desc_text, (mouse_pos[0], mouse_pos[1] - offset_y))
+                    desc_text = self.item_info_font.render(self.hovered_item.desc, True, self.black)
+                    text_rect = desc_text.get_rect()
+                    text_rect.topleft = (mouse_pos[0], mouse_pos[1] - offset_y)
+            
+                    text_padding = 1
+                    rect_width = text_rect.width
+                    rect_height = text_rect.height
+                    
+                    rect_surface = pg.Surface((rect_width, rect_height))
+                    rect_surface.fill((self.white)) 
+                    self.screen.blit(rect_surface, (text_rect.left - text_padding, text_rect.top - text_padding))
+                    self.screen.blit(desc_text, text_rect.topleft)
 
         if not Config.current_adventure:
             self.screen.blit(self.hood_image, self.hood_rect)
@@ -220,7 +233,7 @@ class Shop(Config):
             
             for shero in self.selection:
                 if shero.rect.collidepoint(pg.mouse.get_pos()):
-                    OFFSET = self.screen_height / 7.1
+                    OFFSET = self.screen_height / self.offset_divisor
                     COORDS_INFO_X = shero.pos_x
                     COORDS_INFO_Y = shero.pos_y + OFFSET
                     info = shero.name.capitalize() + ', ' + shero.type.capitalize()

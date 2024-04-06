@@ -223,7 +223,7 @@ class Inventory(Config):
                             self.spot_found = True
                             self.dragged_object.inventory_spot = hero_spot
                             self.reorder_party ()
-                            self.worn_items_in_slots()
+                            self.worn_items_to_slots()
                     if not self.spot_found:   
                         self.dragged_object.rect.x = self.original_spot.x
                         self.dragged_object.rect.y = self.original_spot.y
@@ -329,7 +329,17 @@ class Inventory(Config):
 
         offset_y = self.screen_height // 54
         if self.hovered_item and not self.dragging_item:
-            desc_text = self.med_info_font.render(self.hovered_item.desc, True, self.black)
-            self.screen.blit(desc_text, (mouse_pos[0], mouse_pos[1] - offset_y))
+            desc_text = self.item_info_font.render(self.hovered_item.desc, True, self.black)
+            text_rect = desc_text.get_rect()
+            text_rect.topleft = (mouse_pos[0], mouse_pos[1] - offset_y)
+    
+            text_padding = 1
+            rect_width = text_rect.width
+            rect_height = text_rect.height
+            
+            rect_surface = pg.Surface((rect_width, rect_height))
+            rect_surface.fill((self.white)) 
+            self.screen.blit(rect_surface, (text_rect.left - text_padding, text_rect.top - text_padding))
+            self.screen.blit(desc_text, text_rect.topleft)
 
         #render log

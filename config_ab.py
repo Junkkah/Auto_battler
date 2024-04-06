@@ -13,7 +13,7 @@ class Config(object):
     width = 1920
     height = 1080
     scout_active = False
-    aura_bonus = {'speed' : 0, 'damage' : 0, 'armor' : 0}
+    aura_bonus = {'speed' : 0, 'damage' : 0, 'menace' : 0, 'armor' : 0}
     combat_log = []
     
     def __init__(self):
@@ -31,6 +31,7 @@ class Config(object):
         self.secondary_mouse_button = 3
         self.npc_size_scalar = 8
         self.speech_bubble_size_scalar = 7
+        self.offset_divisor = 7.1
 
         self.hero_sprites = pg.sprite.Group()
         self.monster_sprites = pg.sprite.Group()
@@ -52,6 +53,7 @@ class Config(object):
         self.yellow = (255, 255, 0)
 
         self.default_font = 'Arial'
+        self.small_font_size = 15
         self.default_font_size = 20
         self.medium_font_size = 30
         self.big_font_size = 50
@@ -60,10 +62,12 @@ class Config(object):
         self.info_font_size = 20
         self.log_font_size = 20
         self.info_font_name = 'Arial'
+        self.item_info_font_name = 'Arial'
         DIALOGUE_FONT_NAME = 'Tahoma'
         LOG_FONT_NAME = 'Courier new'
         self.info_font = pg.font.SysFont(self.info_font_name, self.info_font_size)
         self.log_font = pg.font.SysFont(LOG_FONT_NAME, self.log_font_size)
+        self.item_info_font = pg.font.SysFont(self.item_info_font_name, self.small_font_size)
         self.med_info_font = pg.font.SysFont(self.info_font_name, self.medium_font_size)
         self.large_info_font = pg.font.SysFont(self.info_font_name, self.big_font_size)
         self.title_font = pg.font.SysFont(self.info_font_name, self.title_font_size)
