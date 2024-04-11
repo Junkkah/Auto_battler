@@ -68,8 +68,12 @@ class Monster(Config, pg.sprite.Sprite):
         bar_width = int(width * health_ratio)
         border_width = int(width * border_width_factor)
 
-        pg.draw.rect(self.screen, self.black, [self.pos_x - border_width, self.pos_y - 10 - border_width, width + 2 * border_width, height + 2 * border_width])
-        pg.draw.rect(self.screen, self.red, [self.pos_x, self.pos_y - 10, bar_width, height])
+        bar_x = self.pos_x - (width / 2) + (self.width / 2)
+        pg.draw.rect(self.screen, self.black, [bar_x - border_width, self.pos_y - 10 - border_width, width + 2 * border_width, height + 2 * border_width])
+        pg.draw.rect(self.screen, self.red, [bar_x, self.pos_y - 10, bar_width, height])
+    
+    def special_attack(self, name):
+        pass
 
 class Adventure(pg.sprite.Sprite):
     def __init__(self, pos, groups, desc: str, name: str, child):
@@ -135,6 +139,7 @@ class Button(Config, pg.sprite.Sprite):
         self.rect = self.image.get_rect(center=center)
         self.border_width = 2
         self.border_color = (self.black)
+        self.item_sold = False
         self.draw_border()
 
     def draw_border(self):
@@ -202,7 +207,7 @@ class EquipmentSlot(Config):
         pg.draw.rect(self.screen, self.border_color, self.rect, self.border_width)
 
 class Equipment(Config, pg.sprite.Sprite): 
-    def __init__(self, name: str, item_type: str, slot_type: str, prefix: str, suffix: str, effect: str, tier: int):
+    def __init__(self, name: str, item_type: str, slot_type: str, prefix: str, suffix: str, effect_type: str, effect: str, tier: int):
         super().__init__()
         pg.sprite.Sprite.__init__(self)
         self.name = name
@@ -227,8 +232,10 @@ class Equipment(Config, pg.sprite.Sprite):
         self.suffix = suffix
         self.modifier_tier = tier
         self.speed_mod = 1
+        self.effect_type = effect_type
         self.effect = effect
-        self.sell_value = tier
+        self.buy_value = None
+        self.sell_value = tier * 2
 
     @property
     def desc(self):
@@ -243,29 +250,8 @@ class Equipment(Config, pg.sprite.Sprite):
         return f'{prefix_c} {name_c} {suffix_c}'
 
     @property
-    def equipment_effect(self):
-        return (self.effect, self.modifier_tier)
+    def item_effect(self):
+        return (self.effect, self.modifier_tier, self.effect_type)
 
-class Weaponz(Config, pg.sprite.Sprite): 
-    def __init__(self, name: str, magic: bool):
-        super().__init__()
-        pg.sprite.Sprite.__init__(self)
-        self.name = name
-        self.item_type = 'weapon'
-        self.slot_type = 'hand1'
-        self.inventory_spot = None
-        icon_image = pg.image.load('./ab_images/icon/' + self.name + '_icon.png').convert_alpha()
-        slot_side_length = self.screen_width // self.eq_slot_size_scalar
-        icon_width = slot_side_length 
-        icon_height = slot_side_length 
-        self.pos_x = 0
-        self.pos_y = 0
-        self.image = pg.transform.smoothscale(icon_image, (icon_width, icon_height))
-        self.rect = self.image.get_rect(topleft = (self.pos_x, self.pos_y))
-        weapon_df = weapons_data[weapons_data['name'] == self.name].reset_index(drop=True)
-        damage = weapon_df.loc[0, 'base_damage']
-        self.speed_mod = 1
-        self.base_damage = damage
-        self.magical = magic
-        self.desc = name
-        self.effect = None
+    def activate_effect(self, rank):
+        pass

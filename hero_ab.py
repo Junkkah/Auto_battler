@@ -57,34 +57,53 @@ class Hero(Config, pg.sprite.Sprite):
             setattr(self, stat_name, int(self.df.at[0, stat_name]) if str(self.df.at[0, stat_name]).isdigit() else self.df.at[0, stat_name])
 
         self.unarmed_damage = 1
+        self.magic_power = 0
         self.talent_bonus_damage = 0
         self.talent_bonus_armor = 0
         self.spells = []
         self.talents = []
-        self.talent_groups = {'combat' : {}, 'location' : {}, 'map' : {}, 'song' : {}}
-        self.item_stats_dict = {'speed': 0, 'damage': 0, 'menace': 0, 'armor': 0}
+        self.talent_groups = {'combat': {}, 'location': {}, 'map': {}, 'song': {}}
+        self.item_stats_dict = {'speed': 0, 'damage': 0, 'menace': 0, 'armor': 0, 'magic_power': 0}
 
         self.aura = None
         self.enemy_armor_penalty = 0
 
-    #def evaluate_action(self):
+    #def evaluate_action(self, attack_type):
         #done before creating animation object
         #set acting, run eval, create animation object
         #requires weapon data in hero object
-            #pass weapons data from hero object to animation
-            #if song in talents do song
-            #if spell in spells 
-                #compare melee, spell
-            #if spell compare spells
-                #aoe vs single target
+        
+        #if attack_type == 'spell':
+            #access spell_book
+            #if master, cast mastery spell
+            #if len monsters > 1, cast aoe
+            #return chosen_spell
+
+    #if type == 'stat', 'combat', 'instant'
+    #need separate activation methods for stat, combat and instant
+    def activate_aura(self):
+        if self.aura:
+            aura_stat_name, stat_val_str = self.aura.split()
+            aura_stat_val = int(stat_val_str)
+            Config.aura_bonus[aura_stat_name] += aura_stat_val
+
     def activate_item_stats(self):
         for item_slot, item in self.worn_items.items():
             if item is not None:
-                stat_bonus = self.worn_items[item_slot].equipment_effect #return (self.effect, self.tier)
-                stat = stat_bonus[0]
-                bonus = stat_bonus[1]
-                if stat is not None:
-                    self.item_stats_dict[stat] += bonus
+                item_effect = self.worn_items[item_slot].item_effect #return (effect, tier, effect_type)
+                effect = item_effect[0]
+                effect_tier = item_effect[1]
+                effect_type = item_effect[2]
+                if effect is not None and effect_type == 'stat':
+                    self.item_stats_dict[effect] += effect_tier
+
+    def activate_item_effects(self):
+        for item_slot, item in self.worn_items.items():
+            if item is not None:
+                item_effect = self.worn_items[item_slot].item_effect #return (effect, tier, effect_type)
+        #stat handled by item_stats
+        #combat effect is called with attack(), dynamic function for each, call (name, tier)
+        #instant is called when equipped if book, potion and scroll in combat
 
     def total_stat(self, stat):
         base_value = getattr(self, stat)
@@ -97,10 +116,6 @@ class Hero(Config, pg.sprite.Sprite):
             else:
                 base_value = self.unarmed_damage
         return base_value + item_value + bonus_value + Config.aura_bonus[stat]
-
-    def activate_item_effects(self):
-        pass
-        #activate suffixes
 
     def get_target(self):
         total_menace = sum(monster.menace for monster in Config.room_monsters)
@@ -125,11 +140,13 @@ class Hero(Config, pg.sprite.Sprite):
         target.take_damage(DAMAGE, 'physical', armor_penalty)
         self.enemy_armor_penalty = 0
         self.talent_bonus_damage = 0
-    #Always casting spells[0], needs cast spell as parameter if evaluate_action
 
+    #Always casting spells[0], needs cast spell as parameter if evaluate_action
     def spell_attack(self, spell):
+        #cast_spell = evaluate('spell_cast')
         damage_type = spell['type']
         self.animation = False
+        #total_stat('magic_power') magic_power + talent_bonus 
         DAMAGE = spell['damage'] + self.talent_bonus_damage
         armor_penalty = self.enemy_armor_penalty
         self.enemy_armor_penalty = 0
@@ -173,7 +190,7 @@ class Hero(Config, pg.sprite.Sprite):
     
     def equip_starting_weapon(self):
         if self.attack_type != 'spell':
-            weapon = Equipment(self.attack_type, 'weapon', 'hand1', '', '', None, 0)
+            weapon = Equipment(self.attack_type, 'weapon', 'hand1', '', '', None, None, 0)
             self.worn_items['hand1'] = weapon
 
     def equip_item(self, item: object):
@@ -243,8 +260,9 @@ class Hero(Config, pg.sprite.Sprite):
         bar_width = int(width * health_ratio)
         border_width = int(width * border_width_factor)
 
-        pg.draw.rect(self.screen, self.black, [self.pos_x - border_width, self.pos_y + self.height + 10 - border_width, width + 2 * border_width, height + 2 * border_width])
-        pg.draw.rect(self.screen, self.red, [self.pos_x, self.pos_y +self.height + 10, bar_width, height])
+        bar_x = self.pos_x - (width / 2) + (self.width / 2)
+        pg.draw.rect(self.screen, self.black, [bar_x - border_width, self.pos_y + self.height + 10 - border_width, width + 2 * border_width, height + 2 * border_width])
+        pg.draw.rect(self.screen, self.red, [bar_x, self.pos_y +self.height + 10, bar_width, height])
 
     def draw_frame(self):
         pg.draw.rect(self.screen, self.red, [self.pos_x, self.pos_y, self.width, self.height], self.frame_width)

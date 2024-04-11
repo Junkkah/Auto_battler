@@ -21,21 +21,13 @@ def get_json_data(file_name: str) -> dict:
         json_data = json.load(j)
     return json_data
 
-def get_prefix(item_type: str):
+def get_affix(item_type: str, affix_type: str):
     db = sqlite3.connect('./ab_data/stats.db')
-    db.isolation_level = None
-    prefix_query = "SELECT * FROM item_modifiers WHERE modifier_type = 'prefix' AND item_type = ?"
-    prefix_df = pd.read_sql_query(prefix_query, db, params=(item_type,))
+    db.isolation_level = None                                   
+    affix_query = "SELECT * FROM item_modifiers WHERE mod_affix = ? AND item_type = ?"
+    affix_df = pd.read_sql_query(affix_query, db, params=(affix_type, item_type,))
     db.close()
-    return prefix_df
-
-def get_suffix(item_type: str):
-    db = sqlite3.connect('./ab_data/stats.db')
-    db.isolation_level = None
-    prefix_query = "SELECT * FROM item_modifiers WHERE modifier_type = 'suffix' AND item_type = ?"
-    suffix_df = pd.read_sql_query(prefix_query, db, params=(item_type,))
-    db.close()
-    return suffix_df
+    return affix_df
 
 def get_monster_encounters(adventure: str, tier: int) -> pd.DataFrame:
     db = sqlite3.connect('./ab_data/stats.db')

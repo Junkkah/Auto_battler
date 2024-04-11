@@ -13,7 +13,7 @@ class Config(object):
     width = 1920
     height = 1080
     scout_active = False
-    aura_bonus = {'speed' : 0, 'damage' : 0, 'menace' : 0, 'armor' : 0}
+    aura_bonus = {'speed': 0, 'damage': 0, 'menace': 0, 'armor': 0, 'magic_power': 0}
     combat_log = []
     
     def __init__(self):

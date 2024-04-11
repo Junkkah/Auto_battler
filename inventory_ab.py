@@ -34,7 +34,7 @@ class Inventory(Config):
         Config.party_heroes.sort(key=lambda hero: hero.inventory_spot)
         for i, hero in enumerate(Config.party_heroes, start=1):
             hero.inventory_spot_number = i
-
+    
     # Equipment slots are cleared
     # Item objects in heroes item dictionaries are moved to slots
     def worn_items_to_slots(self):
@@ -59,7 +59,8 @@ class Inventory(Config):
 
     # Backpack slots are cleared
     # Item objects in backpack dictionary are moved to backpack slots
-    def backpack_to_slots(self, item_list, sprite_group):
+    @staticmethod
+    def backpack_to_slots(item_list, sprite_group):
         for clean_slot in Config.backpack_slots:
             clean_slot.equipped_item = None
         for slot_key, backpack_item in Config.party_backpack.items():
@@ -76,7 +77,6 @@ class Inventory(Config):
                         item_list.append(backpack_item)
                         sprite_group.add(backpack_item)
                         break 
-
 
     def create_hero_spots(self):
         # Rect objects for hero spots
@@ -245,7 +245,7 @@ class Inventory(Config):
                                 
                                 drop_spot_number = drop_slot.spot_number
                                 self.equip_dropped_item(drop_spot_number)
-
+                                #dropped item is book = instant use
                                 drop_slot.equipped_item = self.dragged_object
                                 self.dragged_object.rect.x = drop_slot.rect.x
                                 self.dragged_object.rect.y = drop_slot.rect.y

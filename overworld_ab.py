@@ -17,6 +17,11 @@ class WorldMap(Config):
         self.map_objects = []
         self.map_sprites.empty()
 
+    def generate_random_path(self, adventure: str):
+        pass
+        #procedurally generated directed acylic graph for adventure path
+
+
     def startup(self):
         self.error = False
         self.line_thickness = 10

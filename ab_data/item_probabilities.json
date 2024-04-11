@@ -1,7 +1,7 @@
 {
     "weapon": {
-        "types": ["dagger", "mace", "sword", "battle_axe", "bow"],
-        "prob": [20, 25, 25, 20, 10]
+        "types": ["dagger", "mace", "sword", "battle_axe", "bow", "staff"],
+        "prob": [20, 20, 20, 10, 15, 15]
     },
     "armor": {
         "types": ["head", "body"],

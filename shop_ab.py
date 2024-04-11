@@ -5,8 +5,9 @@ from config_ab import Config
 from hero_ab import Hero
 from sprites_ab import Button, EquipmentSlot
 from inventory_ab import Inventory
-from data_ab import get_data, get_talent_data
+from data_ab import get_data, get_talent_data, get_json_data
 from sounds_ab import play_sound_effect
+from battle_ab import BattleManager
 import pandas as pd
 
 
@@ -19,6 +20,8 @@ class Shop(Config):
         self.names = []
         self.selection = []
         self.backpack_items = []
+        self.item_selection = []
+        self.buy_buttons = []
         self.selection_sprites.empty()
         self.selection_button_sprites.empty()
         self.shop_icon_sprites.empty()
@@ -67,7 +70,28 @@ class Shop(Config):
                     created_hero.add_talent(talent_name, talent_type)
 
     def create_item_selection(self, tier):
-        pass
+        item_selection = []
+        num_items = 3 #random.randint(1, 3)
+        item_probabilities = get_json_data('item_probabilities')
+        for i in range(num_items):
+            item = BattleManager.create_random_item(item_probabilities)
+            item.inventory_spot = i + 1
+            item_selection.append(item)
+        return item_selection
+
+    def position_item_selection(self, item_selection):
+        y = 0.40
+        item_count = len(item_selection)
+        pos_y = self.screen_height * y
+        denominator = 14
+        start = 5
+        item_x_coords = [((i * 2) + start) / denominator for i in range(item_count)]
+
+        for j, x in enumerate(item_x_coords):
+            pos_x = self.screen_width * x
+            item_selection[j].rect.x = pos_x
+            item_selection[j].rect.y = pos_y
+            self.shop_icon_sprites.add(item_selection[j])
 
     def sell_item(self, sold_item):
         payment = sold_item.sell_value
@@ -103,17 +127,16 @@ class Shop(Config):
             self.create_hero_selection(names_df, wizard_df, bard_df)
 
         if Config.current_adventure:
-            inventory_instance = Inventory()
-            inventory_instance.backpack_to_slots(self.backpack_items, self.shop_icon_sprites)
+            Inventory.backpack_to_slots(self.backpack_items, self.shop_icon_sprites)
 
             shopkeeper = pg.image.load('./ab_images/shopkeeper.png').convert_alpha()
             sell_cursor = pg.image.load('./ab_images/sell_arrow.png').convert_alpha() 
-            COORDS_SHOPKEEPER = (self.screen_width * 0.50, self.screen_height * 0.15)
+            COORDS_SHOPKEEPER = (self.screen_width * 0.48, self.screen_height * 0.15)
             SCALAR_SHOPKEEPER = ((shopkeeper.get_width() / self.npc_size_scalar), (shopkeeper.get_height() / self.npc_size_scalar))
             cursor_size_scalar = 30
             SCALAR_CURSOR = ((sell_cursor.get_width() / cursor_size_scalar), (sell_cursor.get_height() / cursor_size_scalar))
 
-            self.coords_dialogue_2 = (self.screen_width * 0.55, self.screen_height * 0.10)
+            self.coords_dialogue_2 = (self.screen_width * 0.53, self.screen_height * 0.10)
             self.shop_dialogue_2 = '"I have some wares to sell"'
             self.shopkeeper_image = pg.transform.smoothscale(shopkeeper, SCALAR_SHOPKEEPER)
             self.shopkeeper_rect = self.shopkeeper_image.get_rect(topleft=COORDS_SHOPKEEPER)
@@ -123,6 +146,24 @@ class Shop(Config):
             sell_text = 'Sell Item'
             SELL_COORDS = (self.screen_width * 0.30, self.screen_height * 0.13)
             self.sell_item_button = Button(self.shopping_sprites, sell_text, self.info_font_name, self.info_font_size, self.black, SELL_COORDS)
+            self.item_selection = self.create_item_selection(Config.current_location.tier)
+            self.position_item_selection(self.item_selection)
+            
+            self.buy_buttons = []
+            for i, item in enumerate(self.item_selection):
+                price_multiplier = 15
+                price_var_min = 10
+                price_var_max = 25
+                item_price = item.modifier_tier * price_multiplier + (random.randint(price_var_min, price_var_max))
+                item.buy_value = item_price
+                buy_text = f'Buy for: {item_price}'
+                item_x = self.item_selection[i].rect.x
+                item_y = self.item_selection[i].rect.y
+                offset_x =  item.image.get_width() // 2
+                offset_y =  item.image.get_height() * 2
+                COORDS_BUY = (item_x + offset_x, item_y + offset_y)
+                buy_button = Button(self.selection_button_sprites, buy_text, self.info_font_name, self.info_font_size, self.black, COORDS_BUY)
+                self.buy_buttons.append(buy_button)
 
         self.continue_button = Button(self.selection_button_sprites, self.CONT_TEXT, self.CONT_FONT, self.CONT_SIZE, self.CONT_COL, self.COORDS_CONT)
 
@@ -158,6 +199,24 @@ class Shop(Config):
                     self.selling_item = True
                     pg.mouse.set_visible(False)
 
+                for i, buy_button in enumerate(self.buy_buttons):
+                    if buy_button.rect.collidepoint(mouse_pos) and not buy_button.item_sold:
+                        can_buy_item = False
+                        for item in self.item_selection:
+                            if item.inventory_spot == i + 1 and Config.gold_count >= item.buy_value:
+                                play_sound_effect('money')
+                                buy_button.item_sold = True
+                                Config.gold_count -= item.buy_value
+                                #single_object_to_backpack()
+                                BattleManager.item_to_backpack(item)
+                                self.shop_icon_sprites.remove(item)
+                                self.item_selection.remove(item)
+                                can_buy_item = True
+                                break
+                        if not can_buy_item:
+                            play_sound_effect('error')
+                            break
+
                 if self.selling_item:
                     if event.button == self.secondary_mouse_button:
                         self.selling_item = False
@@ -168,7 +227,7 @@ class Shop(Config):
                                     self.sell_item(backpack_item)
                                     self.selling_item = False
                                     pg.mouse.set_visible(True)
-                                    play_sound_effect('sell')
+                                    play_sound_effect('money')
 
         elif event.type == pg.MOUSEMOTION:
             for hover_item in self.backpack_items:
@@ -217,6 +276,7 @@ class Shop(Config):
                     rect_surface.fill((self.white)) 
                     self.screen.blit(rect_surface, (text_rect.left - text_padding, text_rect.top - text_padding))
                     self.screen.blit(desc_text, text_rect.topleft)
+            #display desc text for item_selection on hoverover
 
         if not Config.current_adventure:
             self.screen.blit(self.hood_image, self.hood_rect)

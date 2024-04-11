@@ -64,6 +64,6 @@ Drop:
 Glass hitting a metal
 mixkit-glass-hitting-a-metal-2183
 
-Sell:
+Money:
 Coins handling
 mixkit-coins-handling-1939

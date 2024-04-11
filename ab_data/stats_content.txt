@@ -13,6 +13,8 @@ Columns:
 - exp: Experience points awarded when the monster is defeated.
 - gold_min: Minimum amount of gold awarded when the monster is defeated.
 - gold_max: Maximum amount of gold awarded when the monster is defeated.
+- loot_roll: Probability of the monster awarding magic item when defeated.
+- roll_count: How many times loot_roll probability is checked for awards.
 
 Table: Classes
 - Attributes for different hero classes.
@@ -123,11 +125,11 @@ Table: Item_modifiers
 - Table for magic item prefixes and suffixes.
 Columns:
 - id: Unique identifier for each item type modifier.
-- modifier_name: Name of the modifier.
-- modifier_type: Type of the modifier, prefix or suffix.
+- mod_effect: What the modifier effects.
+- mod_affix: Type of the modifier, prefix or suffix.
 - item_type: Item type that can have the modifier.
 - desc: Description of the modifier.
-- effect: Instruction for how the modifier effects the hero.
+- mod_type: Instruction for how to activate the modifier.
 - tier_1: Level one modifier text.
 - tier_2: Level two modifier text.
 - tier_3: Level three modifier text.

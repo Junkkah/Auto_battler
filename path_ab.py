@@ -58,7 +58,6 @@ class Path(Config):
         INV_TEXT = 'Inventory (i)'
         self.inventory_button = Button(self.path_sprites, INV_TEXT, self.CONT_FONT, self.CONT_SIZE, self.CONT_COL, self.COORDS_CONT)
 
-    #randomized paths
     def get_event(self, event):
         mouse_pos = pg.mouse.get_pos()
         if event.type == pg.KEYDOWN:
