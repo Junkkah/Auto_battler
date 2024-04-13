@@ -8,7 +8,7 @@ from hero_ab import Hero
 from battle_ab import BattleManager
 from data_ab import get_json_data
 
-#possible item duplication issue in backpack slots
+
 class Inventory(Config):
     def __init__(self):
         Config.__init__(self)
@@ -78,8 +78,8 @@ class Inventory(Config):
                         sprite_group.add(backpack_item)
                         break 
 
+    # Rect objects for hero spots
     def create_hero_spots(self):
-        # Rect objects for hero spots
         self.hero_spots = []
         for i, hero in enumerate(Config.party_heroes, start = 1):
             var_name = f'hero_spot{i}'
@@ -134,6 +134,14 @@ class Inventory(Config):
             if drop_hero.inventory_spot_number == drop_spot_number:
                 item_to_equip = self.dragged_object
                 drop_hero.equip_item(item_to_equip)
+                break
+    
+    def handle_book(self, drop_spot_number):
+        for reading_hero in Config.party_heroes:
+            if reading_hero.inventory_spot_number == drop_spot_number:
+                reading_hero.activate_book_book(self.dragged_object)
+                self.inventory_items.remove(self.dragged_object)
+                self.inventory_icon_sprites.remove(self.dragged_object)
                 break
 
     def startup(self):
@@ -244,12 +252,15 @@ class Inventory(Config):
                                     self.clear_origin_slot()
                                 
                                 drop_spot_number = drop_slot.spot_number
-                                self.equip_dropped_item(drop_spot_number)
-                                #dropped item is book = instant use
-                                drop_slot.equipped_item = self.dragged_object
-                                self.dragged_object.rect.x = drop_slot.rect.x
-                                self.dragged_object.rect.y = drop_slot.rect.y
-                                self.dragged_object.inventory_spot = drop_slot
+                                if self.dragged_object.item_name == 'book':
+                                    self.handle_book(drop_spot_number)
+                                else:
+                                    self.equip_dropped_item(drop_spot_number)
+                                    drop_slot.equipped_item = self.dragged_object
+                                    self.dragged_object.rect.x = drop_slot.rect.x
+                                    self.dragged_object.rect.y = drop_slot.rect.y
+                                    self.dragged_object.inventory_spot = drop_slot
+                        
                                 self.spot_found = True
                                 play_sound_effect('drop')
 

@@ -20,6 +20,13 @@ class WorldMap(Config):
     def generate_random_path(self, adventure: str):
         pass
         #procedurally generated directed acylic graph for adventure path
+        #path number of layers = 17
+        #range for locations in layer 1-6
+        #last layer location num = 1 and boss
+        #first layer locations = fight
+        #generate next layer location number, determine children
+        #randomly determine location types based on previous location types
+        #predetermined location coordinates for each layer based on number of locations
 
 
     def startup(self):

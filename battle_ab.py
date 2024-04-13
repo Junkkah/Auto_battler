@@ -227,9 +227,9 @@ class BattleManager(Config):
 
                 #hero always cast index 0 spell in self.spells
                 if Config.acting_character.attack_type == 'spell':
-                    #play play_sound_effect based on spell type
-                    #weapon = Config.acting_character.worn_items['hand1']
-                    self.combat_animation = Blast(self.animation_sprites, pos_x, pos_y, Config.acting_character.spells[0])
+                    active_spell = Config.acting_character.spells[0]
+                    #active_spell = Config.acting_character.evaluate_action()
+                    self.combat_animation = Blast(self.animation_sprites, active_spell, pos_x, pos_y)
                 
                 elif Config.acting_character.attack_type == 'song':
                     play_sound_effect('tune')
@@ -239,7 +239,7 @@ class BattleManager(Config):
                     if Config.acting_character.worn_items['hand1'] == None:
                         held_weapon = 'unarmed'
                     else:
-                        held_weapon = Config.acting_character.worn_items['hand1'].name
+                        held_weapon = Config.acting_character.worn_items['hand1'].item_name
                     self.combat_animation = Stab(self.animation_sprites, held_weapon, pos_x, pos_y)
 
             elif not Config.acting_character.is_player:
@@ -254,9 +254,10 @@ class BattleManager(Config):
 
         # Call attack methods 
         if self.combat_animation.animate(self.animation_speed):
+            if Config.acting_character.is_player:
+                Config.acting_character.activate_item_effects()
             if Config.acting_character.attack_type == 'spell':
                 Config.acting_character.activate_talent_group('combat')
-                #Config.acting_character.spell_attack()
                 Config.acting_character.spell_attack(Config.acting_character.spells[0])
             elif Config.acting_character.attack_type == 'song':
                 Config.acting_character.activate_talent_group('song')

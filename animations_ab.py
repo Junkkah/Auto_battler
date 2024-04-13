@@ -3,6 +3,7 @@ from config_ab import Config
 from hero_ab import Hero
 from sprites_ab import Monster
 from data_ab import get_data
+from sounds_ab import play_sound_effect
 import numpy as np
 
 #Stab, Slash and Blast class code adapted from
@@ -56,49 +57,46 @@ class Stab(Config, pg.sprite.Sprite): #Groupsingle
 		self.rect = self.image.get_rect()
 		self.rect.bottomright = [self.pos_x, self.pos_y]
 
-class Blast(pg.sprite.Sprite):
-	def __init__(self, groups, pos_x, pos_y, spell):
+class Blast(Config, pg.sprite.Sprite):
+	def __init__(self, groups, spell, pos_x, pos_y):
 		super().__init__()
 		pg.sprite.Sprite.__init__(self, groups) 
 
 		self.attack_animation = False
-		self.spell_sprites = [] 
-
+ 
 		CAST_IMAGE = pg.image.load('./ab_images/blast/spell.png').convert_alpha()
 		WIDTH, HEIGHT = CAST_IMAGE.get_size()
 		SIZE_SCALAR = 15
 		SCALED_WIDTH = WIDTH / SIZE_SCALAR
 		SCALED_HEIGHT = HEIGHT / SIZE_SCALAR
-		spell_type = spell['type']
+		self.spell_type = spell['type']
 
-		for i in range(1, 6):
-			self.spell_sprites.append(pg.transform.smoothscale(CAST_IMAGE, (SCALED_WIDTH, SCALED_HEIGHT)))
-		
-		for i in range(6, 11):
-			spell = pg.image.load('./ab_images/blast/' + spell_type + '.png').convert_alpha()
-			self.spell_sprites.append(pg.transform.smoothscale(spell, (SCALED_WIDTH, SCALED_HEIGHT)))
+		self.image = pg.transform.smoothscale(CAST_IMAGE, (SCALED_WIDTH, SCALED_HEIGHT))
+		spell = pg.image.load('./ab_images/blast/' + self.spell_type + '.png').convert_alpha()
+		self.spell_image = pg.transform.smoothscale(spell, (SCALED_WIDTH, SCALED_HEIGHT))
         
-		self.current_sprite = 0
-		self.image = self.spell_sprites[self.current_sprite]
-
 		self.rect = self.image.get_rect()
-		OFFSET_X = Config.width // 16 #120
-		OFFSET_Y = Config.height // 27 #40
+		OFFSET_X = self.screen_width // 16 #120
+		OFFSET_Y = self.screen_height // 27 #40
 		self.rect.topleft = [(pos_x + OFFSET_X), (pos_y - OFFSET_Y)] 
+
+		self.timer = 0
+		self.animation_time = 12
+		self.finger_time = 5
 
 	def animation_start(self):
 		self.attack_animation = True
 
 	def animate(self, speed):
 		if self.attack_animation == True:
-			self.current_sprite += speed
-			if int(self.current_sprite) >= len(self.spell_sprites):
-				self.current_sprite = 0
+			self.timer += speed
+			if self.timer > self.finger_time:
+				self.image = self.spell_image
+				#play_sound_effect(self.spell_type)
+			if self.timer >= self.animation_time:
+				self.timer = 0
 				self.attack_animation = False
-				self.image = self.spell_sprites[int(self.current_sprite)]
 				return True
-
-		self.image = self.spell_sprites[int(self.current_sprite)]
 
 class SongAnimation(pg.sprite.Sprite):
 	def __init__(self, groups, pos_x, pos_y):

@@ -1,6 +1,7 @@
 import pygame as pg
 import sys
 import random
+import itertools
 from config_ab import Config
 from hero_ab import Hero
 from sprites_ab import Button, EquipmentSlot
@@ -31,43 +32,44 @@ class Shop(Config):
             for starting_hero in Config.party_heroes:
                 starting_hero.equip_starting_weapon()
 
-    def create_hero_selection(self, names_df, wizard_df, bard_df):
-            SELECTABLE_HEROES = 8
-            self.names = [tuple(row) for row in names_df[['name', 'type']].values]
-            self.available = random.sample(self.names, SELECTABLE_HEROES)
+    def create_hero_selection(self, names_df):
+        SELECTABLE_HEROES = 8
+        self.names = [tuple(row) for row in names_df[['name', 'type']].values]
+        self.available = random.sample(self.names, SELECTABLE_HEROES)
 
-            HEROPOS_X = (self.screen_width * 0.20)
-            HEROPOS_Y_ROW1 = (self.screen_height * 0.20)
-            HEROPOS_Y_ROW2 = (self.screen_height * 0.50)
-            HERO_GAP = (self.screen_width * 0.15)
-            HERO_ROW_LENGTH = (self.screen_width * 0.60)
-            NEXT_ROW = 3
+        HEROPOS_X = (self.screen_width * 0.20)
+        HEROPOS_Y_ROW1 = (self.screen_height * 0.20)
+        HEROPOS_Y_ROW2 = (self.screen_height * 0.50)
+        HERO_GAP = (self.screen_width * 0.15)
+        HERO_ROW_LENGTH = (self.screen_width * 0.60)
+        NEXT_ROW = 3
 
-            for spot_hero in range(SELECTABLE_HEROES):
-                HEROPOS_Y = HEROPOS_Y_ROW1
-                if spot_hero > NEXT_ROW: 
-                    HEROPOS_Y = HEROPOS_Y_ROW2
-                hero_name = self.available[spot_hero][0]
-                hero_class = self.available[spot_hero][1]
-                self.spot_hero = Hero(self.hero_sprites, (HEROPOS_X, HEROPOS_Y), hero_name, hero_class)
-                self.selection.append(self.spot_hero)
-                self.selection_sprites.add(self.spot_hero)
-                if spot_hero == NEXT_ROW:
-                    HEROPOS_X -= HERO_ROW_LENGTH
-                HEROPOS_X += HERO_GAP
+        for spot_hero in range(SELECTABLE_HEROES):
+            HEROPOS_Y = HEROPOS_Y_ROW1
+            if spot_hero > NEXT_ROW: 
+                HEROPOS_Y = HEROPOS_Y_ROW2
+            hero_name = self.available[spot_hero][0]
+            hero_class = self.available[spot_hero][1]
+            self.spot_hero = Hero(self.hero_sprites, (HEROPOS_X, HEROPOS_Y), hero_name, hero_class)
+            self.selection.append(self.spot_hero)
+            self.selection_sprites.add(self.spot_hero)
+            if spot_hero == NEXT_ROW:
+                HEROPOS_X -= HERO_ROW_LENGTH
+            HEROPOS_X += HERO_GAP
             
-            wizard_spells = wizard_df[wizard_df['type'] == 'spell']
-            bard_spells = bard_df[bard_df['type'] == 'spell']
+    def create_starting_spells(self, wizard_df, bard_df):
+        wizard_spells = wizard_df[wizard_df['type'] == 'spell']
+        bard_spells = bard_df[bard_df['type'] == 'spell']
 
-            for created_hero in self.selection:
-                if created_hero.type in ['bard', 'wizard']:
-                    if created_hero.type == 'bard':
-                        random_row = bard_spells.sample(n=1)
-                    else:
-                        random_row = wizard_spells.sample(n=1)
-                    talent_name = random_row['name'].iloc[0]  
-                    talent_type = 'spell'
-                    created_hero.add_talent(talent_name, talent_type)
+        for created_hero in self.selection:
+            if created_hero.type in ['bard', 'wizard']:
+                if created_hero.type == 'bard':
+                    random_row = bard_spells.sample(n=1)
+                else:
+                    random_row = wizard_spells.sample(n=1)
+                talent_name = random_row['name'].iloc[0]  
+                talent_type = 'spell'
+                created_hero.add_talent(talent_name, talent_type)
 
     def create_item_selection(self, tier):
         item_selection = []
@@ -109,6 +111,7 @@ class Shop(Config):
         self.shop_icon_sprites = pg.sprite.Group()
         self.shopping_sprites = pg.sprite.Group()
         self.selling_item = False
+        self.hovered_item = None
         
         #raise rows to make room for hire buttons
         if not Config.current_adventure:
@@ -121,10 +124,11 @@ class Shop(Config):
             self.hood_image = pg.transform.smoothscale(hood, SCALAR_HOOD)
             self.hood_rect = self.hood_image.get_rect(topleft=COORDS_HOOD)
 
-            names_df = get_data('Names')
+            names_df = get_data('names')
             wizard_df = (get_talent_data('wizard'))
             bard_df = (get_talent_data('bard'))
-            self.create_hero_selection(names_df, wizard_df, bard_df)
+            self.create_hero_selection(names_df)
+            self.create_starting_spells(wizard_df, bard_df)
 
         if Config.current_adventure:
             Inventory.backpack_to_slots(self.backpack_items, self.shop_icon_sprites)
@@ -151,6 +155,8 @@ class Shop(Config):
             
             self.buy_buttons = []
             for i, item in enumerate(self.item_selection):
+                #item_type based prices in json
+                #weapon x20, armor x15, cons x10
                 price_multiplier = 15
                 price_var_min = 10
                 price_var_max = 25
@@ -229,8 +235,9 @@ class Shop(Config):
                                     pg.mouse.set_visible(True)
                                     play_sound_effect('money')
 
-        elif event.type == pg.MOUSEMOTION:
-            for hover_item in self.backpack_items:
+        elif event.type == pg.MOUSEMOTION and Config.current_adventure:
+            icon_lists = itertools.chain(self.backpack_items, self.item_selection)
+            for hover_item in icon_lists:
                 if hover_item.rect.collidepoint(mouse_pos):
                     self.hovered_item = hover_item
                     break
@@ -248,6 +255,7 @@ class Shop(Config):
         self.screen.blit(gold_text, self.coords_gold)
 
         if Config.current_adventure:
+            mouse_pos = pg.mouse.get_pos()
             self.screen.blit(self.shopkeeper_image, self.shopkeeper_rect)
             shop_text = self.dialogue_font.render(self.shop_dialogue_2, True, self.black)
             shop_text_rect = shop_text.get_rect(center=self.coords_dialogue_2)
@@ -259,24 +267,22 @@ class Shop(Config):
             self.shopping_sprites.draw(self.screen)
 
             if self.selling_item:
-                mouse_pos = pg.mouse.get_pos()
                 self.screen.blit(self.sell_cursor_image, mouse_pos)
                 
+            if self.hovered_item:
+                desc_text = self.item_info_font.render(self.hovered_item.desc, True, self.black)
+                text_rect = desc_text.get_rect()
                 offset_y = self.screen_height // 54
-                if self.hovered_item:
-                    desc_text = self.item_info_font.render(self.hovered_item.desc, True, self.black)
-                    text_rect = desc_text.get_rect()
-                    text_rect.topleft = (mouse_pos[0], mouse_pos[1] - offset_y)
-            
-                    text_padding = 1
-                    rect_width = text_rect.width
-                    rect_height = text_rect.height
-                    
-                    rect_surface = pg.Surface((rect_width, rect_height))
-                    rect_surface.fill((self.white)) 
-                    self.screen.blit(rect_surface, (text_rect.left - text_padding, text_rect.top - text_padding))
-                    self.screen.blit(desc_text, text_rect.topleft)
-            #display desc text for item_selection on hoverover
+                text_rect.topleft = (mouse_pos[0], mouse_pos[1] - offset_y)
+        
+                text_padding = 1
+                rect_width = text_rect.width
+                rect_height = text_rect.height
+                
+                rect_surface = pg.Surface((rect_width, rect_height))
+                rect_surface.fill((self.white)) 
+                self.screen.blit(rect_surface, (text_rect.left - text_padding, text_rect.top - text_padding))
+                self.screen.blit(desc_text, text_rect.topleft)
 
         if not Config.current_adventure:
             self.screen.blit(self.hood_image, self.hood_rect)

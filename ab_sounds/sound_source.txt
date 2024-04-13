@@ -16,9 +16,9 @@ Click:
 Gate latch click
 mixkit-gate-latch-click-1924
 
-Thunder:
-Cinematic impact thunder 
-mixkit-cinematic-impact-thunder-1286
+Lightning:
+Small electric glitch
+mixkit-small-electric-glitch-2595
 
 Error:
 Negative tone interface tap
@@ -67,3 +67,26 @@ mixkit-glass-hitting-a-metal-2183
 Money:
 Coins handling
 mixkit-coins-handling-1939
+
+Cold:
+Thin icicles spell
+mixkit-thin-icicles-spell-882
+
+Healing:
+Heal soft water spell 
+mixkit-heal-soft-water-spell-878
+
+Holy:
+Relaxing bell chime 
+
+Werewolf:
+Aquatic Creature Scream
+mixkit-aquatic-creature-scream-2203
+
+Acid:
+Water bubble
+mixkit-water-bubble-1317
+
+Nature:
+Twig breaking 
+mixkit-twig-breaking-2945

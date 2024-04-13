@@ -109,6 +109,7 @@ class Path(Config):
         gold_text = self.create_gold_text()
         self.screen.blit(gold_text, self.coords_gold)
 
+        #hoverover text for locations
         if Config.scout_active:
             pass
             #mouseover text defined in get_event

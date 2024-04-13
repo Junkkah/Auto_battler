@@ -210,11 +210,11 @@ class Equipment(Config, pg.sprite.Sprite):
     def __init__(self, name: str, item_type: str, slot_type: str, prefix: str, suffix: str, effect_type: str, effect: str, tier: int):
         super().__init__()
         pg.sprite.Sprite.__init__(self)
-        self.name = name
+        self.item_name = name #subtype
         self.item_type = item_type
         self.slot_type = slot_type
         self.inventory_spot = None
-        icon_image = pg.image.load('./ab_images/icon/' + self.name + '_icon.png').convert_alpha()
+        icon_image = pg.image.load('./ab_images/icon/' + self.item_name + '_icon.png').convert_alpha()
         slot_side_length = self.screen_width // self.eq_slot_size_scalar
         icon_width = slot_side_length 
         icon_height = slot_side_length 
@@ -225,7 +225,7 @@ class Equipment(Config, pg.sprite.Sprite):
 
         self.base_damage = None
         if self.item_type == 'weapon':
-            weapon_df = weapons_data[weapons_data['name'] == self.name].reset_index(drop=True)
+            weapon_df = weapons_data[weapons_data['name'] == self.item_name].reset_index(drop=True)
             damage = weapon_df.loc[0, 'base_damage']
             self.base_damage = damage
         self.prefix = prefix
@@ -240,7 +240,7 @@ class Equipment(Config, pg.sprite.Sprite):
     @property
     def desc(self):
         prefix_c = self.prefix.capitalize()
-        name_c = self.name.capitalize()
+        name_c = self.item_name.capitalize()
         if self.suffix:
             words = self.suffix.split()
             words[1] = words[1].capitalize()

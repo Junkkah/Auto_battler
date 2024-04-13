@@ -87,25 +87,46 @@ class Hero(Config, pg.sprite.Sprite):
             aura_stat_val = int(stat_val_str)
             Config.aura_bonus[aura_stat_name] += aura_stat_val
 
+    #activated start of combat
     def activate_item_stats(self):
         for item_slot, item in self.worn_items.items():
             if item is not None:
                 item_effect = self.worn_items[item_slot].item_effect #return (effect, tier, effect_type)
-                effect = item_effect[0]
+                effect_name = item_effect[0]
                 effect_tier = item_effect[1]
                 effect_type = item_effect[2]
-                if effect is not None and effect_type == 'stat':
-                    self.item_stats_dict[effect] += effect_tier
+                if effect_name is not None and effect_type == 'stat':
+                    self.item_stats_dict[effect_name] += effect_tier
 
+    #activated when acting
+    #divide combat effects to off/def 
+    #activate off with attack()
+    #activate def with take_damage()
     def activate_item_effects(self):
         for item_slot, item in self.worn_items.items():
             if item is not None:
                 item_effect = self.worn_items[item_slot].item_effect #return (effect, tier, effect_type)
-        #stat handled by item_stats
-        #combat effect is called with attack(), dynamic function for each, call (name, tier)
-        #instant is called when equipped if book, potion and scroll in combat
+                effect_name = item_effect[0]
+                effect_tier = item_effect[1]
+                effect_type = item_effect[2]
+                if effect_name is not None and effect_type != 'stat':
+                    if item.item_type == 'consumable':
+                        method_name = f'{effect_name}_activation'
+                        activation_method = getattr(self, method_name)
+                        activation_method(effect_tier)
+                        self.worn_items[item_slot] = None
 
-    def total_stat(self, stat):
+    def activate_book(self, book):
+        #activate_stat_book
+        tier = book.modifier_tier
+        effect_mapping = {1: 'speed', 2: 'menace', 3: 'max_health', 4: 'damage', 5: 'armor'}
+        effect_strength_mapping = {'speed': '2', 'menace': '2', 'health': '5', 'damage': '2', 'armor': '1'}
+        effect = effect_mapping.get(tier)
+        strength = effect_strength_mapping.get(effect)
+        stat_bonus = effect + strength
+        self.add_stat(stat_bonus)
+
+    def total_stat(self, stat: str):
         base_value = getattr(self, stat)
         item_value = self.item_stats_dict[stat]
         bonus_value = 0
@@ -142,7 +163,7 @@ class Hero(Config, pg.sprite.Sprite):
         self.talent_bonus_damage = 0
 
     #Always casting spells[0], needs cast spell as parameter if evaluate_action
-    def spell_attack(self, spell):
+    def spell_attack(self, spell: dict):
         #cast_spell = evaluate('spell_cast')
         damage_type = spell['type']
         self.animation = False
@@ -170,7 +191,7 @@ class Hero(Config, pg.sprite.Sprite):
         log_entry = (self.name, 'song', 'everyone')
         Config.combat_log.append(log_entry)
 
-    def take_damage(self, damage_amount, damage_type):
+    def take_damage(self, damage_amount: int, damage_type: str):
         #activate defensive talent
         if damage_type == 'physical':   
             armor = self.total_stat('armor')
@@ -179,7 +200,7 @@ class Hero(Config, pg.sprite.Sprite):
             taken_damage = damage_amount
         self.health -= taken_damage
 
-    def gain_health(self, gained_health):
+    def gain_health(self, gained_health: int):
         self.health = min(self.health + gained_health, self.max_health)
 
     def gain_level(self):
@@ -271,6 +292,19 @@ class Hero(Config, pg.sprite.Sprite):
     #@staticmethod
     #def invisibility_activation(hero, rank):
     #    hero.menace = 1
+    def fire_spell_activation(self, rank):
+        if rank > 1:
+            spell_name = 'fireball'
+        else:
+            spell_name = 'flame_bolt'
+        fire_spell = row_to_dict(spells_data, spell_name)
+        self.spell_attack(fire_spell)
+
+    def healing_activation(self, rank):
+        total_rank = rank
+        healing_per_rank = 4
+        total_healing = healing_per_rank * total_rank
+        self.gain_health(total_healing)
 
     def invisibility_activation(self, rank):
         self.menace = 1
@@ -342,6 +376,7 @@ class Hero(Config, pg.sprite.Sprite):
         Config.gold_count += extra_gold
     
     #5% chance to deal +base dam is weak
+    #change to attribute
     def critical_activation(self, rank):
         critical_chance_per_rank = 0.05
         total_critical_chance = critical_chance_per_rank * rank
