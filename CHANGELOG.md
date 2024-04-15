@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.2.0] - 2024-04-15
+### Added
+- Magic items.
+- Shop functionality.
+- Volume controls.
+
+### Changed
+- Improved hero stat calculations.
+
 ## [1.1.1] - 2024-02-26
 ### Fixed
 - Corrected versions of dependencies in setup and readme files.

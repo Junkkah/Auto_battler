@@ -10,8 +10,6 @@ from sounds_ab import play_sound_effect
 from path_ab import Path
 from levelup_ab import LevelUp
 
-# Simulation runtime for self.COUNT = 5000 estimated 4h 30mins
-
 class Simulator(Config):
     def __init__(self):
         Config.__init__(self)

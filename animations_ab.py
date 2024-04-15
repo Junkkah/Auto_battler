@@ -133,7 +133,6 @@ class SongAnimation(pg.sprite.Sprite):
 	
 
 #Slash animation not working properly
-#black screen blink at beginning of battle
 class Slash(pg.sprite.Sprite):
 	def __init__(self, groups, pos_x, pos_y):
 		super().__init__()

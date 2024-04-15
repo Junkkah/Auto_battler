@@ -1,6 +1,5 @@
 import pygame as pg
 import sys
-import threading
 from config_ab import Config
 from sprites_ab import EquipmentSlot
 from data_ab import get_json_data
@@ -56,9 +55,6 @@ class Initialize(Config):
         self.updated = False
 
     def startup(self):
-        #self.loading_thread = threading.Thread(target=self.initialize_slots)
-        #self.loading_thread.start()
-        #self.updated = False
 
         LOADING_FONT_NAME = "Arial"
         LOADING_FONT_SIZE = 50
@@ -70,8 +66,6 @@ class Initialize(Config):
         self.LOADING_TEXT = LOADING_FONT.render(LOADING, True, self.black)
         self.LOADING_RECT = self.LOADING_TEXT.get_rect(center=COORDS_LOADING)
 
-        #self.create_backpack_slots(Config.backpack_slots)
-        #self.create_equipment_slots(Config.equipment_slots)
         self.initialize_slots()
 
     def get_event(self, event):
@@ -79,13 +73,8 @@ class Initialize(Config):
             pass
 
     def update(self, screen, dt):
-        #if not self.loading_thread.is_alive():
-        #    self.done = True
         self.draw(screen)
-        #if self.updated:
-        #    self.initialize_slots()
         self.done = True
-        #self.updated = True
 
     def draw(self, window):
         self.screen.fill(self.grey)
