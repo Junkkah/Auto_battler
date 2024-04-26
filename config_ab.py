@@ -6,6 +6,7 @@ class Config(object):
     party_backpack = {}
     backpack_slots = []
     equipment_slots = []
+    generated_path = []
     gold_count = 50
     current_location = None
     current_adventure = None

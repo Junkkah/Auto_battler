@@ -98,8 +98,6 @@ class Adventure(pg.sprite.Sprite):
 class Location(pg.sprite.Sprite):
     def __init__(self, groups, df):
         super().__init__(groups)
-
-        #item_power variable for determining drop and shop item strength
         # Assign id, name, type, y_coord, size_scalar, tier, depth, desc, image_name, parent1, parent2, child1, child2
         for stat_name in df.index:
             setattr(self, stat_name, int(df[stat_name]) if str(df[stat_name]).isdigit() else df[stat_name])
@@ -115,8 +113,7 @@ class Location(pg.sprite.Sprite):
         self.image = pg.transform.smoothscale(scenery, ((self.width / self.size_scalar), (self.height / self.size_scalar)))
         self.rect = self.image.get_rect(center = (self.pos_x, self.pos_y))
 
-        #items in shops
-        self.treasure = []
+        #self.treasure = []
 
 class Button(Config, pg.sprite.Sprite):
     def __init__(self, groups, text, font_name, font_size, text_color, center):

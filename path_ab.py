@@ -18,6 +18,10 @@ class Path(Config):
         self.max_pulse_radius = 50
         self.pulsation_speed = 0.005
 
+    def cleanup(self):
+        self.path_sprites.empty()
+        self.loc_objects = []
+
     def create_encounter(self, tier) -> list:
         encounters_df = get_monster_encounters(Config.current_adventure, tier)
         probs = encounters_df['Probability'].tolist()
@@ -25,34 +29,31 @@ class Path(Config):
         encounter = random.choices(mob_lists, weights=probs, k=1)[0]
         return encounter
     
-    def cleanup(self):
-        self.path_sprites.empty()
-        self.loc_objects = []
-
     def startup(self):
         play_music_effect(Config.current_adventure)
+
+        self.generated_path = Config.generated_path
         for talent_hero in Config.party_heroes:
             talent_hero.activate_talent_group('map')
 
         self.loc_objects = []
-        locations_data = get_data(Config.current_adventure)
+        locations_data = self.generated_path
 
         for index, row in locations_data.iterrows():
-            name = row['name']
-            image_name = row['image_name']
             new_location = Location(self.path_sprites, row)
             self.loc_objects.append(new_location)
 
         def set_children(df):
-            for obj in self.loc_objects:
-                obj_name = obj.name
+            #assign locations objects as child nodes
+            for loc_object in self.loc_objects:
+                obj_name = loc_object.name
                 obj_child1_name = df.loc[df['name'] == obj_name, 'child1'].values[0]
                 obj_child2_name = df.loc[df['name'] == obj_name, 'child2'].values[0]
 
                 if pd.notna(obj_child1_name):
-                    obj.child1 = next((child_obj for child_obj in self.loc_objects if child_obj.name == obj_child1_name), None)
+                    loc_object.child1 = next((child_obj for child_obj in self.loc_objects if child_obj.name == obj_child1_name), None)
                 if pd.notna(obj_child2_name):
-                    obj.child2 = next((child_obj for child_obj in self.loc_objects if child_obj.name == obj_child2_name), None)
+                    loc_object.child2 = next((child_obj for child_obj in self.loc_objects if child_obj.name == obj_child2_name), None)
         set_children(locations_data)
 
         INV_TEXT = 'Inventory (i)'
@@ -125,7 +126,8 @@ class Path(Config):
             for locs_draw in self.loc_objects:
                 if locs_draw.parent1 is None:
                     self.draw_circle(self.white, locs_draw.pos, int(radius), 2)
-
+        
+        #don't draw lines further than next layer at swamp
         for node in self.loc_objects:
             if node.child1:
                 pg.draw.line(self.screen, self.white, node.pos, node.child1.pos, self.line_thickness)

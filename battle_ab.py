@@ -118,6 +118,7 @@ class BattleManager(Config):
         Config.party_backpack = {}
         Config.backpack_slots = []
         Config.equipment_slots = []
+        Config.generated_path = []
         Config.current_adventure = None
         Config.current_location = None
         Config.acting_character = None
@@ -323,7 +324,7 @@ class BattleManager(Config):
             self.animation_sprites.draw(screen)
 
         self.combat_log_events = Config.combat_log[-10:]
-        COORDS_LOG = (self.screen_width * 0.05, self.screen_height * 0.60)
+        COORDS_LOG = (self.screen_width * 0.03, self.screen_height * 0.60)
         for i, event in enumerate(reversed(self.combat_log_events)):
             log_line = "{} deals {:>4} to {}".format(event[0].capitalize().ljust(14), event[1], event[2].capitalize())
             log_line_text = self.log_font.render(log_line, True, self.black)
