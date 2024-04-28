@@ -119,11 +119,13 @@ class BattleManager(Config):
         Config.backpack_slots = []
         Config.equipment_slots = []
         Config.generated_path = []
+        Config.completed_adventures = []
         Config.current_adventure = None
         Config.current_location = None
         Config.acting_character = None
         Config.gold_count = 50
         Config.scout_active = False
+        Config.map_next = False
         self.party_defeated = False
 
     #move to Config?
@@ -195,11 +197,14 @@ class BattleManager(Config):
         if event.type == pg.KEYDOWN:
             if not Config.room_monsters:
                 if Config.current_location.type == 'boss':
-                    #dark forest adventure cleared
-                    #continue to decrepit ruins adventure
+                    if self.next == 'levelup':
+                        Config.map_next = True
+                    else:
+                        self.next = 'map'
                     pg.mixer.stop()
-                    self.party_defeated = True
-                    self.next = 'menu'
+                    Config.completed_adventures.append(Config.current_adventure)
+                    Config.current_location = None
+                    #other end of adventure cleaning?
                 self.done = True
             if not Config.party_heroes:
                 pg.mixer.stop()

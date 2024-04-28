@@ -68,6 +68,7 @@ Columns:
 - monster3: Name of the monster in encounter. Value can be None
 - monster4: Name of the monster in encounter. Value can be None
 
+#not used
 Table: Dark_forest
 - Attributes for adventure dark_forest locations
 Columns:

@@ -7,6 +7,7 @@ class Config(object):
     backpack_slots = []
     equipment_slots = []
     generated_path = []
+    completed_adventures = []
     gold_count = 50
     current_location = None
     current_adventure = None
@@ -14,6 +15,7 @@ class Config(object):
     width = 1920
     height = 1080
     scout_active = False
+    map_next = False
     aura_bonus = {'speed': 0, 'damage': 0, 'menace': 0, 'armor': 0, 'magic_power': 0}
     combat_log = []
     

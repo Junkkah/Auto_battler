@@ -38,7 +38,11 @@ class Monster(Config, pg.sprite.Sprite):
         self.rect = self.image.get_rect(topleft = (self.pos_x, self.pos_y))
         
         self.attack_type = 'claw'
-        
+
+        self.debuff_dict = {'speed': 0, 'damage': 0, 'menace': 0, 'armor': 0}
+
+    def total_stat(self, stat):
+        pass
     
     def get_target(self):
         total_menace = sum(hero.total_stat('menace') for hero in Config.party_heroes)

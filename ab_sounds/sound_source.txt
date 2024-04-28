@@ -36,7 +36,7 @@ Zombie:
 Exclamation of pain from a zombie
 mixkit-exclamation-of-pain-from-a-zombie-2207
 
-Troll:
+Node13_1:
 Troll warrior laugh
 mixkit-troll-warrior-laugh-409
 
@@ -90,3 +90,11 @@ mixkit-water-bubble-1317
 Nature:
 Twig breaking 
 mixkit-twig-breaking-2945
+
+Canyon:
+Wind blowing ambience
+mixkit-wind-blowing-ambience-2658
+
+Swamp:
+Pond ambience with crickets 
+mixkit-pond-ambience-with-crickets-1783

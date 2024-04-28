@@ -5,6 +5,7 @@ from sprites_ab import Adventure
 from data_ab import get_data, get_json_data, row_to_dict
 import pandas as pd
 import random
+import math
 
 
 class WorldMap(Config):
@@ -48,7 +49,7 @@ class WorldMap(Config):
             coords_dict[layer] = random.choice(random_coords[str(num_nodes)])
         return coords_dict
     
-    def assign_node_type(self, layer):
+    def assign_node_type(self, layer: int, adventure: str):
         #assign probabilities based on Adventure
         #map location names based on Adventure
         fight_probability = 0.8
@@ -60,29 +61,39 @@ class WorldMap(Config):
         else:
             node_type = 'fight' if random.random() < fight_probability else 'shop'
 
-        if node_type == 'fight':
-            node_image = random.choice(['tree', 'bush'])
-        if node_type == 'shop':
-            node_image = 'town'
+        #type/image mapping based on adventure
+        #size scalar, ruins images smaller than forest
+        if adventure == 'dark_forest':
+            if node_type == 'fight':
+                node_image = random.choice(['tree', 'bush'])
+            if node_type == 'shop':
+                node_image = 'town'
+        if adventure == 'ruins':
+            if node_type == 'fight':
+                node_image = random.choice(['rock', 'column'])
+            if node_type == 'shop':
+                node_image = 'tower'
         return (node_type, node_image)
             
-    def create_node_dicts(self, num_layers, coords_dict):
+    def create_node_dicts(self, num_layers: int, coords_dict: dict, adventure: str):
         node_dicts = {}
         for layer in range(1, num_layers + 1):
             layer_data = []
             for node_idx, node_coords in enumerate(coords_dict[layer]):
                 
                 name = f'node{layer}_{node_idx + 1}'
-                node_type = self.assign_node_type(layer)
+                #assign children, iterate types, if parent = town, not town
+                node_type = self.assign_node_type(layer, adventure)
                 #assign node type after assign children. if parent == town: node_type = fight
-                tier  = (layer + 2) // 3
-                
+
+                tier = math.ceil(layer / 4) + (len(Config.completed_adventures) * 3)
+
                 node_dict = {
                     'name': name, #'node12_1'
-                    'type': node_type[0],  #fight or shop, assign later if layer == 13: boss
+                    'type': node_type[0],  #fight or shop, assign later and check if previous was town. if layer == 13: boss
                     'y_coord': node_coords,
-                    'size_scalar': 10, #based on adventure
-                    'tier': tier,  # depth 4: 2, depth 7: 3, depth 10: 4, depth 13: 5 
+                    'size_scalar': 10, #based on adventure, 8-9 for ruins
+                    'tier': tier,  
                     'depth': layer,  # Depth
                     'desc': '',  # not used
                     'image_name': node_type[1],  
@@ -95,7 +106,7 @@ class WorldMap(Config):
             node_dicts[layer] = layer_data
         return node_dicts
     
-    def edge_count(self, num_nodes_current, num_nodes_next):
+    def edge_count(self, num_nodes_current: int, num_nodes_next: int):
         min_edges = max(num_nodes_current, num_nodes_next)
         max_edges = 2 * (min(num_nodes_current, num_nodes_next))
 
@@ -111,8 +122,8 @@ class WorldMap(Config):
             return 'parent1'
         return 'parent2'
 
-
-    def assign_child_nodes(self, coords_dict):
+    def assign_child_nodes(self, coords_dict: dict):
+        #parent for cave
         self.node_dicts[13][0]['parent1'] = 'node12_1'
         num_layers = len(coords_dict)
         for layer in range(1, num_layers):
@@ -129,7 +140,6 @@ class WorldMap(Config):
                         self.node_dicts[layer][node_idx]['child1'] = f'node{layer + 1}_{node_idx + 1}'
                         self.node_dicts[layer + 1][node_idx]['parent1'] = f'node{layer}_{node_idx + 1}'
                 
-                #all child1 does not working, set_children works how?
                 elif next_layer_nodes == 1:
                     for node_idx in range(current_layer_nodes):
                         self.node_dicts[layer][node_idx]['child1'] = f'node{layer + 1}_{1}'
@@ -170,7 +180,7 @@ class WorldMap(Config):
                         
                         elif node_idx == (current_layer_nodes - 1):
                             self.node_dicts[layer][node_idx]['child1'] = f'node{layer + 1}_{node_idx}'
-                            parent = self.check_parent(layer + 1, node_idx - 1) #are we chaking correct node?
+                            parent = self.check_parent(layer + 1, node_idx - 1)
                             self.node_dicts[layer + 1][node_idx - 1][parent] = f'node{layer}_{node_idx + 1}'
                         
                         else:
@@ -204,7 +214,7 @@ class WorldMap(Config):
                                 parent = self.check_parent(layer + 1, node_idx + 1)
                                 self.node_dicts[layer + 1][node_idx + 1][parent] = f'node{layer}_{node_idx + 1}'
 
-    def write_path_df(self, num_layers):
+    def write_path_df(self, num_layers: int):
         df = pd.DataFrame(columns=['name', 'type', 'y_coord', 'size_scalar', 'tier', 'depth', 'desc', 'image_name', 'parent1', 'parent2', 'child1', 'child2'])
         data = []
         for depth in range(1, num_layers + 1):
@@ -221,7 +231,7 @@ class WorldMap(Config):
         num_layers = 13
         starting_tier = 1 #for dark forest
         coords = self.generate_random_coordinates(adventure)
-        self.node_dicts = self.create_node_dicts(num_layers, coords) 
+        self.node_dicts = self.create_node_dicts(num_layers, coords, adventure) 
         #returns dictionary where key is layer and valus is list of node_dicts for that layer 
         self.assign_child_nodes(coords)
         random_path = self.write_path_df(num_layers)
@@ -259,7 +269,9 @@ class WorldMap(Config):
         COORDS_HOOD = (self.screen_width * 0.05, self.screen_height * 0.80)
         SCALAR_HOOD = ((hood.get_width() / self.npc_size_scalar), (hood.get_height() / self.npc_size_scalar))
 
-        self.overworld_dialogue = ['"Choose Dark Forest for', 'your first adventure"']
+        adventure_number = len(Config.completed_adventures)
+        next_adventure = self.map_objects[adventure_number].desc
+        self.overworld_dialogue = [f'"Choose {next_adventure} for', 'your next adventure"']
 
         self.hood_image = pg.transform.smoothscale(hood, SCALAR_HOOD)
         self.hood_rect = self.hood_image.get_rect(topleft=COORDS_HOOD)
@@ -271,10 +283,11 @@ class WorldMap(Config):
                 exit()
         
         elif event.type == pg.MOUSEBUTTONDOWN:
-            for obj in self.map_objects:
-                if obj.rect.collidepoint(mouse_pos):
-                    if obj.name == 'dark_forest':
-                        Config.current_adventure = obj.name
+            for adventure in self.map_objects:
+                if adventure.rect.collidepoint(mouse_pos):
+                    adventure_number = len(Config.completed_adventures)
+                    if adventure.name == self.map_objects[adventure_number].name:
+                        Config.current_adventure = adventure.name
                         Config.generated_path = self.generate_random_path(Config.current_adventure)
                         self.next = 'path'
                         self.done = True
@@ -282,7 +295,7 @@ class WorldMap(Config):
                     else:
                         error = 'Inaccessible'
                         self.error_text = self.info_font.render((error), True, (self.red))
-                        self.error_text_rect = self.error_text.get_rect(topleft=((obj.pos_x), (obj.pos_y))) 
+                        self.error_text_rect = self.error_text.get_rect(topleft=((adventure.pos_x), (adventure.pos_y))) 
                         self.error = True
 
     def update(self, screen, dt):
@@ -310,7 +323,7 @@ class WorldMap(Config):
             info_text = self.info_font.render(obj.desc, True, self.black)
             info_text_rect = info_text.get_rect(bottomleft=(obj.pos_x + obj.width // 2, obj.pos_y + obj.height // 2 + self.text_offset_y))
             self.screen.blit(info_text, info_text_rect)
-            #create adv list, if obj.name == next item on list
+            #map_objects.name list 
             if obj.name == 'dark_forest':
                 pg.draw.rect(self.screen, self.red, obj.rect, self.rect_thickness)
         

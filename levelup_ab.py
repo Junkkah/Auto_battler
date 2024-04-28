@@ -120,6 +120,9 @@ class LevelUp(Config):
             mouse_pos = pg.mouse.get_pos()
             if self.continue_button.rect.collidepoint(mouse_pos) and len(self.talents_selected) == self.numer_of_heroes:
                 play_sound_effect('click')
+                if Config.map_next:
+                    self.next = 'map'
+                    Config.map_next = False
                 self.done = True
             elif self.continue_button.rect.collidepoint(mouse_pos):
                 play_sound_effect('error')
