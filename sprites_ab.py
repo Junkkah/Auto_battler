@@ -41,6 +41,9 @@ class Monster(Config, pg.sprite.Sprite):
 
         self.debuff_dict = {'speed': 0, 'damage': 0, 'menace': 0, 'armor': 0}
 
+    def take_debuff(self, stat):
+        pass
+
     def total_stat(self, stat):
         pass
     
@@ -54,7 +57,7 @@ class Monster(Config, pg.sprite.Sprite):
         target = self.get_target()
         self.animation = False
         DAMAGE = self.damage
-        LOG_DAMAGE = DAMAGE - target.total_stat('armor')
+        LOG_DAMAGE = max(0, DAMAGE - target.total_stat('armor'))
         log_entry = (self.name, LOG_DAMAGE, target.name)
         Config.combat_log.append(log_entry)
         target.take_damage(DAMAGE, 'physical')
@@ -62,7 +65,7 @@ class Monster(Config, pg.sprite.Sprite):
     def take_damage(self, damage_amount, damage_type, armor_penalty):
         ARMOR = max(0, self.armor - armor_penalty)
         if damage_type == 'physical':
-            taken_damage = damage_amount - ARMOR
+            taken_damage = max(0, damage_amount - ARMOR)
         else:
             taken_damage = damage_amount
         self.health -= taken_damage
@@ -110,7 +113,8 @@ class Location(pg.sprite.Sprite):
         self.height = scenery.get_height()
         self.width = scenery.get_width()
 
-        self.pos_x = Config.width * (0.07 * self.depth)
+        self.width_gap = 0.07
+        self.pos_x = Config.width * (self.width_gap * self.depth)
         self.pos_y = Config.height * float(self.y_coord)
         self.pos = (self.pos_x, self.pos_y)
     

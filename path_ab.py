@@ -128,11 +128,12 @@ class Path(Config):
                     self.draw_circle(self.white, locs_draw.pos, int(radius), 2)
         
         #don't draw lines further than next layer at swamp
-        for node in self.loc_objects:
-            if node.child1:
-                pg.draw.line(self.screen, self.white, node.pos, node.child1.pos, self.line_thickness)
-            if node.child2:
-                pg.draw.line(self.screen, self.white, node.pos, node.child2.pos, self.line_thickness)
+        if Config.current_adventure != 'swamp':
+            for node in self.loc_objects:
+                if node.child1:
+                    pg.draw.line(self.screen, self.white, node.pos, node.child1.pos, self.line_thickness)
+                if node.child2:
+                    pg.draw.line(self.screen, self.white, node.pos, node.child2.pos, self.line_thickness)
 
 
         self.path_sprites.draw(self.screen)

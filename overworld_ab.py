@@ -17,16 +17,17 @@ class WorldMap(Config):
 
     def cleanup(self):
         self.map_objects = []
+        self.map_data = []
         self.map_sprites.empty()
     
-    def generate_random_coordinates(self, adventure: str):
+    def generate_random_coordinates(self, adventure: str, num_layers: int, start_size: int):
         coords_file = adventure + '_coords'
         random_coords = get_json_data(coords_file)
 
         coords_dict = {} 
         start_layer = 1
-        start_layer_size = 3
-        last_layer = 13
+        start_layer_size = start_size
+        last_layer = num_layers
         last_layer_size = 1
 
         coords_dict[start_layer] = random.choice(random_coords[str(start_layer_size)])
@@ -49,55 +50,51 @@ class WorldMap(Config):
             coords_dict[layer] = random.choice(random_coords[str(num_nodes)])
         return coords_dict
     
-    def assign_node_type(self, layer: int, adventure: str):
-        #assign probabilities based on Adventure
-        #map location names based on Adventure
-        fight_probability = 0.8
-        if layer == 1:
-            node_type = 'fight'
-        elif layer == 13:
+    def assign_node_type(self, layer: int, node_type_data: dict, fight_prob: float, final_layer: bool):
+        if final_layer:
             node_type = 'boss'
             node_image = 'cave'
+        elif layer == 1:
+            node_type = 'fight'
         else:
-            node_type = 'fight' if random.random() < fight_probability else 'shop'
+            node_type = 'fight' if random.random() < fight_prob else 'shop'
 
-        #type/image mapping based on adventure
-        #size scalar, ruins images smaller than forest
-        if adventure == 'dark_forest':
-            if node_type == 'fight':
-                node_image = random.choice(['tree', 'bush'])
-            if node_type == 'shop':
-                node_image = 'town'
-        if adventure == 'ruins':
-            if node_type == 'fight':
-                node_image = random.choice(['rock', 'column'])
-            if node_type == 'shop':
-                node_image = 'tower'
+        if node_type == 'fight':
+            node_image = random.choice(node_type_data['fight'])
+        if node_type == 'shop':
+            node_image = node_type_data['shop']
+
         return (node_type, node_image)
             
-    def create_node_dicts(self, num_layers: int, coords_dict: dict, adventure: str):
+    def create_node_dicts(self, num_layers: int, coords_dict: dict, adventure: str, fight_prob: float):
         node_dicts = {}
+        node_json = get_json_data('node_types')
+        node_type_data = node_json[adventure]
         for layer in range(1, num_layers + 1):
             layer_data = []
             for node_idx, node_coords in enumerate(coords_dict[layer]):
                 
                 name = f'node{layer}_{node_idx + 1}'
-                #assign children, iterate types, if parent = town, not town
-                node_type = self.assign_node_type(layer, adventure)
-                #assign node type after assign children. if parent == town: node_type = fight
 
+                #assign node type after assign children. if parent == town: node_type = fight
+                #if last layer, binary variable input for node type, last/not_last
+                if layer == num_layers:
+                    final_layer = True
+                else:
+                    final_layer = False
+                node_type = self.assign_node_type(layer, node_type_data, fight_prob, final_layer)
                 tier = math.ceil(layer / 4) + (len(Config.completed_adventures) * 3)
 
                 node_dict = {
                     'name': name, #'node12_1'
-                    'type': node_type[0],  #fight or shop, assign later and check if previous was town. if layer == 13: boss
+                    'type': node_type[0],  #fight or shop, if layer == 13: boss
                     'y_coord': node_coords,
-                    'size_scalar': 10, #based on adventure, 8-9 for ruins
+                    'size_scalar': 10, #based on adventure, set 8-9 for ruins
                     'tier': tier,  
                     'depth': layer,  # Depth
                     'desc': '',  # not used
                     'image_name': node_type[1],  
-                    'parent1': None, #assing children next
+                    'parent1': None,
                     'parent2': None,  
                     'child1': None,  
                     'child2': None
@@ -122,10 +119,11 @@ class WorldMap(Config):
             return 'parent1'
         return 'parent2'
 
-    def assign_child_nodes(self, coords_dict: dict):
-        #parent for cave
-        self.node_dicts[13][0]['parent1'] = 'node12_1'
-        num_layers = len(coords_dict)
+    def assign_child_nodes(self, coords_dict: dict, num_layers: int):
+        #not iterating over final layer
+        #adding parent for boss node
+        self.node_dicts[num_layers][0]['parent1'] = f'node{num_layers - 1}_1'
+
         for layer in range(1, num_layers):
             current_layer_coords = coords_dict[layer]
             next_layer_coords = coords_dict[layer + 1] if layer + 1 in coords_dict else None
@@ -225,15 +223,15 @@ class WorldMap(Config):
 
     def generate_random_path(self, adventure: str):
         #procedurally generated directed acylic graph for adventure path
-        #adventure determines: image_names, shop probabilities, starting tier
-        #ramp up tier from starting, forest: 1-3, ruins 3-6, swamp, 7-9, give bosses tier bonus
-        
-        num_layers = 13
-        starting_tier = 1 #for dark forest
-        coords = self.generate_random_coordinates(adventure)
-        self.node_dicts = self.create_node_dicts(num_layers, coords, adventure) 
-        #returns dictionary where key is layer and valus is list of node_dicts for that layer 
-        self.assign_child_nodes(coords)
+        adventure_df = self.map_data[self.map_data['name'] == adventure].reset_index(drop=True)
+        num_layers = adventure_df.iloc[0]['layers']
+        fight_prob = adventure_df.iloc[0]['fight_p']
+        start_size = adventure_df.iloc[0]['start_size']
+
+        #make x-coord multiplier tied to layer number
+        coords = self.generate_random_coordinates(adventure, num_layers, start_size)
+        self.node_dicts = self.create_node_dicts(num_layers, coords, adventure, fight_prob) 
+        self.assign_child_nodes(coords, num_layers)
         random_path = self.write_path_df(num_layers)
 
         return random_path
@@ -244,9 +242,16 @@ class WorldMap(Config):
         self.rect_thickness = 2
         self.text_offset_y = 5
 
-        map_data = get_data('adventures')
+        #
+        for m in Config.party_heroes:
+            m.worn_items['hand1'].base_damage = 120
+            #m.damage = 120
+            m.armor = 50
+        #
+
+        self.map_data = get_data('adventures')
         self.map_objects = []
-        for index, row in map_data.iterrows():
+        for index, row in self.map_data.iterrows():
             name = row['name']
             coords = (row['pos_x'], row['pos_y'])
             desc = row['desc']
@@ -262,7 +267,7 @@ class WorldMap(Config):
 
                 if pd.notna(obj_child_name):
                     obj.child = next((child_obj for child_obj in self.map_objects if child_obj.name == obj_child_name), None)
-        set_child(map_data)
+        set_child(self.map_data)
 
         hood = pg.image.load('./ab_images/hood.png').convert_alpha()
         self.coords_dialogue = ((self.screen_width * 0.12, self.screen_height * 0.72))

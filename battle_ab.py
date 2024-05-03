@@ -249,6 +249,8 @@ class BattleManager(Config):
                     self.combat_animation = Stab(self.animation_sprites, held_weapon, pos_x, pos_y)
 
             elif not Config.acting_character.is_player:
+                #if Config.acting_character.sound:
+                #    sound_effect(Config.acting_character.sound)
                 if Config.acting_character.type in ['kobold', 'goblin']:
                     play_sound_effect('growl')
                 adjusted_pos_x = Config.acting_character.pos_x + Config.acting_character.width

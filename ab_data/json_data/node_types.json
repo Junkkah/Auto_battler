@@ -1,0 +1,28 @@
+{
+    "dark_forest": {
+      "fight": ["tree", "bush"],
+      "shop": "town"
+    },
+    "ruins": {
+      "fight": ["rock", "column"],
+      "shop": "tower"
+    },
+    "swamp": {
+      "fight": "swamp",
+      "shop": "swamp"
+    },
+    "canyon": {
+    "fight": ["sand", "wall"],
+    "shop": "camp"
+    },
+    "mountain": {
+    "fight": ["cliff1", "cliff2"],
+    "shop": "cliff3"
+    },
+    "rift": {
+    "fight": "blaze",
+    "shop": "blaze"
+    }
+
+  }
+  

@@ -17,7 +17,7 @@ def get_data(table: str) -> pd.DataFrame:
     return df
 
 def get_json_data(file_name: str) -> dict:
-    with open('./ab_data/' + file_name + '.json') as j:
+    with open('./ab_data/json_data/' + file_name + '.json') as j:
         json_data = json.load(j)
     return json_data
 
