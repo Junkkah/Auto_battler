@@ -139,8 +139,8 @@ class Hero(Config, pg.sprite.Sprite):
         return base_value + item_value + bonus_value + Config.aura_bonus[stat]
 
     def get_target(self):
-        total_menace = sum(monster.menace for monster in Config.room_monsters)
-        prob = [monster.menace/total_menace for monster in Config.room_monsters]
+        total_menace = sum(monster.total_stat('menace') for monster in Config.room_monsters)
+        prob = [monster.total_stat('menace')/total_menace for monster in Config.room_monsters]
         target = np.random.choice(Config.room_monsters, p=prob)
         return target
 
@@ -155,7 +155,7 @@ class Hero(Config, pg.sprite.Sprite):
         self.animation = False
         DAMAGE = self.total_stat('damage')
         armor_penalty = self.enemy_armor_penalty
-        LOG_DAMAGE = DAMAGE - max(0, target.armor - armor_penalty)
+        LOG_DAMAGE = DAMAGE - max(0, target.total_stat('armor') - armor_penalty)
         log_entry = (self.name, LOG_DAMAGE, target.name)
         Config.combat_log.append(log_entry)
         target.take_damage(DAMAGE, 'physical', armor_penalty)

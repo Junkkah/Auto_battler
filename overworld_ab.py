@@ -242,12 +242,6 @@ class WorldMap(Config):
         self.rect_thickness = 2
         self.text_offset_y = 5
 
-        #
-        for m in Config.party_heroes:
-            m.worn_items['hand1'].base_damage = 120
-            #m.damage = 120
-            m.armor = 50
-        #
 
         self.map_data = get_data('adventures')
         self.map_objects = []

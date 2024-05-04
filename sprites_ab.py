@@ -41,11 +41,17 @@ class Monster(Config, pg.sprite.Sprite):
 
         self.debuff_dict = {'speed': 0, 'damage': 0, 'menace': 0, 'armor': 0}
 
-    def take_debuff(self, stat):
-        pass
+    def take_debuff(self, stat:str, debuff: int):
+        if stat == 'menace':
+            self.debuff_dict[stat] += debuff
+        else:
+            self.debuff_dict[stat] -= debuff
 
     def total_stat(self, stat):
-        pass
+        base_value = getattr(self, stat)
+        debuff_value = self.debuff_dict[stat]
+        total_value = max(0, base_value + debuff_value)
+        return total_value
     
     def get_target(self):
         total_menace = sum(hero.total_stat('menace') for hero in Config.party_heroes)
@@ -56,14 +62,14 @@ class Monster(Config, pg.sprite.Sprite):
     def melee_attack(self):
         target = self.get_target()
         self.animation = False
-        DAMAGE = self.damage
+        DAMAGE = self.total_stat('damage')
         LOG_DAMAGE = max(0, DAMAGE - target.total_stat('armor'))
         log_entry = (self.name, LOG_DAMAGE, target.name)
         Config.combat_log.append(log_entry)
         target.take_damage(DAMAGE, 'physical')
 
     def take_damage(self, damage_amount, damage_type, armor_penalty):
-        ARMOR = max(0, self.armor - armor_penalty)
+        ARMOR = max(0, self.total_stat('armor') - armor_penalty)
         if damage_type == 'physical':
             taken_damage = max(0, damage_amount - ARMOR)
         else:

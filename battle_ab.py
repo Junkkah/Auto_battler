@@ -152,12 +152,14 @@ class BattleManager(Config):
     #tie breaker, first in hero/mob list > lower, hero > mob, class prios
     def order_sort(self, incombat: list):
         def speed_order(battle_participant: object):
-            if battle_participant.is_player:
-                hero_speed = battle_participant.total_stat('speed')
-                return hero_speed
-            else:
-                monster_speed = battle_participant.speed
-                return monster_speed
+            participant_speed = battle_participant.total_stat('speed')
+            return participant_speed
+            #if battle_participant.is_player:
+            #    hero_speed = battle_participant.total_stat('speed')
+            #    return hero_speed
+            #else:
+            #    monster_speed = battle_participant.speed
+            #    return monster_speed
         return sorted(incombat, key=speed_order, reverse=True)
     
 
