@@ -98,3 +98,15 @@ mixkit-wind-blowing-ambience-2658
 Swamp:
 Pond ambience with crickets 
 mixkit-pond-ambience-with-crickets-1783
+
+Mountain:
+Light rain atmosphere
+mixkit-light-rain-atmosphere-2474
+
+Rift:
+Bubbling volcano lava flow 
+mixkit-bubbling-volcano-lava-flow-2444
+
+Bear:
+Wild lion animal roar
+mixkit-wild-lion-animal-roar-6

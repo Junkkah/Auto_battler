@@ -60,7 +60,11 @@ class WorldMap(Config):
             node_type = 'fight' if random.random() < fight_prob else 'shop'
 
         if node_type == 'fight':
-            node_image = random.choice(node_type_data['fight'])
+            image_options = node_type_data['fight']
+            if isinstance(image_options, list):
+                node_image = random.choice(image_options)
+            else:
+                node_image = image_options
         if node_type == 'shop':
             node_image = node_type_data['shop']
 
@@ -106,6 +110,8 @@ class WorldMap(Config):
     def edge_count(self, num_nodes_current: int, num_nodes_next: int):
         min_edges = max(num_nodes_current, num_nodes_next)
         max_edges = 2 * (min(num_nodes_current, num_nodes_next))
+        if num_nodes_current == num_nodes_next:
+            max_edges -= 1
 
         if num_nodes_next == 1:
             num_edges = num_nodes_current
@@ -211,6 +217,31 @@ class WorldMap(Config):
                                 self.node_dicts[layer][node_idx]['child2'] = f'node{layer + 1}_{node_idx + 2}'
                                 parent = self.check_parent(layer + 1, node_idx + 1)
                                 self.node_dicts[layer + 1][node_idx + 1][parent] = f'node{layer}_{node_idx + 1}'
+                
+                if current_layer_nodes == next_layer_nodes:
+                    extra_child_count = num_edges - current_layer_nodes
+                    extra_idx = random.sample(range(0, next_layer_nodes - 1), extra_child_count)
+                    for node_idx in range(current_layer_nodes):
+                        extra_count = 0
+                        if node_idx == extra_idx[extra_count]:
+                            extra_count += 1
+                            self.node_dicts[layer][node_idx]['child1'] = f'node{layer + 1}_{node_idx + 1}'
+                            parent = self.check_parent(layer + 1, node_idx)
+                            self.node_dicts[layer + 1][node_idx][parent] = f'node{layer}_{node_idx + 1}'
+
+                            self.node_dicts[layer][node_idx]['child2'] = f'node{layer + 1}_{node_idx + 2}'
+                            parent = self.check_parent(layer + 1, node_idx + 1)
+                            self.node_dicts[layer + 1][node_idx + 1][parent] = f'node{layer}_{node_idx + 1}'
+
+                        else:
+                            self.node_dicts[layer][node_idx]['child1'] = f'node{layer + 1}_{node_idx + 1}'
+                            parent = self.check_parent(layer + 1, node_idx)
+                            self.node_dicts[layer + 1][node_idx][parent] = f'node{layer}_{node_idx + 1}'
+
+                            #if node_idx == (current_layer_nodes - 1):
+                            #    self.node_dicts[layer][node_idx]['child2'] = f'node{layer + 1}_{node_idx + 2}'
+                            #    parent = self.check_parent(layer + 1, node_idx + 1)
+                            #    self.node_dicts[layer + 1][node_idx + 1][parent] = f'node{layer}_{node_idx + 1}'
 
     def write_path_df(self, num_layers: int):
         df = pd.DataFrame(columns=['name', 'type', 'y_coord', 'size_scalar', 'tier', 'depth', 'desc', 'image_name', 'parent1', 'parent2', 'child1', 'child2'])
@@ -242,6 +273,12 @@ class WorldMap(Config):
         self.rect_thickness = 2
         self.text_offset_y = 5
 
+        #
+        for m in Config.party_heroes:
+            m.worn_items['hand1'].base_damage = 120
+            m.damage = 120
+            m.armor = 50
+        #
 
         self.map_data = get_data('adventures')
         self.map_objects = []

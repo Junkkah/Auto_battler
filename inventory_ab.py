@@ -139,7 +139,7 @@ class Inventory(Config):
     def handle_book(self, drop_spot_number):
         for reading_hero in Config.party_heroes:
             if reading_hero.inventory_spot_number == drop_spot_number:
-                reading_hero.activate_book_book(self.dragged_object)
+                reading_hero.activate_book(self.dragged_object)
                 self.inventory_items.remove(self.dragged_object)
                 self.inventory_icon_sprites.remove(self.dragged_object)
                 break
@@ -165,7 +165,7 @@ class Inventory(Config):
         
         # Position heroes 
         battle_instance = BattleManager()
-        battle_instance.position_heroes(Config.party_heroes)
+        battle_instance.position_heroes()
         for inv_hero in Config.party_heroes:
             self.inventory_sprites.add(inv_hero)
         

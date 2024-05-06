@@ -1,8 +1,8 @@
 import pygame as pg
 from config_ab import Config
-from hero_ab import Hero
+from hero_ab import Hero, Follower
 from sprites_ab import Monster, Equipment
-from animations_ab import Stab, Slash, Blast, Smash, SongAnimation
+from animations_ab import Stab, Slash, Blast, Smash, SongAnimation, FollowerAttack
 from sounds_ab import play_sound_effect
 from data_ab import get_json_data, get_affix
 import random
@@ -18,6 +18,7 @@ class BattleManager(Config):
         self.combat_hero_sprites = pg.sprite.Group()
         self.combat_mob_sprites = pg.sprite.Group()
         self.animation_sprites = pg.sprite.Group()
+        self.follower_sprites = pg.sprite.Group()
         self.exp_reward = 0
         self.combat_delay = 1.1
         self.animation_speed = 0.3
@@ -26,11 +27,14 @@ class BattleManager(Config):
         self.animation_sprites.empty()
         self.combat_hero_sprites.empty()
         self.combat_mob_sprites.empty()
+        self.follower_sprites.empty()
         self.actions_unordered = []
         Config.room_monsters = []
         Config.combat_log = []
         for loot_item in self.item_loot:
             BattleManager.item_to_backpack(loot_item)
+            #handle backpack overflow
+
         self.item_loot = []
         Config.gold_count += self.gold_loot
 
@@ -73,6 +77,11 @@ class BattleManager(Config):
     def create_magic_item(item_type, subtype, item_power):
         tier = random.randint(1, item_power)
         slot_type_mapping = {'weapon': 'hand1', 'armor': subtype}
+
+        #add tiers above 5
+        if tier > 5:
+            tier = 5
+        
         item_tier = 'tier_' + str(tier)
         #tie certain modifiers to item subtypes (staff = magic_power)
         if item_type == 'consumable':
@@ -117,6 +126,7 @@ class BattleManager(Config):
         self.defeated_heroes = []
         Config.party_backpack = {}
         Config.backpack_slots = []
+        Config.party_followers = [] 
         Config.equipment_slots = []
         Config.generated_path = []
         Config.completed_adventures = []
@@ -129,7 +139,7 @@ class BattleManager(Config):
         self.party_defeated = False
 
     #move to Config?
-    def position_heroes(self, heroes: list):
+    def position_heroes(self):
         HEROPOS_X = (self.screen_width * 0.3)
         HEROPOS_Y = (self.screen_height * 0.6)
         HERO_GAP = (self.screen_width * 0.2)
@@ -139,6 +149,7 @@ class BattleManager(Config):
            spot_hero.pos_y = HEROPOS_Y
            HEROPOS_X += HERO_GAP
     
+
     def create_monsters(self, monster_count, monster_names):
         y = 0.2
         pos_y = self.screen_height * y
@@ -154,23 +165,17 @@ class BattleManager(Config):
         def speed_order(battle_participant: object):
             participant_speed = battle_participant.total_stat('speed')
             return participant_speed
-            #if battle_participant.is_player:
-            #    hero_speed = battle_participant.total_stat('speed')
-            #    return hero_speed
-            #else:
-            #    monster_speed = battle_participant.speed
-            #    return monster_speed
         return sorted(incombat, key=speed_order, reverse=True)
     
 
     def startup(self):
         self.party_defeated = False
-        if Config.current_location.type == 'boss':
+        if Config.current_location.type == 'boss' and Config.current_adventure == 'dark_forest':
             play_sound_effect(Config.current_location.name)
         self.combat_started = False
         self.delay_timer = 0.0
 
-        self.position_heroes(Config.party_heroes)
+        self.position_heroes()
         monster_count = len(Config.room_monsters)
         monster_names = Config.room_monsters
         Config.room_monsters = []
@@ -182,6 +187,8 @@ class BattleManager(Config):
         for party_hero in Config.party_heroes:
             self.combat_hero_sprites.add(party_hero)
             self.actions_unordered.append(party_hero)
+        for follower in Config.party_followers:
+            self.actions_unordered.append(follower)
 
         #group in activation function
         for activation_hero in Config.party_heroes:
@@ -205,6 +212,7 @@ class BattleManager(Config):
                         self.next = 'map'
                     pg.mixer.stop()
                     Config.completed_adventures.append(Config.current_adventure)
+                    print(Config.current_location.type)
                     Config.current_location = None
                     #other end of adventure cleaning?
                 self.done = True
@@ -236,7 +244,7 @@ class BattleManager(Config):
                 #hero always cast index 0 spell in self.spells
                 if Config.acting_character.attack_type == 'spell':
                     active_spell = Config.acting_character.spells[0]
-                    #active_spell = Config.acting_character.evaluate_action()
+                    #active_spell = Config.acting_character.evaluate_spells()
                     self.combat_animation = Blast(self.animation_sprites, active_spell, pos_x, pos_y)
                 
                 elif Config.acting_character.attack_type == 'song':
@@ -250,7 +258,13 @@ class BattleManager(Config):
                         held_weapon = Config.acting_character.worn_items['hand1'].item_name
                     self.combat_animation = Stab(self.animation_sprites, held_weapon, pos_x, pos_y)
 
-            elif not Config.acting_character.is_player:
+            elif Config.acting_character.is_follower:
+                play_sound_effect(Config.acting_character.type)
+                pos_x = Config.acting_character.following.pos_x
+                pos_y = Config.acting_character.following.pos_y
+                self.combat_animation = FollowerAttack(self.animation_sprites, Config.acting_character, pos_x, pos_y)
+
+            elif not Config.acting_character.is_player and not Config.acting_character.is_follower:
                 #if Config.acting_character.sound:
                 #    sound_effect(Config.acting_character.sound)
                 if Config.acting_character.type in ['kobold', 'goblin']:
@@ -280,7 +294,7 @@ class BattleManager(Config):
             self.animation_sprites.remove(self.combat_animation)
             self.actions_ordered.append(self.actions_ordered.pop(0))
             
-            if Config.acting_character.is_player:
+            if Config.acting_character.is_player or Config.acting_character.is_follower:
                 for fighting_monster in Config.room_monsters:
                     if fighting_monster.health <=0:
                         self.combat_mob_sprites.remove(fighting_monster)
@@ -299,7 +313,7 @@ class BattleManager(Config):
                             f'Found {len(self.item_loot)} items',
                             'Press any key to continue']
 
-            elif not Config.acting_character.is_player:  
+            elif not Config.acting_character.is_player and not Config.acting_character.is_follower:  
                 for fighting_hero in Config.party_heroes:
                     if fighting_hero.health <=0:
                         self.combat_hero_sprites.remove(fighting_hero)
@@ -327,6 +341,7 @@ class BattleManager(Config):
             live_monster.draw_health_bar()
 
         for live_hero in Config.party_heroes:
+            live_hero.display_name()
             live_hero.draw_health_bar()
 
         if Config.acting_character.animation: 

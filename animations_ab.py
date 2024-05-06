@@ -13,6 +13,7 @@ import numpy as np
 #weapon rotated to point at target
 
 weapons_data = get_data('weapons')
+follower_data = get_data('followers')
 
 class Stab(Config, pg.sprite.Sprite): #Groupsingle
 	def __init__(self, groups, weapon, pos_x, pos_y):
@@ -97,6 +98,48 @@ class Blast(Config, pg.sprite.Sprite):
 				self.timer = 0
 				self.attack_animation = False
 				return True
+
+class FollowerAttack(Config, pg.sprite.Sprite):
+	def __init__(self, groups, follower_obj, pos_x, pos_y):
+		super().__init__()
+		pg.sprite.Sprite.__init__(self, groups) 
+		self.attack_animation = False
+		follower_type = follower_obj.type
+		follower_image = pg.image.load('./ab_images/' + follower_type + '.png').convert_alpha()
+		WIDTH, HEIGHT = follower_image.get_size()
+		SIZE_SCALAR = follower_obj.size_scalar
+		SCALED_WIDTH = WIDTH / SIZE_SCALAR
+		SCALED_HEIGHT = HEIGHT / SIZE_SCALAR
+		POS_X_ADJUST = follower_obj.offset_x
+		POS_Y_ADJUST = follower_obj.offset_y
+		pos_x += POS_X_ADJUST
+		pos_y += POS_Y_ADJUST
+
+		self.pos_y = pos_y
+		self.pos_x = pos_x
+		self.attack_speed = 3 
+
+		self.image = pg.transform.smoothscale(follower_image, (SCALED_WIDTH, SCALED_HEIGHT))
+		self.rect = self.image.get_rect()
+		self.rect.bottomright = [self.pos_x, self.pos_y]
+
+		self.reach = 10
+		self.animation_timer = 0
+		
+	def animation_start(self):
+		self.attack_animation = True
+
+	#speed = Combat.animation_speed
+	def animate(self, speed): 
+		if self.attack_animation == True:
+			self.reach -= speed
+			if int(self.reach) <= 0:
+				self.attack_animation = False
+				return True
+
+		self.pos_y -= self.attack_speed
+		self.rect = self.image.get_rect()
+		self.rect.bottomright = [self.pos_x, self.pos_y]
 
 class SongAnimation(pg.sprite.Sprite):
 	def __init__(self, groups, pos_x, pos_y):

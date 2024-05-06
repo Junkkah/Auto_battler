@@ -68,6 +68,7 @@ class LevelUp(Config):
         self.talents_selected = []
         self.levelup_hero_sprites.empty()
         self.levelup_sprites.empty()
+        Config.map_next = False
     
     def startup(self):
         self.talent_buttons = []
@@ -78,7 +79,7 @@ class LevelUp(Config):
 
         #position heroes 
         battle_instance = BattleManager()
-        battle_instance.position_heroes(Config.party_heroes)
+        battle_instance.position_heroes()
         for leveling_hero in Config.party_heroes:
             self.levelup_hero_sprites.add(leveling_hero)
             leveling_hero.gain_level()
@@ -122,7 +123,9 @@ class LevelUp(Config):
                 play_sound_effect('click')
                 if Config.map_next:
                     self.next = 'map'
-                    Config.map_next = False
+                else:
+                    self.next = 'path'
+                    #Config.map_next = False
                 self.done = True
             elif self.continue_button.rect.collidepoint(mouse_pos):
                 play_sound_effect('error')
@@ -171,7 +174,8 @@ class LevelUp(Config):
                     drawn_card[i].border_color = (self.black)
                     drawn_card[i].draw_border()
         
-        INFO = 'Your heroes leveled up. Choose new talents'
+        new_level = Config.party_heroes[0].level
+        INFO = f'Your heroes leveled up to {new_level}. Choose new talents'
         INFO_TEXT = self.med_info_font.render(INFO, True, self.black)
         COORDS_INFO = (self.screen_width * 0.35, self.screen_height * 0.09)
         INFO_RECT = INFO_TEXT.get_rect(topleft = COORDS_INFO)

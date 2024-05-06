@@ -4,6 +4,7 @@ class Config(object):
     party_heroes = []
     room_monsters = []
     party_backpack = {}
+    party_followers = []
     backpack_slots = []
     equipment_slots = []
     generated_path = []
@@ -16,7 +17,7 @@ class Config(object):
     height = 1080
     scout_active = False
     map_next = False
-    aura_bonus = {'speed': 0, 'damage': 0, 'menace': 0, 'armor': 0, 'magic_power': 0}
+    aura_bonus = {'speed': 0, 'damage': 0, 'menace': 0, 'armor': 0, 'magic_power': 0, 'critical': 0}
     combat_log = []
     
     def __init__(self):

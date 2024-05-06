@@ -272,7 +272,8 @@ class Shop(Config):
             if self.hovered_item:
                 desc_text = self.item_info_font.render(self.hovered_item.desc, True, self.black)
                 text_rect = desc_text.get_rect()
-                offset_y = self.screen_height // 54
+                offset_divisor = 54
+                offset_y = self.screen_height // offset_divisor
                 text_rect.topleft = (mouse_pos[0], mouse_pos[1] - offset_y)
         
                 text_padding = 1

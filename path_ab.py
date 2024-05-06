@@ -17,10 +17,12 @@ class Path(Config):
         self.line_thickness = 5
         self.max_pulse_radius = 50
         self.pulsation_speed = 0.005
+        self.hovered_item = None
 
     def cleanup(self):
         self.path_sprites.empty()
         self.loc_objects = []
+        self.hovered_item = None
 
     def create_encounter(self, tier) -> list:
         encounters_df = get_monster_encounters(Config.current_adventure, tier)
@@ -97,6 +99,15 @@ class Path(Config):
                 Config.current_location = clicked_location
                 self.next = 'shop'
                 self.done = True
+        
+        elif event.type == pg.MOUSEMOTION and Config.scout_active:          
+            for path_loc in self.loc_objects:
+                if path_loc.rect.collidepoint(mouse_pos):
+                    self.hovered_item = path_loc
+                    break
+                else:
+                    self.hovered_item = None
+        
 
     def update(self, screen, dt):
         self.draw(screen)
@@ -106,15 +117,9 @@ class Path(Config):
     
     def draw(self, screen):
         self.screen.blit(self.ground, (0,0))
-
+        mouse_pos = pg.mouse.get_pos()
         gold_text = self.create_gold_text()
         self.screen.blit(gold_text, self.coords_gold)
-
-        #hoverover text for locations
-        if Config.scout_active:
-            pass
-            #mouseover text defined in get_event
-            #blit mouseover text
 
         radius = self.max_pulse_radius * abs(math.sin(pg.time.get_ticks() * self.pulsation_speed))
 
@@ -128,12 +133,28 @@ class Path(Config):
                     self.draw_circle(self.white, locs_draw.pos, int(radius), 2)
         
         #don't draw lines further than next layer at swamp
-        if Config.current_adventure != 'swamp':
+        if Config.current_adventure != 'swamp' or Config.scout_active:
             for node in self.loc_objects:
                 if node.child1:
                     pg.draw.line(self.screen, self.white, node.pos, node.child1.pos, self.line_thickness)
                 if node.child2:
                     pg.draw.line(self.screen, self.white, node.pos, node.child2.pos, self.line_thickness)
 
-
         self.path_sprites.draw(self.screen)
+
+        if Config.scout_active:
+            if self.hovered_item:
+                desc_text = self.item_info_font.render(self.hovered_item.type, True, self.black)
+                text_rect = desc_text.get_rect()
+                offset_divisor = 54
+                offset_y = self.screen_height // offset_divisor
+                text_rect.topleft = (mouse_pos[0], mouse_pos[1] - offset_y)
+        
+                text_padding = 1
+                rect_width = text_rect.width
+                rect_height = text_rect.height
+                
+                rect_surface = pg.Surface((rect_width, rect_height))
+                rect_surface.fill((self.white)) 
+                self.screen.blit(rect_surface, (text_rect.left - text_padding, text_rect.top - text_padding))
+                self.screen.blit(desc_text, text_rect.topleft)
