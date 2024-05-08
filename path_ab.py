@@ -42,7 +42,10 @@ class Path(Config):
         locations_data = self.generated_path
 
         for index, row in locations_data.iterrows():
-            new_location = Location(self.path_sprites, row)
+            adventures_df = get_data('adventures')
+            current_adventure_df = adventures_df[adventures_df['name'] == Config.current_adventure].reset_index(drop=True)
+            width_gap = current_adventure_df.iloc[0]['width_gap']
+            new_location = Location(self.path_sprites, row, width_gap)
             self.loc_objects.append(new_location)
 
         def set_children(df):

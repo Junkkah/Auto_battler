@@ -110,7 +110,7 @@ class Adventure(pg.sprite.Sprite):
         
 
 class Location(pg.sprite.Sprite):
-    def __init__(self, groups, df):
+    def __init__(self, groups, df, width_gap):
         super().__init__(groups)
         # Assign id, name, type, y_coord, size_scalar, tier, depth, desc, image_name, parent1, parent2, child1, child2
         for stat_name in df.index:
@@ -120,7 +120,7 @@ class Location(pg.sprite.Sprite):
         self.height = scenery.get_height()
         self.width = scenery.get_width()
 
-        self.width_gap = 0.07
+        self.width_gap = width_gap
         self.pos_x = Config.width * (self.width_gap * self.depth)
         self.pos_y = Config.height * float(self.y_coord)
         self.pos = (self.pos_x, self.pos_y)

@@ -161,6 +161,7 @@ class Shop(Config):
                 price_var_min = 10
                 price_var_max = 25
                 item_price = item.modifier_tier * price_multiplier + (random.randint(price_var_min, price_var_max))
+                item_price -= Config.party_discount
                 item.buy_value = item_price
                 buy_text = f'Buy for: {item_price}'
                 item_x = self.item_selection[i].rect.x

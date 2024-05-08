@@ -15,6 +15,7 @@ Columns:
 - gold_max: Maximum amount of gold awarded when the monster is defeated.
 - loot_roll: Probability of the monster awarding magic item when defeated.
 - roll_count: How many times loot_roll probability is checked for awards.
+- sound: Sound effect for the monster.
 
 Table: Classes
 - Attributes for different hero classes.
@@ -120,3 +121,14 @@ Columns:
 - tier_3: Level three modifier text.
 - tier_4: Level four modifier text.
 - tier_5: Level five modifier text.
+
+Table: Followers
+- Table for hero minions.
+Columns:
+- id: Unique identifier for each follower.
+- type: Type of the follower.
+- size_scalar: Scalar for resizing image.
+- damage: Amount of damage the follower can deal.
+- speed: How fast the follower performs actions.
+- offset_x: Adjustment for follower's distance from hero.
+- offset_y: Adjustment for follower's distance from hero.

@@ -52,8 +52,8 @@ class BattleManager(Config):
         self.combat_started = False
         self.delay_timer = 0.0
         Config.aura_bonus = {aura_key: 0 for aura_key in Config.aura_bonus}
-        if self.party_defeated:
-            self.reset_adventure()
+        if self.party_defeated or len(Config.completed_adventures) == Config.number_of_adventures:
+            self.reset_game()
     
     def create_gold_loot(self):
         total_min_gold = 0
@@ -116,13 +116,13 @@ class BattleManager(Config):
         drop_chance_bonus = (Config.current_location.tier / 100)
         for monster in Config.room_monsters:
             #number_of_loot_rolls attribute, 1-5. Repeat for each 
-            item_drop_chance = monster.loot_roll + drop_chance_bonus
+            item_drop_chance = monster.loot_roll + drop_chance_bonus + Config.magic_find
             if random.random() <= item_drop_chance:
                 random_item = self.create_random_item(item_probabilities)
                 looted_items.append(random_item)
         return looted_items    
     
-    def reset_adventure(self):
+    def reset_game(self):
         self.defeated_heroes = []
         Config.party_backpack = {}
         Config.backpack_slots = []
@@ -134,6 +134,8 @@ class BattleManager(Config):
         Config.current_location = None
         Config.acting_character = None
         Config.gold_count = 50
+        Config.party_discount = 0
+        Config.magic_find = 0
         Config.scout_active = False
         Config.map_next = False
         self.party_defeated = False
@@ -206,15 +208,18 @@ class BattleManager(Config):
         if event.type == pg.KEYDOWN:
             if not Config.room_monsters:
                 if Config.current_location.type == 'boss':
+                    pg.mixer.stop()
+                    Config.completed_adventures.append(Config.current_adventure)
+                    Config.current_location = None
+
+                    if len(Config.completed_adventures) == Config.number_of_adventures:
+                        self.next = 'menu'
+                        self.done = True
+                        
                     if self.next == 'levelup':
                         Config.map_next = True
                     else:
                         self.next = 'map'
-                    pg.mixer.stop()
-                    Config.completed_adventures.append(Config.current_adventure)
-                    print(Config.current_location.type)
-                    Config.current_location = None
-                    #other end of adventure cleaning?
                 self.done = True
             if not Config.party_heroes:
                 pg.mixer.stop()
@@ -265,10 +270,10 @@ class BattleManager(Config):
                 self.combat_animation = FollowerAttack(self.animation_sprites, Config.acting_character, pos_x, pos_y)
 
             elif not Config.acting_character.is_player and not Config.acting_character.is_follower:
-                #if Config.acting_character.sound:
-                #    sound_effect(Config.acting_character.sound)
-                if Config.acting_character.type in ['kobold', 'goblin']:
-                    play_sound_effect('growl')
+                if Config.acting_character.sound:
+                    play_sound_effect(Config.acting_character.sound)
+                #if Config.acting_character.type in ['kobold', 'goblin']:
+                #    play_sound_effect('growl')
                 adjusted_pos_x = Config.acting_character.pos_x + Config.acting_character.width
                 adjusted_pos_y = Config.acting_character.pos_y + Config.acting_character.height
                 self.combat_animation = Smash(self.animation_sprites, adjusted_pos_x, adjusted_pos_y)

@@ -78,8 +78,8 @@ class Hero(Config, pg.sprite.Sprite):
 
     #def evaluate_spells(self):
         #check spell_book
-        #check talents
-        #if mastery or several, limit to mastery spells
+        #create masteries list
+        #if mastery, cast mastery spell
         #if one mastery > others
         #if len monsters > 1, cast mastery aoe
             #if several, get most damage
@@ -91,7 +91,6 @@ class Hero(Config, pg.sprite.Sprite):
         
 
 
-    
     #def evaluate_action(self, attack_type):
         #done before creating animation object
         #set acting, run eval, create animation object
@@ -382,8 +381,9 @@ class Hero(Config, pg.sprite.Sprite):
         for target_mob in Config.room_monsters:
             target_mob.take_damage(DAMAGE, damage_type, armor_penalty)
 
-    def songmaster_activation(self, rank):
-        self.songmaster_rank = rank
+    def songmaster_activation(self, effect):
+        rank = int(effect)
+        self.songmaster_rank += rank
 
     def scout_activation(self, rank):
         Config.scout_active = True 
@@ -451,7 +451,7 @@ class Hero(Config, pg.sprite.Sprite):
         armor_penalty = 0
         target.take_damage(DAMAGE, 'physical', armor_penalty)
     
-    def gladiator_activation(self, rank):
+    def lonewolf_activation(self, rank):
         damage_bonus_per_rank = 4
         total_damage_bonus = damage_bonus_per_rank * rank
         armor_bonus_per_rank = 1
@@ -487,6 +487,12 @@ class Hero(Config, pg.sprite.Sprite):
         for entrapped_monster in Config.room_monsters:
             entrapped_monster.take_debuff('armor', total_armor_penalty)
     
+    def magicfind_activation(self, effect):
+        rank = int(effect)
+        magic_find_per_rank = 0.02
+        total_magic_find = magic_find_per_rank * rank
+        Config.magic_find += total_magic_find
+    
     def follower_activation(self, effect):
         follower_type = effect
         follower_names = get_json_data('follower_names')
@@ -501,13 +507,23 @@ class Hero(Config, pg.sprite.Sprite):
         for follower in Config.party_followers:
             if follower.following == self:
                 follower.damage += total_damage_increase
+    
+    def bargain_activation(self, effect):
+        rank = int(effect)
+        discount_per_rank = 3
+        total_discount = discount_per_rank * rank
+        Config.party_discount += total_discount
+    
+    def fiery_activation(self, effect):
+        self.attack_type = 'spell'
+        self.add_talent('burn', 'spell')
 
 class Follower(Config, pg.sprite.Sprite):
     def __init__(self, follower_name: str, follower_type: str, master):
         Config.__init__(self)
 
         self.following = master
-        self.type = follower_type #bear
+        self.type = follower_type 
         self.name = follower_name
         self.attack_type = 'melee'
         self.is_follower = True

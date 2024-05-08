@@ -9,7 +9,10 @@ class Config(object):
     equipment_slots = []
     generated_path = []
     completed_adventures = []
+    number_of_adventures = 6
     gold_count = 50
+    party_discount = 0
+    magic_find = 0
     current_location = None
     current_adventure = None
     acting_character = None

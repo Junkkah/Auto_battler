@@ -1,6 +1,7 @@
 {
     "bear": ["Borre", "Barre", "Berro"],
+    "fire spirit": ["Ember", "Cinder", "Smolder"],
     "wolf": [],
-    "skeleton": [],
+    "skeleton": ["skeleton"],
     "zombie": []
 }

@@ -110,3 +110,7 @@ mixkit-bubbling-volcano-lava-flow-2444
 Bear:
 Wild lion animal roar
 mixkit-wild-lion-animal-roar-6
+
+Skeleton:
+Bone breaking with echo
+mixkit-bone-breaking-with-echo-2937

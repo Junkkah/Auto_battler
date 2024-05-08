@@ -105,7 +105,7 @@ class FollowerAttack(Config, pg.sprite.Sprite):
 		pg.sprite.Sprite.__init__(self, groups) 
 		self.attack_animation = False
 		follower_type = follower_obj.type
-		follower_image = pg.image.load('./ab_images/' + follower_type + '.png').convert_alpha()
+		follower_image = pg.image.load('./ab_images/monster/' + follower_type + '.png').convert_alpha()
 		WIDTH, HEIGHT = follower_image.get_size()
 		SIZE_SCALAR = follower_obj.size_scalar
 		SCALED_WIDTH = WIDTH / SIZE_SCALAR
