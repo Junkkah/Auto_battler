@@ -114,3 +114,11 @@ mixkit-wild-lion-animal-roar-6
 Skeleton:
 Bone breaking with echo
 mixkit-bone-breaking-with-echo-2937
+
+Fire spirit
+Wizard fire woosh
+mixkit-wizard-fire-woosh-1326
+
+Earth spirit
+Falling hit on gravel
+mixkit-falling-hit-on-gravel-756

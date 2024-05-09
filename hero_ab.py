@@ -469,6 +469,11 @@ class Hero(Config, pg.sprite.Sprite):
         healing_per_rank = 2
         total_healing = healing_per_rank * rank
         self.gain_health(total_healing)
+
+    def shelter_activation(self, rank):
+        armor_per_rank = 1
+        total_armor = armor_per_rank * rank
+        Config.aura_bonus['armor'] += total_armor
     
     def xtr_att_activation(self, rank):
         extra_attacks_per_rank = 1
@@ -486,6 +491,12 @@ class Hero(Config, pg.sprite.Sprite):
         total_armor_penalty = armor_penalty_per_rank * rank
         for entrapped_monster in Config.room_monsters:
             entrapped_monster.take_debuff('armor', total_armor_penalty)
+    
+    def dark_activation(self, rank):
+        damage_penalty_per_rank = 1
+        total_damage_penalty = damage_penalty_per_rank * rank
+        for blinded_monster in Config.room_monsters:
+            blinded_monster.take_debuff('damage', total_damage_penalty)
     
     def magicfind_activation(self, effect):
         rank = int(effect)
@@ -517,6 +528,11 @@ class Hero(Config, pg.sprite.Sprite):
     def fiery_activation(self, effect):
         self.attack_type = 'spell'
         self.add_talent('burn', 'spell')
+    
+    def waterheal(self, effect):
+        for healed_hero in Config.party_heroes:
+            health = healed_hero.max_health
+            healed_hero.gain_health(health)
 
 class Follower(Config, pg.sprite.Sprite):
     def __init__(self, follower_name: str, follower_type: str, master):
