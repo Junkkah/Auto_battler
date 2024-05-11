@@ -44,6 +44,7 @@ class Hero(Config, pg.sprite.Sprite):
         self.name = name
         self.is_player = True
         self.is_follower = False
+        self.is_monster = False
         self.type = hero_type
         self.inventory_spot = None
         self.inventory_spot_number = None
@@ -63,6 +64,7 @@ class Hero(Config, pg.sprite.Sprite):
         self.critical = 0
         self.spells = []
         self.talents = []
+        self.active_spell = None
 
         self.talent_bonus = {'speed': 0, 'damage': 0, 'menace': 0, 'armor': 0, 'magic_power': 0, 'critical': 0}
         self.spell_mastery = {'fire': 0, 'lightning': 0, 'acid': 0, 'cold': 0, 'nature': 0}
@@ -76,25 +78,31 @@ class Hero(Config, pg.sprite.Sprite):
         self.aura = None
         self.enemy_armor_penalty = 0
 
-    #def evaluate_spells(self):
-        #check spell_book
-        #create masteries list
-        #if mastery, cast mastery spell
-        #if one mastery > others
-        #if len monsters > 1, cast mastery aoe
-            #if several, get most damage
-            #if no aoe, get most damage
-            #return chosen_spell
-        #if no mastery
-        #if len monsters > 1 cast aoe, most damage
-        #else cast most damage
+    def evaluate_spells(self):
+        #select spells which have highest masteries
+        max_values = max(self.spell_mastery.values())
+        masteries = [key for key, value in self.spell_mastery.items() if value == max_values]
+        mastery_spells = [spell for spell in self.spells if spell.get('type') in masteries]
+        if len(Config.room_monsters) > 1:
+            #filter out single target spells if multiple targets
+            aoe_spells = [aoe_spell for aoe_spell in mastery_spells if aoe_spell.get('area') == 1]
+            #check if valid aoe spells exist
+            if aoe_spells:
+                mastery_spells = aoe_spells
+
+        max_damage = max(dam_spell.get('damage') for dam_spell in mastery_spells)
+        max_damage_spells = [max_spell for max_spell in mastery_spells if max_spell.get('damage') == max_damage]
+        chosen_spell = random.choice(max_damage_spells)
+        return chosen_spell
         
-
-
-    #def evaluate_action(self, attack_type):
-        #done before creating animation object
-        #set acting, run eval, create animation object
-        #requires weapon data in hero object
+    #def evaluate_action(self):
+        #if attack_type == 'spell':
+            #spell_attack()
+        #if attack_type == 'song':
+            #song()
+        #else:
+            #evaluate_special_attack
+            #or melee_attack()
         
     #if type == 'stat', 'combat', 'instant'
     #need separate activation methods for stat, combat and instant
@@ -272,7 +280,6 @@ class Hero(Config, pg.sprite.Sprite):
             stat_bonus = talents['effect']
             self.add_stat(stat_bonus)
 
-        #pilfer 2 would automatically upgrade activation method to rank 2?
         elif talent_type in ['location', 'combat', 'map', 'song']:
             self.talents.append(talent_name)
             effect = talents['effect']
@@ -404,14 +411,16 @@ class Hero(Config, pg.sprite.Sprite):
         #menace affect actions of monsters during their turns
         #causes the barb to have residual menace if 
         #monsters act before barb in next combat
-        self.talent_bonus['menace'] = 0
+        #menace bonus causing issues?
+        
+        #self.talent_bonus['menace'] = 0
         damage_bonus_per_rank = 3
         menace_bonus_per_rank = 2
         total_damage = damage_bonus_per_rank * rank
         total_menace = menace_bonus_per_rank * rank
         if self.health < self.max_health // 2:
             self.talent_bonus['damage'] += total_damage
-            self.talent_bonus['menace'] += total_menace
+            #self.talent_bonus['menace'] += total_menace
 
     def crush_activation(self, rank):
         armor_pierced_per_rank = 2
@@ -527,7 +536,7 @@ class Hero(Config, pg.sprite.Sprite):
     
     def fiery_activation(self, effect):
         self.attack_type = 'spell'
-        self.add_talent('burn', 'spell')
+        self.add_talent('Burn', 'spell')
     
     def waterheal(self, effect):
         for healed_hero in Config.party_heroes:
@@ -544,6 +553,7 @@ class Follower(Config, pg.sprite.Sprite):
         self.attack_type = 'melee'
         self.is_follower = True
         self.is_player = False
+        self.is_monster = False
         self.animation = False
         self.attacked = False
 
@@ -572,3 +582,6 @@ class Follower(Config, pg.sprite.Sprite):
         log_entry = (self.name, LOG_DAMAGE, target.name)
         Config.combat_log.append(log_entry)
         target.take_damage(DAMAGE, 'physical', armor_penalty)
+    
+    def activate_talent_group(self, group):
+        pass

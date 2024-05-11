@@ -238,11 +238,6 @@ class WorldMap(Config):
                             parent = self.check_parent(layer + 1, node_idx)
                             self.node_dicts[layer + 1][node_idx][parent] = f'node{layer}_{node_idx + 1}'
 
-                            #if node_idx == (current_layer_nodes - 1):
-                            #    self.node_dicts[layer][node_idx]['child2'] = f'node{layer + 1}_{node_idx + 2}'
-                            #    parent = self.check_parent(layer + 1, node_idx + 1)
-                            #    self.node_dicts[layer + 1][node_idx + 1][parent] = f'node{layer}_{node_idx + 1}'
-
     def write_path_df(self, num_layers: int):
         df = pd.DataFrame(columns=['name', 'type', 'y_coord', 'size_scalar', 'tier', 'depth', 'desc', 'image_name', 'parent1', 'parent2', 'child1', 'child2'])
         data = []
@@ -253,13 +248,13 @@ class WorldMap(Config):
         return df
 
     def generate_random_path(self, adventure: str):
-        #procedurally generated directed acylic graph for adventure path
+        #duplicate map_data needed for simulator
+        self.map_data = get_data('adventures')
         adventure_df = self.map_data[self.map_data['name'] == adventure].reset_index(drop=True)
         num_layers = adventure_df.iloc[0]['layers']
         fight_prob = adventure_df.iloc[0]['fight_p']
         start_size = adventure_df.iloc[0]['start_size']
 
-        #make x-coord multiplier tied to layer number
         coords = self.generate_random_coordinates(adventure, num_layers, start_size)
         self.node_dicts = self.create_node_dicts(num_layers, coords, adventure, fight_prob) 
         self.assign_child_nodes(coords, num_layers)

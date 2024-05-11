@@ -38,9 +38,10 @@ class BattleManager(Config):
         self.item_loot = []
         Config.gold_count += self.gold_loot
 
-        for risen_hero in self.defeated_heroes:
-            Config.party_heroes.append(risen_hero)
-            risen_hero.health = risen_hero.max_health // 2
+        if not self.party_defeated:
+            for risen_hero in self.defeated_heroes:
+                Config.party_heroes.append(risen_hero)
+                risen_hero.health = risen_hero.max_health // 2
         self.defeated_heroes = []
 
         for cleanup_hero in Config.party_heroes:
@@ -123,8 +124,9 @@ class BattleManager(Config):
         return looted_items    
     
     def reset_game(self):
-        self.defeated_heroes = []
         Config.party_backpack = {}
+        self.defeated_heroes = []
+        Config.party_heroes = []
         Config.backpack_slots = []
         Config.party_followers = [] 
         Config.equipment_slots = []
@@ -246,11 +248,9 @@ class BattleManager(Config):
                 pos_x = Config.acting_character.pos_x
                 pos_y = Config.acting_character.pos_y
 
-                #hero always cast index 0 spell in self.spells
                 if Config.acting_character.attack_type == 'spell':
-                    active_spell = Config.acting_character.spells[0]
-                    #active_spell = Config.acting_character.evaluate_spells()
-                    self.combat_animation = Blast(self.animation_sprites, active_spell, pos_x, pos_y)
+                    Config.acting_character.active_spell = Config.acting_character.evaluate_spells()
+                    self.combat_animation = Blast(self.animation_sprites, Config.acting_character.active_spell, pos_x, pos_y)
                 
                 elif Config.acting_character.attack_type == 'song':
                     play_sound_effect('tune')
@@ -272,8 +272,6 @@ class BattleManager(Config):
             elif not Config.acting_character.is_player and not Config.acting_character.is_follower:
                 if Config.acting_character.sound:
                     play_sound_effect(Config.acting_character.sound)
-                #if Config.acting_character.type in ['kobold', 'goblin']:
-                #    play_sound_effect('growl')
                 adjusted_pos_x = Config.acting_character.pos_x + Config.acting_character.width
                 adjusted_pos_y = Config.acting_character.pos_y + Config.acting_character.height
                 self.combat_animation = Smash(self.animation_sprites, adjusted_pos_x, adjusted_pos_y)
@@ -287,7 +285,7 @@ class BattleManager(Config):
                 Config.acting_character.activate_item_effects()
             if Config.acting_character.attack_type == 'spell':
                 Config.acting_character.activate_talent_group('combat')
-                Config.acting_character.spell_attack(Config.acting_character.spells[0])
+                Config.acting_character.spell_attack(Config.acting_character.active_spell)
             elif Config.acting_character.attack_type == 'song':
                 Config.acting_character.activate_talent_group('song')
                 Config.acting_character.song_attack()
@@ -299,6 +297,7 @@ class BattleManager(Config):
             self.animation_sprites.remove(self.combat_animation)
             self.actions_ordered.append(self.actions_ordered.pop(0))
             
+            #if not Config.acting_character.is_monster:
             if Config.acting_character.is_player or Config.acting_character.is_follower:
                 for fighting_monster in Config.room_monsters:
                     if fighting_monster.health <=0:
@@ -318,6 +317,7 @@ class BattleManager(Config):
                             f'Found {len(self.item_loot)} items',
                             'Press any key to continue']
 
+            #elif Config.acting_character.is_monster:
             elif not Config.acting_character.is_player and not Config.acting_character.is_follower:  
                 for fighting_hero in Config.party_heroes:
                     if fighting_hero.health <=0:

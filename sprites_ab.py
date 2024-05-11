@@ -20,6 +20,7 @@ class Monster(Config, pg.sprite.Sprite):
         self.pos_x = pos[0]
         self.pos_y = pos[1]
         self.type = monster_type
+        self.is_monster = True
         self.is_player = False
         self.is_follower = False
         self.animation = False

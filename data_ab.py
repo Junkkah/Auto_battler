@@ -94,7 +94,7 @@ def enter_simulation_result(row):
     cursor = db.cursor()
 
     exp = row['exp']
-    boss = row['boss_defeated']
+    boss = row['bosses']
 
     result_query = """
         INSERT INTO Results (exp, boss) VALUES (?, ?)"""
@@ -102,12 +102,6 @@ def enter_simulation_result(row):
     cursor.execute(result_query, (exp, boss))
     result_id = cursor.lastrowid
     
-    nodes = row['nodes']
-    node_query = """
-        INSERT INTO Nodes (result_id, node1, node2, node3, node4, node5, node6, node7, node8, node9, node10, node11, node12, node13) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
-    db.execute(node_query, (result_id,) + tuple(nodes))
-
     heroes = row['heroes']
     hero_data = [hero for hero_tuple in heroes for hero in hero_tuple]
 
@@ -116,28 +110,27 @@ def enter_simulation_result(row):
         VALUES (?, ?, ?, ?, ?, ?, ?)"""
     db.execute(hero_query, (result_id,) + tuple(hero_data))
   
-
-    talent_dicts = []
-    for hero_name, talents in row['talents'].items():
-        talent_dict = {'hero_name': hero_name, 'talents': talents}
-        talent_dicts.append(talent_dict)
+    #take talent data input as list
+    #talent_dicts = []
+    #for hero_name, talents in row['talents'].items():
+    #    talent_dict = {'hero_name': hero_name, 'talents': talents}
+    #    talent_dicts.append(talent_dict)
     
-    talent_query = """
-        INSERT INTO Talents 
-        (result_id, hero1_talent1, hero1_talent2, hero1_talent3, hero1_talent4, hero1_talent5,
-        hero2_talent1, hero2_talent2, hero2_talent3, hero2_talent4, hero2_talent5, 
-        hero3_talent1, hero3_talent2, hero3_talent3, hero3_talent4, hero3_talent5)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
+    #talent_query = """
+    #    INSERT INTO Talents 
+    #    (result_id, hero1_talent1, hero1_talent2, hero1_talent3, hero1_talent4, hero1_talent5,
+    #    hero2_talent1, hero2_talent2, hero2_talent3, hero2_talent4, hero2_talent5, 
+    #    hero3_talent1, hero3_talent2, hero3_talent3, hero3_talent4, hero3_talent5)
+    #    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
 
-    
-    talent_values = [result_id]
+    #talent_values = [result_id]
 
-    for t_dict in talent_dicts:
-        talents = t_dict['talents']
-        talents.extend([None] * (5 - len(talents)))
-        talent_values += talents
+    #for t_dict in talent_dicts:
+    #    talents = t_dict['talents']
+    #    talents.extend([None] * (5 - len(talents)))
+    #    talent_values += talents
 
-    db.execute(talent_query, tuple(talent_values))
+    #db.execute(talent_query, tuple(talent_values))
 
     cursor.close()
     db.commit()
