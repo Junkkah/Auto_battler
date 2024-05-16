@@ -58,6 +58,9 @@ class WorldMap(Config):
             node_type = 'fight'
         else:
             node_type = 'fight' if random.random() < fight_prob else 'shop'
+            if layer %  2 == 0:
+                if node_type == 'shop':
+                    node_type = 'fight'
 
         if node_type == 'fight':
             image_options = node_type_data['fight']
@@ -80,8 +83,6 @@ class WorldMap(Config):
                 
                 name = f'node{layer}_{node_idx + 1}'
 
-                #assign node type after assign children. if parent == town: node_type = fight
-                #if last layer, binary variable input for node type, last/not_last
                 if layer == num_layers:
                     final_layer = True
                 else:

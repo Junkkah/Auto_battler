@@ -20,7 +20,7 @@ class Config(object):
     height = 1080
     scout_active = False
     map_next = False
-    aura_bonus = {'speed': 0, 'damage': 0, 'menace': 0, 'armor': 0, 'magic_power': 0, 'critical': 0}
+    aura_bonus = {'speed': 0, 'damage': 0, 'menace': 0, 'armor': 0, 'magic_power': 0, 'critical': 0, 'evasion': 0}
     combat_log = []
     
     def __init__(self):
@@ -46,7 +46,7 @@ class Config(object):
         self.map_sprites = pg.sprite.Group()
         self.path_sprites = pg.sprite.Group()
         self.menu_button_sprites = pg.sprite.Group()
-        self.volume_button_sprites = pg.sprite.Group()
+        self.settings_button_sprites = pg.sprite.Group()
 
         self.max_party_size = 3
         self.spell_types = {'fire', 'cold', 'lightning', 'nature', 'holy', 'acid'}

@@ -19,46 +19,39 @@ class LevelUp(Config):
         talent_df = get_talent_data(hero.type)
         # Filter out talents the hero already has
         talent_df = talent_df[~talent_df['name'].isin(hero.talents)]
-        while True:
-            discard_sample = False
-            random_rows = talent_df.sample(n=2)
-            new_df = pd.DataFrame(random_rows)
-            talent1_req1 = new_df['req1'].iloc[0]
-            talent2_req1 = new_df['req1'].iloc[1]
-            
-            if talent1_req1 and talent1_req1 not in hero.talents:
-                discard_sample = True
-            if talent2_req1 and talent2_req1 not in hero.talents:
-                discard_sample = True
+        # Filter out too high level talents
+        talent_df = talent_df[talent_df['min_level'] <= hero.level]
+        # Filter out talents if their requirements are not met
+        talent_df = talent_df[talent_df['req1'].isin(hero.talents) | talent_df['req1'].isnull()]
+        talent_df = talent_df[talent_df['req2'].isin(hero.talents) | talent_df['req2'].isnull()]
 
-            min1 = new_df['min_level'].iloc[0]
-            min2 = new_df['min_level'].iloc[1]
-            if min1 > hero.level or min2 > hero.level:
-                discard_sample = True
-            
-            # Effect is in spell_types if it is a spell mastery
-            # Fail sample if hero does not have spell that matches masterys type
-            #hero will still only cast spells[0]
-            effect1 = new_df['effect'].iloc[0].split()[0]
-            effect2 = new_df['effect'].iloc[1].split()[0]
-            for effect in [effect1, effect2]:
-                if effect in self.spell_types:
-                    hero_spell_types = [spell['type'] for spell in hero.spells]
-                    if effect not in hero_spell_types:
-                        discard_sample = True
+        # Hero is spellcaster
+        if hero.spells:
+            hero_spell_types = [spell['type'] for spell in hero.spells]
+            mastery_mask = talent_df['type'] == 'spell_mastery'
+            # Spell_mastery talent 'effect' is the spell type of the mastery
+            effect_mask = talent_df['effect'].isin(hero_spell_types)
+            # Filter to include only 'spell_mastery' talents for spell types that the hero possesses
+            combined_mask = mastery_mask & ~effect_mask
+            talent_df = talent_df[~combined_mask]
 
-            # Fail sample if it has aura, hero already has aura and sample aura does not have requirement
-            # Hero can have only one aura. Only valid aura talents are upgrades for the existing aura
-            if ('aura' in new_df['type'].values) and hero.aura:
-                if new_df['type'].iloc[0] == 'aura' and talent1_req1 is None:
-                    discard_sample = True
-                if new_df['type'].iloc[1] == 'aura' and talent2_req1 is None:
-                    discard_sample = True
-            
-            if discard_sample:
-                continue
-                
-            return new_df
+        # Hero already has aura talent
+        if hero.aura:
+            aura_mask = talent_df['type'] == 'aura'
+            upgrade_mask = talent_df['req1'].isnull()
+            # Filter out other non-upgrade auras
+            combined_mask = aura_mask & upgrade_mask
+            talent_df = talent_df[~combined_mask]
+
+        # Error handling
+        # Choosing talents in specific order can result in one row talent_df
+        if len(talent_df) < 2:
+            print(hero.type, hero.level)
+            exit()
+
+        random_rows = talent_df.sample(n=2)
+        new_df = pd.DataFrame(random_rows)
+        return new_df
 
     def cleanup(self):
         for selected_talent in self.talents_selected:

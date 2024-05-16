@@ -1,0 +1,8 @@
+{
+    "sfx_plus_button": [0.50, 0.20],
+    "sfx_minus_button": [0.50, 0.30],
+    "music_plus_button": [0.50, 0.45],
+    "music_minus_button": [0.50, 0.55],
+    "speed_plus_button": [0.50, 0.70],
+    "speed_minus_button": [0.50, 0.80]
+}

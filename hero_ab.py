@@ -61,20 +61,21 @@ class Hero(Config, pg.sprite.Sprite):
 
         self.unarmed_damage = 1
         self.magic_power = 0
+        self.songmaster_rank = 0
         self.critical = 0
+        self.evasion = 0
         self.spells = []
         self.talents = []
         self.active_spell = None
 
-        self.talent_bonus = {'speed': 0, 'damage': 0, 'menace': 0, 'armor': 0, 'magic_power': 0, 'critical': 0}
+        self.talent_bonus = {'speed': 0, 'damage': 0, 'menace': 0, 'armor': 0, 'magic_power': 0, 'critical': 0, 'evasion': 0}
         self.spell_mastery = {'fire': 0, 'lightning': 0, 'acid': 0, 'cold': 0, 'nature': 0}
         self.talent_groups = {'combat': {}, 'location': {}, 'map': {}, 'song': {}}
-        self.item_stats_dict = {'speed': 0, 'damage': 0, 'menace': 0, 'armor': 0, 'magic_power': 0, 'critical': 0}
+        self.item_stats_dict = {'speed': 0, 'damage': 0, 'menace': 0, 'armor': 0, 'magic_power': 0, 'critical': 0, 'evasion': 0}
 
-        #when adding single activation talent, add new key/value pair to dict: 'stone_skin': 1
-        #end of combat loop would need to reset activations to correct values if > 1
         self.talent_activations = {}
-
+        #single activation talent: 'stone_skin': 1
+        #single activation melee_attack, spell_attack, take_damage
         self.aura = None
         self.enemy_armor_penalty = 0
 
@@ -145,7 +146,7 @@ class Hero(Config, pg.sprite.Sprite):
         #activate_stat_book
         tier = book.modifier_tier
         effect_mapping = {1: 'speed', 2: 'menace', 3: 'max_health', 4: 'damage', 5: 'armor'}
-        effect_strength_mapping = {'speed': '2', 'menace': '2', 'health': '5', 'damage': '2', 'armor': '1'}
+        effect_strength_mapping = {'speed': '2', 'menace': '2', 'max_health': '5', 'damage': '2', 'armor': '1'}
         effect = effect_mapping.get(tier)
         strength = effect_strength_mapping.get(effect)
         stat_bonus = effect + ' ' + strength
@@ -184,6 +185,15 @@ class Hero(Config, pg.sprite.Sprite):
             return True
         else:
             return False
+    
+    def evade_attack(self):
+        evade = self.total_stat('evasion')
+        evasion_chance = evade * 0.05
+        random_number = random.random()
+        if random_number <= evasion_chance:
+            return True
+        else:
+            return False
 
     def melee_attack(self):
         target = self.get_target()
@@ -201,10 +211,9 @@ class Hero(Config, pg.sprite.Sprite):
     def spell_attack(self, spell: dict):
         damage_type = spell['type']
         self.animation = False
-        DAMAGE = spell['damage'] + (self.spell_mastery[damage_type] * self.level) #+ self.total_stat('magic_power')
+        DAMAGE = spell['damage'] + (self.spell_mastery[damage_type] * ((self.level // 2) + 1)) + self.total_stat('magic_power')
         armor_penalty = self.enemy_armor_penalty
         self.enemy_armor_penalty = 0
-        self.songmaster_rank = 0
 
         if spell['area'] == 1:
             log_entry = (self.name, DAMAGE, 'ALL')
@@ -218,7 +227,8 @@ class Hero(Config, pg.sprite.Sprite):
             target.take_damage(DAMAGE, damage_type, armor_penalty)
 
     def song_attack(self):
-        target = self.get_target()
+        #actual song attack is handled by talent group activation
+        #target = self.get_target()
         self.animation = False
         log_entry = (self.name, 'song', 'everyone')
         Config.combat_log.append(log_entry)
@@ -230,6 +240,9 @@ class Hero(Config, pg.sprite.Sprite):
             taken_damage = max(0, damage_amount - armor)
         else:
             taken_damage = damage_amount
+        if self.evade_attack():
+            taken_damage = 0
+            #log entry?
         self.health -= taken_damage
 
     def gain_health(self, gained_health: int):
@@ -242,7 +255,7 @@ class Hero(Config, pg.sprite.Sprite):
         self.gain_health(self.level_health)  
     
     def equip_starting_weapon(self):
-        if self.attack_type != 'spell':
+        if self.attack_type not in ['spell', 'song']:
             weapon = Equipment(self.attack_type, 'weapon', 'hand1', '', '', None, None, 0)
             self.worn_items['hand1'] = weapon
 
@@ -288,8 +301,6 @@ class Hero(Config, pg.sprite.Sprite):
             method_name = f'{effect_name}_activation'
             activation_method = getattr(self, method_name)
             self.talent_groups[talent_type][effect] = {'activation_method': activation_method, 'rank': talent_rank}
-            if talent_type == 'song':
-                self.attack_type = 'song'
             
         elif talent_type == 'domain':
             self.talents.append(talent_name) 
@@ -316,7 +327,11 @@ class Hero(Config, pg.sprite.Sprite):
         elif talent_type == 'once':
             self.talents.append(talent_name)
             effect = talents['effect']
-            method, effect = effect.split()
+            if len(effect.split()) == 3:
+                method, eff1, eff2 = effect.split()
+                effect = eff1 + ' ' + eff2
+            else:
+                method, effect = effect.split()
             method_name = f'{method}_activation'
             activation_method = getattr(self, method_name)
             activation_method(effect)
@@ -392,7 +407,7 @@ class Hero(Config, pg.sprite.Sprite):
         rank = int(effect)
         self.songmaster_rank += rank
 
-    def scout_activation(self, rank):
+    def scout_activation(self, effect):
         Config.scout_active = True 
     
     def surprise_activation(self, rank):
@@ -483,17 +498,27 @@ class Hero(Config, pg.sprite.Sprite):
         armor_per_rank = 1
         total_armor = armor_per_rank * rank
         Config.aura_bonus['armor'] += total_armor
-    
+
     def xtr_att_activation(self, rank):
         extra_attacks_per_rank = 1
         total_extra_attacks = extra_attacks_per_rank * rank
         self.melee_attack()
+
+    def haste_activation(self, rank):
+        for dancing_hero in Config.party_heroes:
+            dancing_hero.melee_attack()
     
     def coordinate_activation(self, rank):
         menace_debuff_per_rank = 3
         total_menace_debuff = menace_debuff_per_rank * rank
         target = self.get_target()
         target.take_debuff('menace', total_menace_debuff)
+
+    def homing_activation(self, rank):
+        menace_per_rank = 1
+        total_menace = menace_per_rank * rank
+        target = self.get_target()
+        target.menace += total_menace
     
     def entrap_activation(self, rank):
         armor_penalty_per_rank = 1

@@ -58,17 +58,18 @@ class Shop(Config):
             HEROPOS_X += HERO_GAP
             
     def create_starting_spells(self, wizard_df, bard_df):
-        wizard_spells = wizard_df[wizard_df['type'] == 'spell']
-        bard_spells = bard_df[bard_df['type'] == 'spell']
+        wizard_spells = wizard_df[(wizard_df['type'] == 'spell') & (wizard_df['min_level'] == 1)]
+        bard_songs = bard_df[(bard_df['type'] == 'song') & (bard_df['min_level'] == 1)]
 
         for created_hero in self.selection:
             if created_hero.type in ['bard', 'wizard']:
                 if created_hero.type == 'bard':
-                    random_row = bard_spells.sample(n=1)
+                    random_row = bard_songs.sample(n=1)
+                    talent_type = 'song'
                 else:
                     random_row = wizard_spells.sample(n=1)
+                    talent_type = 'spell'
                 talent_name = random_row['name'].iloc[0]  
-                talent_type = 'spell'
                 created_hero.add_talent(talent_name, talent_type)
 
     def create_item_selection(self, tier):
@@ -102,7 +103,7 @@ class Shop(Config):
         Config.party_backpack[slot.name] = None
         self.backpack_items.remove(sold_item)
         self.shop_icon_sprites.remove(sold_item)
-
+    
     def startup(self):
         self.selection = []
         self.backpack_items = []
@@ -271,20 +272,7 @@ class Shop(Config):
                 self.screen.blit(self.sell_cursor_image, mouse_pos)
                 
             if self.hovered_item:
-                desc_text = self.item_info_font.render(self.hovered_item.desc, True, self.black)
-                text_rect = desc_text.get_rect()
-                offset_divisor = 54
-                offset_y = self.screen_height // offset_divisor
-                text_rect.topleft = (mouse_pos[0], mouse_pos[1] - offset_y)
-        
-                text_padding = 1
-                rect_width = text_rect.width
-                rect_height = text_rect.height
-                
-                rect_surface = pg.Surface((rect_width, rect_height))
-                rect_surface.fill((self.white)) 
-                self.screen.blit(rect_surface, (text_rect.left - text_padding, text_rect.top - text_padding))
-                self.screen.blit(desc_text, text_rect.topleft)
+                Inventory.display_item_info(self.screen, self.screen_height, self.hovered_item, self.item_info_font, self.black, self.white)
 
         if not Config.current_adventure:
             self.screen.blit(self.hood_image, self.hood_rect)

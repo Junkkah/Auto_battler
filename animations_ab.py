@@ -15,6 +15,14 @@ import numpy as np
 weapons_data = get_data('weapons')
 follower_data = get_data('followers')
 
+animation_speed = 0.3
+def set_animation_speed(speed: float):
+    global animation_speed
+    animation_speed = speed
+
+def get_animation_speed() -> float:
+    return animation_speed
+
 class Stab(Config, pg.sprite.Sprite): #Groupsingle
 	def __init__(self, groups, weapon, pos_x, pos_y):
 		super().__init__()
@@ -54,6 +62,7 @@ class Stab(Config, pg.sprite.Sprite): #Groupsingle
 				self.attack_animation = False
 				return True
 
+		self.attack_speed = speed * 10
 		self.pos_y -= self.attack_speed
 		self.rect = self.image.get_rect()
 		self.rect.bottomright = [self.pos_x, self.pos_y]

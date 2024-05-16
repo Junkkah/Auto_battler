@@ -1,19 +1,19 @@
 # Changelog
 
-## [1.3.0] - 2024-05-12
+## [1.3.0] - 2024-05-17
 ### Added
 - Procedurally generated random maps.
 - New talents for all classes.
 - Monsters for the last three adventures.
-- Ability for spell casters to chooce best spell.
 
 ### Changed
 - Opened all adventures.
 - Raised maximum level to 21.
 - Improved talent functionality.
+- Spellcasters chooce what spell to cast.
 
 ### Fixed
-- Party not resetting between games.
+- Some values were not properly reset between games.
 
 ## [1.2.0] - 2024-04-15
 ### Added

@@ -2,7 +2,7 @@ import pygame as pg
 from config_ab import Config
 from hero_ab import Hero, Follower
 from sprites_ab import Monster, Equipment
-from animations_ab import Stab, Slash, Blast, Smash, SongAnimation, FollowerAttack
+from animations_ab import Stab, Slash, Blast, Smash, SongAnimation, FollowerAttack, get_animation_speed
 from sounds_ab import play_sound_effect
 from data_ab import get_json_data, get_affix
 import random
@@ -21,7 +21,6 @@ class BattleManager(Config):
         self.follower_sprites = pg.sprite.Group()
         self.exp_reward = 0
         self.combat_delay = 1.1
-        self.animation_speed = 0.3
     
     def cleanup(self):
         self.animation_sprites.empty()
@@ -214,7 +213,7 @@ class BattleManager(Config):
                     Config.completed_adventures.append(Config.current_adventure)
                     Config.current_location = None
 
-                    if len(Config.completed_adventures) == Config.number_of_adventures:
+                    if self.exp_reward == 0:
                         self.next = 'menu'
                         self.done = True
                         
@@ -280,7 +279,7 @@ class BattleManager(Config):
             self.combat_animation.animation_start()
 
         # Call attack methods 
-        if self.combat_animation.animate(self.animation_speed):
+        if self.combat_animation.animate(get_animation_speed()):
             if Config.acting_character.is_player:
                 Config.acting_character.activate_item_effects()
             if Config.acting_character.attack_type == 'spell':
@@ -353,9 +352,9 @@ class BattleManager(Config):
             self.animation_sprites.draw(screen)
 
         self.combat_log_events = Config.combat_log[-10:]
-        COORDS_LOG = (self.screen_width * 0.03, self.screen_height * 0.60)
+        COORDS_LOG = (self.screen_width * 0.02, self.screen_height * 0.60)
         for i, event in enumerate(reversed(self.combat_log_events)):
-            log_line = "{} deals {:>4} to {}".format(event[0].capitalize().ljust(14), event[1], event[2].capitalize())
+            log_line = "{} deals {:>4} to {}".format(event[0].capitalize().ljust(15), event[1], event[2].capitalize())
             log_line_text = self.log_font.render(log_line, True, self.black)
             log_line_rect = log_line_text.get_rect(topleft=(COORDS_LOG[0], COORDS_LOG[1] + i * self.log_font_size))
             self.screen.blit(log_line_text, log_line_rect)
@@ -371,6 +370,8 @@ class BattleManager(Config):
 
         if not Config.room_monsters:
             VICTORY = 'Victory!'
+            if self.exp_reward == 0:
+                VICTORY = 'Game Complete!'
             VICTORY_TEXT = self.title_font.render(VICTORY, True, self.black)
             COORDS_VICTORY = (self.screen_width * 0.50, self.screen_height * 0.20)
             VICTORY_TEXT_RECT = VICTORY_TEXT.get_rect(center = COORDS_VICTORY)

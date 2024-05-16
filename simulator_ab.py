@@ -53,7 +53,7 @@ class Simulator(Config):
         self.simu_paths = []
         self.names_df = get_data('names')
         self.talent_lists = get_data('talents')
-        self.COUNT = 5
+        self.COUNT = 1
         self.results_list = []
         self.sim_done = False
         self.aura_bonus_speed = 0
@@ -141,11 +141,13 @@ class Simulator(Config):
             Config.party_heroes.append(self.simulated_hero)
             self.simulation_hero_sprites.add(self.simulated_hero)
         
+        #encapsulate
         for created_hero in Config.party_heroes:
             created_hero.equip_starting_weapon()
+            
             if created_hero.type == 'wizard':
                 wizard_df = (get_talent_data('wizard'))
-                wizard_spells = wizard_df[wizard_df['type'] == 'spell']
+                wizard_spells = wizard_df[(wizard_df['type'] == 'spell') & (wizard_df['min_level'] == 1)]
                 random_row = wizard_spells.sample(n=1)
                 talent_name = random_row['name'].iloc[0]  
                 talent_type = 'spell'
@@ -153,12 +155,11 @@ class Simulator(Config):
 
             if created_hero.type == 'bard':
                 bard_df = (get_talent_data('bard'))
-                bard_spells = bard_df[bard_df['type'] == 'spell']
-                random_row = bard_spells.sample(n=1)
+                bard_songs = bard_df[(bard_df['type'] == 'song') & (bard_df['min_level'] == 1)]
+                random_row = bard_songs.sample(n=1)
                 talent_name = random_row['name'].iloc[0]  
-                talent_type = 'spell'
+                talent_type = 'song'
                 created_hero.add_talent(talent_name, talent_type)
-
         adventure_df = get_data('adventures')
         adventure_list = adventure_df['name'].tolist()
         simulation_results.append(self.party)

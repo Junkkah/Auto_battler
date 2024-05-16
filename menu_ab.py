@@ -4,6 +4,7 @@ from config_ab import Config
 from sounds_ab import play_sound_effect, set_sfx_volume, set_music_volume, get_sfx_volume, get_music_volume
 from sprites_ab import Button
 from data_ab import get_json_data
+from animations_ab import set_animation_speed, get_animation_speed
 
 class MainMenu(Config):
     def __init__(self):
@@ -90,22 +91,24 @@ class SettingsMenu(Config):
         self.next = 'menu' 
         self.maximum_volume = 1.0
         self.minimum_volume =  0.0
+        self.minimum_animation_speed = 0.1
+        self.maximum_animation_speed = 1.0
 
     def cleanup(self):
-        self.volume_button_sprites.empty()
-        self.volume_buttons = []
+        self.settings_button_sprites.empty()
+        self.settings_buttons = []
     
     def startup(self):
         MENU_FONT = self.default_font
-        PLUS_TEXT = "+"
-        MINUS_TEXT = "-"
-        volume_button_data = get_json_data('volume_buttons')
+        PLUS_TEXT = '+'
+        MINUS_TEXT = '-'
+        settings_button_data = get_json_data('settings_buttons')
 
-        self.volume_buttons = []
-        for button_name, (x, y) in volume_button_data.items():
-            button_text = PLUS_TEXT if len(self.volume_buttons) % 2 == 0 else MINUS_TEXT
+        self.settings_buttons = []
+        for button_name, (x, y) in settings_button_data.items():
+            button_text = PLUS_TEXT if len(self.settings_buttons) % 2 == 0 else MINUS_TEXT
             button = Button(
-                self.volume_button_sprites,
+                self.settings_button_sprites,
                 button_text,
                 MENU_FONT,
                 self.big_font_size,
@@ -113,25 +116,31 @@ class SettingsMenu(Config):
                 (self.screen_width * x, self.screen_height * y)
             )
             setattr(self, button_name, button)
-            self.volume_buttons.append(button)
+            self.settings_buttons.append(button)
+        self.continue_button = Button(self.settings_button_sprites, self.CONT_TEXT, self.CONT_FONT, self.CONT_SIZE, self.CONT_COL, self.COORDS_CONT)
+        self.settings_buttons.append(self.continue_button)
 
     def get_event(self, event):
+        mouse_pos = pg.mouse.get_pos()
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_ESCAPE:
-                self.done = True
-                
+                exit()
+
         if event.type == pg.MOUSEMOTION:
-            for sounds_button in self.volume_buttons:
-                if sounds_button.rect.collidepoint(pg.mouse.get_pos()):
-                    sounds_button.border_color = (self.white)
-                    sounds_button.draw_border()
+            for settings_button in self.settings_buttons:
+                if settings_button.rect.collidepoint(mouse_pos):
+                    settings_button.border_color = (self.white)
+                    settings_button.draw_border()
                 else:
-                    sounds_button.border_color = (self.black)
-                    sounds_button.draw_border()
+                    settings_button.border_color = (self.black)
+                    settings_button.draw_border()
         
-        # Button press increases sound effect volume
         elif event.type == pg.MOUSEBUTTONDOWN:
-            if self.sfx_plus_button.rect.collidepoint(pg.mouse.get_pos()):
+            if self.continue_button.rect.collidepoint(mouse_pos):
+                play_sound_effect('click')
+                self.done = True
+
+            elif self.sfx_plus_button.rect.collidepoint(mouse_pos):
                 play_sound_effect('click')
                 vol = get_sfx_volume()
                 if vol < self.maximum_volume:
@@ -139,8 +148,7 @@ class SettingsMenu(Config):
                     vol = min(1.0, round(vol, 1))
                     set_sfx_volume(vol)
 
-            # Button press decreases sound effect volume
-            elif self.sfx_minus_button.rect.collidepoint(pg.mouse.get_pos()):
+            elif self.sfx_minus_button.rect.collidepoint(mouse_pos):
                 play_sound_effect('click')
                 vol = get_sfx_volume()
                 if vol > self.minimum_volume:
@@ -148,7 +156,7 @@ class SettingsMenu(Config):
                     vol = max(0.0, round(vol, 1))
                     set_sfx_volume(vol)
 
-            elif self.music_plus_button.rect.collidepoint(pg.mouse.get_pos()):
+            elif self.music_plus_button.rect.collidepoint(mouse_pos):
                 play_sound_effect('click')
                 vol = get_music_volume()
                 if vol < self.maximum_volume:
@@ -156,43 +164,56 @@ class SettingsMenu(Config):
                     vol = min(1.0, round(vol, 1))
                     set_music_volume(vol)
             
-            elif self.music_minus_button.rect.collidepoint(pg.mouse.get_pos()):
+            elif self.music_minus_button.rect.collidepoint(mouse_pos):
                 play_sound_effect('click')
                 vol = get_music_volume()
                 if vol > self.minimum_volume:
                     vol -= 0.1
                     vol = max(0.0, round(vol, 1))
                     set_music_volume(vol)
+            
+            elif self.speed_plus_button.rect.collidepoint(mouse_pos):
+                play_sound_effect('click')
+                spd = get_animation_speed()
+                if spd < self.maximum_animation_speed:
+                    spd += 0.1
+                    spd = min(1.0, round(spd, 1))
+                    set_animation_speed(spd)
+
+            elif self.speed_minus_button.rect.collidepoint(mouse_pos):
+                play_sound_effect('click')
+                spd = get_animation_speed()
+                if spd > self.minimum_animation_speed:
+                    spd -= 0.1
+                    spd = max(0.0, round(spd, 1))
+                    set_animation_speed(spd)
 
     def update(self, screen, dt):
         self.draw(screen)
 
     def draw(self, screen):
         self.screen.fill(self.grey)
-        self.volume_button_sprites.draw(self.screen)
+        self.settings_button_sprites.draw(self.screen)
 
-        SFX_TEXT = "Sound effect volume"
-        MUSIC_TEXT = "Music volume"
-        SFX_TEXT_X = self.screen_width * 0.30
-        SFX_TEXT_Y = self.screen_height * 0.33
-        MUSIC_TEXT_X = self.screen_width * 0.30
-        MUSIC_TEXT_Y = self.screen_height * 0.63
-        COORDS_SFX_TEXT = (SFX_TEXT_X, SFX_TEXT_Y)
-        COORDS_MUSIC_TEXT = (MUSIC_TEXT_X, MUSIC_TEXT_Y)
+        SETTINGS = [
+            ('Sound effect volume', self.screen_height * 0.22, lambda: f'{get_sfx_volume():.1f}'),
+            ('Music volume', self.screen_height * 0.47, lambda: f'{get_music_volume():.1f}'),
+            ('Animation speed', self.screen_height * 0.72, lambda: f'{get_animation_speed():.1f}')
+            ]
+        TEXT_X = self.screen_width * 0.30
+        VALUE_X = self.screen_width * 0.65
+        TEXT_COLOR = self.black
+        VALUE_COLOR = self.green
+        TEXT_FONT_NAME = 'Arial'
+        VALUE_FONT_NAME = 'Verdana'
+        FONT_SIZE = 30
 
-        font = pg.font.SysFont('Arial', 30)
-        sfx_text_surface = font.render(SFX_TEXT, True, self.black) 
-        music_text_surface = font.render(MUSIC_TEXT, True, self.black) 
-        self.screen.blit(sfx_text_surface, COORDS_SFX_TEXT)
-        self.screen.blit(music_text_surface, COORDS_MUSIC_TEXT)
+        text_font = pg.font.SysFont(TEXT_FONT_NAME, FONT_SIZE)
+        value_font = pg.font.SysFont(VALUE_FONT_NAME, FONT_SIZE)
 
-        VOLUMES_VALUE_X = self.screen_width * 0.65
-        sfx_volume_text = f"{get_sfx_volume():.1f}" 
-        music_volume_text = f"{get_music_volume():.1f}" 
-        VOLUME_FONT_SIZE = 30
-
-        font = pg.font.SysFont('Verdana', VOLUME_FONT_SIZE)
-        sfx_volume_text_surface = font.render(sfx_volume_text, True, self.green) 
-        music_volume_text_surface = font.render(music_volume_text, True, self.green) 
-        self.screen.blit(sfx_volume_text_surface, (VOLUMES_VALUE_X, SFX_TEXT_Y))
-        self.screen.blit(music_volume_text_surface, (VOLUMES_VALUE_X, MUSIC_TEXT_Y))
+        for setting in SETTINGS:
+            text, y, get_value = setting
+            text_surface = text_font.render(text, True, TEXT_COLOR)
+            value_surface = value_font.render(get_value(), True, VALUE_COLOR)
+            self.screen.blit(text_surface, (TEXT_X, y))
+            self.screen.blit(value_surface, (VALUE_X, y))

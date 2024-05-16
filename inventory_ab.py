@@ -143,6 +143,38 @@ class Inventory(Config):
                 self.inventory_items.remove(self.dragged_object)
                 self.inventory_icon_sprites.remove(self.dragged_object)
                 break
+    
+    @staticmethod
+    def display_item_info(screen, screen_height, hovered_item, item_info_font, black, white):
+        mouse_pos = pg.mouse.get_pos()
+        desc_text_line1 = item_info_font.render(hovered_item.desc, True, black)
+        item_effect = hovered_item.item_effect
+        if item_effect[0]:
+            item_stat = item_effect[0].capitalize()
+            stat_mod = str(item_effect[1])
+            hovered_item_effect = item_stat + ' +' + stat_mod
+        else:
+            hovered_item_effect = ''
+        desc_text_line2 = item_info_font.render(hovered_item_effect, True, black)
+        
+        text_rect_line1 = desc_text_line1.get_rect()
+        text_rect_line2 = desc_text_line2.get_rect()
+
+        offset_divisor = 54
+        offset_y = screen_height // offset_divisor
+
+        text_rect_line1.bottomright = (mouse_pos[0], mouse_pos[1] - offset_y)
+        offset_x = text_rect_line1.width - text_rect_line2.width
+        text_rect_line2.bottomright = (mouse_pos[0] - offset_x, mouse_pos[1] - offset_y + text_rect_line1.height)
+        
+        rect_width = max(text_rect_line1.width, text_rect_line2.width)
+        rect_height = text_rect_line1.height + text_rect_line2.height
+        
+        rect_surface = pg.Surface((rect_width, rect_height))
+        rect_surface.fill(white)
+        screen.blit(rect_surface, (text_rect_line1.left, text_rect_line1.top))
+        screen.blit(desc_text_line1, text_rect_line1.topleft)
+        screen.blit(desc_text_line2, text_rect_line2.topleft)
 
     def startup(self):
         self.inventory_buttons = []
@@ -338,19 +370,5 @@ class Inventory(Config):
         gold_text = self.create_gold_text()
         self.screen.blit(gold_text, self.coords_gold)
 
-        offset_y = self.screen_height // 54
         if self.hovered_item and not self.dragging_item:
-            desc_text = self.item_info_font.render(self.hovered_item.desc, True, self.black)
-            text_rect = desc_text.get_rect()
-            text_rect.topleft = (mouse_pos[0], mouse_pos[1] - offset_y)
-    
-            text_padding = 1
-            rect_width = text_rect.width
-            rect_height = text_rect.height
-            
-            rect_surface = pg.Surface((rect_width, rect_height))
-            rect_surface.fill((self.white)) 
-            self.screen.blit(rect_surface, (text_rect.left - text_padding, text_rect.top - text_padding))
-            self.screen.blit(desc_text, text_rect.topleft)
-
-        #render log
+            self.display_item_info(self.screen, self.screen_height, self.hovered_item, self.item_info_font, self.black, self.white)
