@@ -228,7 +228,6 @@ class Hero(Config, pg.sprite.Sprite):
 
     def song_attack(self):
         #actual song attack is handled by talent group activation
-        #target = self.get_target()
         self.animation = False
         log_entry = (self.name, 'song', 'everyone')
         Config.combat_log.append(log_entry)
@@ -423,11 +422,6 @@ class Hero(Config, pg.sprite.Sprite):
             revealed_monster.take_debuff('armor', total_armor_penalty)
 
     def berserk_activation(self, rank):
-        #menace affect actions of monsters during their turns
-        #causes the barb to have residual menace if 
-        #monsters act before barb in next combat
-        #menace bonus causing issues?
-        
         #self.talent_bonus['menace'] = 0
         damage_bonus_per_rank = 3
         menace_bonus_per_rank = 2
@@ -445,6 +439,14 @@ class Hero(Config, pg.sprite.Sprite):
     def smite_activation(self, rank):
         damage_per_rank = 2
         damage_type = 'holy'
+        DAMAGE = damage_per_rank * rank
+        armor_penalty = 0
+        for target_mob in Config.room_monsters:
+            target_mob.take_damage(DAMAGE, damage_type, armor_penalty)
+
+    def roots_activation(self, rank):
+        damage_per_rank = 1
+        damage_type = 'nature'
         DAMAGE = damage_per_rank * rank
         armor_penalty = 0
         for target_mob in Config.room_monsters:

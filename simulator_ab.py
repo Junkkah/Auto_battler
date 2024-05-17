@@ -53,7 +53,7 @@ class Simulator(Config):
         self.simu_paths = []
         self.names_df = get_data('names')
         self.talent_lists = get_data('talents')
-        self.COUNT = 1
+        self.COUNT = 5
         self.results_list = []
         self.sim_done = False
         self.aura_bonus_speed = 0
@@ -297,12 +297,12 @@ class Simulator(Config):
         return simulation_results 
 
     def get_event(self, event):
+        mouse_pos = pg.mouse.get_pos()
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_ESCAPE:
                 self.done = True
         elif event.type == pg.MOUSEBUTTONDOWN:
-            if self.start_button.rect.collidepoint(pg.mouse.get_pos()):
-                #if Config.current_adventure:  
+            if self.start_button.rect.collidepoint(mouse_pos):
                 self.sim_done = False
                 play_sound_effect('click')
                 for _ in range(self.COUNT):
@@ -318,7 +318,7 @@ class Simulator(Config):
                     enter_simulation_result(row)
                 self.sim_done = True
 
-            elif self.done_button.rect.collidepoint(pg.mouse.get_pos()):
+            elif self.done_button.rect.collidepoint(mouse_pos):
                 play_sound_effect('click')
                 self.sim_done = False
 

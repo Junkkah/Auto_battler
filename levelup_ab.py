@@ -46,7 +46,7 @@ class LevelUp(Config):
         # Error handling
         # Choosing talents in specific order can result in one row talent_df
         if len(talent_df) < 2:
-            print(hero.type, hero.level)
+            print('Talent Error: ', hero.type, hero.level)
             exit()
 
         random_rows = talent_df.sample(n=2)

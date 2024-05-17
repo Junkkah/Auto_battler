@@ -105,8 +105,8 @@ class BattleManager(Config):
     def create_random_item(cls, item_probabilities):
         item_type = random.choices(list(item_probabilities.keys()), weights=[40, 45, 15])[0]
         subtype = random.choices(item_probabilities[item_type]['types'], weights=item_probabilities[item_type]['prob'])[0]
-        upper_limit = Config.current_location.tier
-        item_power = random.randint(1, upper_limit)
+        maximum_power = max(1, Config.current_location.tier // 2)
+        item_power = random.randint(1, maximum_power)
         created_item = cls.create_magic_item(item_type, subtype, item_power)
         return created_item
 
@@ -217,7 +217,7 @@ class BattleManager(Config):
                         self.next = 'menu'
                         self.done = True
                         
-                    if self.next == 'levelup':
+                    elif self.next == 'levelup':
                         Config.map_next = True
                     else:
                         self.next = 'map'
