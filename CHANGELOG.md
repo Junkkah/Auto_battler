@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.3.1] - 2024-05-18
+### Added
+- Info screen for hero attributes and talents.
+
 ## [1.3.0] - 2024-05-17
 ### Added
 - Procedurally generated random maps.

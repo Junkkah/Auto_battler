@@ -14,12 +14,15 @@ class CharacterInfo(Config):
 
     def cleanup(self):
         self.info_buttons = []
-        self.figure_coords = []
         self.info_lines = []
         self.talent_lists = []
         self.info_sprites.empty()
         self.info_button_sprites.empty()
         self.display_hero = None
+        self.display_index = None
+        for cleanup_hero in Config.party_heroes:
+            cleanup_hero.item_stats_dict = {item_key: 0 for item_key in cleanup_hero.item_stats_dict}
+        Config.aura_bonus = {aura_key: 0 for aura_key in Config.aura_bonus}
     
     def set_display_hero(self, display_hero):
         self.info_sprites.empty()
@@ -34,25 +37,29 @@ class CharacterInfo(Config):
         ('', ''),
         ('Attributes:', ''),
         ('Health: ', self.display_hero.max_health),
-        ('Damage: ', self.display_hero.total_stat("damage")),
-        ('Speed: ', self.display_hero.total_stat("speed")),
-        ('Armor: ', self.display_hero.total_stat("armor")),
-        ('Menace: ', self.display_hero.total_stat("menace")),
-        ('Critical: ', self.display_hero.total_stat("critical") * 0.10),
-        ('Evasion: ', self.display_hero.total_stat("evasion") * 0.05),
-        ('Magic Power: ', self.display_hero.total_stat("magic_power")),
+        ('Damage: ', self.display_hero.total_stat('damage')),
+        ('Speed: ', self.display_hero.total_stat('speed')),
+        ('Armor: ', self.display_hero.total_stat('armor')),
+        ('Menace: ', self.display_hero.total_stat('menace')),
+        ('Critical: ', self.display_hero.total_stat('critical') * 0.10),
+        ('Evasion: ', self.display_hero.total_stat('evasion') * 0.05),
+        ('Magic Power: ', self.display_hero.total_stat('magic_power')),
         ]
 
     def startup(self):
         self.info_buttons = []
-        self.figure_coords = []
         self.info_sprites = pg.sprite.Group()
         self.info_button_sprites = pg.sprite.Group()
+        for activation_hero in Config.party_heroes:
+            activation_hero.activate_item_stats()
+            activation_hero.activate_aura()
+
         self.set_display_hero(Config.party_heroes[0])
         self.display_index = 0
         self.attribute_overview = get_json_data('attribute_overview')
-        talent_df = get_data('talents')
+
         self.talent_lists = []
+        talent_df = get_data('talents')
         for talent_hero in Config.party_heroes:
             talent_tuple_list = []
             for talent in talent_hero.talents:
@@ -67,7 +74,6 @@ class CharacterInfo(Config):
         COORDS_ARROW = (self.screen_width * 0.20, self.screen_height * 0.10)
         arrow_size_scalar = 15
         SCALAR_ARROW = ((arrow.get_width() / arrow_size_scalar), (arrow.get_height() / arrow_size_scalar))
-
         self.arrow_image = pg.transform.smoothscale(arrow, SCALAR_ARROW)
         self.arrow_rect = self.arrow_image.get_rect(topleft=COORDS_ARROW)
         
@@ -82,9 +88,6 @@ class CharacterInfo(Config):
                 self.next = 'path'
                 self.done = True
         
-        elif event.type == pg.MOUSEMOTION:
-            pass
-
         elif event.type == pg.MOUSEBUTTONDOWN:
             if self.continue_button.rect.collidepoint(mouse_pos):
                 play_sound_effect('click')
@@ -144,5 +147,3 @@ class CharacterInfo(Config):
             overview_line_text = self.stats_font.render(overview_line, True, self.black)
             overview_line_rect = overview_line_text.get_rect(topleft=(COORDS_OVER[0], COORDS_OVER[1] + i * self.medium_font_size))
             self.screen.blit(overview_line_text, overview_line_rect)
-        
-
