@@ -1,0 +1,10 @@
+{
+    "Health:": ["Amount of damage the hero can take before falling."],
+    "Damage:": ["Amount of damage the hero deals with weapon attacks."],
+    "Speed:": ["Determines attack order in combat."],
+    "Menace:": ["High menace heroes are more likely to be attacked."],
+    "Armor:": ["Reduces incoming physical damage."],
+    "Critical:": ["Chance to deal double damage with weapon attacks."],
+    "Evasion:": ["Chance to avoid weapon attacks."],
+    "Magic Power:": ["Increases the damage all spells deal."]
+}

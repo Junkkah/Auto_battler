@@ -61,8 +61,14 @@ class Path(Config):
                     loc_object.child2 = next((child_obj for child_obj in self.loc_objects if child_obj.name == obj_child2_name), None)
         set_children(locations_data)
 
+        self.COORDS_INV = (self.screen_width * 0.91, self.screen_height * 0.95)
+        self.COORDS_INFO = (self.screen_width * 0.06, self.screen_height * 0.95)
+
         INV_TEXT = 'Inventory (i)'
-        self.inventory_button = Button(self.path_sprites, INV_TEXT, self.CONT_FONT, self.CONT_SIZE, self.CONT_COL, self.COORDS_CONT)
+        self.inventory_button = Button(self.path_sprites, INV_TEXT, self.CONT_FONT, self.CONT_SIZE, self.CONT_COL, self.COORDS_INV)
+        INFO_TEXT = 'Info (f)'
+        self.info_button = Button(self.path_sprites, INFO_TEXT, self.CONT_FONT, self.CONT_SIZE, self.CONT_COL, self.COORDS_INFO)
+
 
     def get_event(self, event):
         mouse_pos = pg.mouse.get_pos()
@@ -73,10 +79,19 @@ class Path(Config):
                 self.next = 'inventory'
                 self.done = True
 
+            if event.key ==pg.K_f:
+                self.next = 'info'
+                self.done = True
+
         elif event.type == pg.MOUSEBUTTONDOWN:
             if self.inventory_button.rect.collidepoint(mouse_pos):
                 play_sound_effect('click')
                 self.next = 'inventory'
+                self.done = True
+
+            if self.info_button.rect.collidepoint(mouse_pos):
+                play_sound_effect('click')
+                self.next = 'info'
                 self.done = True
 
             clicked_location = None

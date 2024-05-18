@@ -72,6 +72,7 @@ class Config(object):
         self.item_info_font_name = 'Arial'
         DIALOGUE_FONT_NAME = 'Tahoma'
         LOG_FONT_NAME = 'Courier new'
+        STATS_FONT_NAME = 'Courier'
         self.info_font = pg.font.SysFont(self.info_font_name, self.info_font_size)
         self.log_font = pg.font.SysFont(LOG_FONT_NAME, self.log_font_size)
         self.item_info_font = pg.font.SysFont(self.item_info_font_name, self.small_font_size)
@@ -79,6 +80,7 @@ class Config(object):
         self.large_info_font = pg.font.SysFont(self.info_font_name, self.big_font_size)
         self.title_font = pg.font.SysFont(self.info_font_name, self.title_font_size)
         self.dialogue_font = pg.font.SysFont(DIALOGUE_FONT_NAME, self.medium_font_size)
+        self.stats_font = pg.font.SysFont(STATS_FONT_NAME, self.medium_font_size)
 
         self.CONT_TEXT = 'CONTINUE'
         self.CONT_FONT = self.default_font

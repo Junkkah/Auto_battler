@@ -171,6 +171,7 @@ class Hero(Config, pg.sprite.Sprite):
         target = np.random.choice(Config.room_monsters, p=prob)
         return target
 
+    #calling static methods
     def activate_talent_group(self, group):
         for talent_effect, talent_info in self.talent_groups[group].items():
             activation_method = talent_info['activation_method']
@@ -357,7 +358,9 @@ class Hero(Config, pg.sprite.Sprite):
     def draw_frame(self):
         pg.draw.rect(self.screen, self.red, [self.pos_x, self.pos_y, self.width, self.height], self.frame_width)
     
-    #TalentActivations()
+#class TalentActivation(Config):
+    #def __init__(self)
+    #Config.__init__(self)
     #@staticmethod
     #def invisibility_activation(hero, rank):
     #    hero.menace = 1

@@ -354,7 +354,7 @@ class BattleManager(Config):
         self.combat_log_events = Config.combat_log[-10:]
         COORDS_LOG = (self.screen_width * 0.02, self.screen_height * 0.60)
         for i, event in enumerate(reversed(self.combat_log_events)):
-            log_line = "{} deals {:>4} to {}".format(event[0].capitalize().ljust(15), event[1], event[2].capitalize())
+            log_line = '{} deals {:>4} to {}'.format(event[0].capitalize().ljust(15), event[1], event[2].capitalize())
             log_line_text = self.log_font.render(log_line, True, self.black)
             log_line_rect = log_line_text.get_rect(topleft=(COORDS_LOG[0], COORDS_LOG[1] + i * self.log_font_size))
             self.screen.blit(log_line_text, log_line_rect)
