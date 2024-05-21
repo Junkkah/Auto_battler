@@ -53,7 +53,7 @@ class Simulator(Config):
         self.simu_paths = []
         self.names_df = get_data('names')
         self.talent_lists = get_data('talents')
-        self.COUNT = 5
+        self.COUNT = 1
         self.results_list = []
         self.sim_done = False
         self.aura_bonus_speed = 0
@@ -82,6 +82,7 @@ class Simulator(Config):
         Config.party_followers = []
         Config.backpack_slots = []
         Config.equipment_slots = []
+        Config.combat_log = []
         self.simu_paths = []
         self.fallen_heroes = []
         self.sim_loc_df = None
@@ -180,7 +181,7 @@ class Simulator(Config):
             #for p in range(self.party_size):
             #    talent_dicts[simulation_results[1][p][0]] = []
             #simulation_results.append(talent_dicts)
-
+            Config.combat_log = []
             monsters = []
             path_instance = Path()
             for location in simulated_path:
