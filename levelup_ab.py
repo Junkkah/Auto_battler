@@ -52,6 +52,9 @@ class LevelUp(Config):
         random_rows = talent_df.sample(n=2)
         new_df = pd.DataFrame(random_rows)
         return new_df
+    
+    #def reroll_sample(self, hero):
+        #handle case if rerolling selected talent
 
     def cleanup(self):
         for selected_talent in self.talents_selected:
@@ -84,6 +87,8 @@ class LevelUp(Config):
         for sample_hero in Config.party_heroes:
             sample = self.create_talent_sample(sample_hero)
             samples.append(sample)
+        
+        #button for rerolling talent sample
 
         TALENTCARD_POS_Y = (self.screen_height * 0.15)
         TALENTCARD_GAP = (self.screen_height * 0.15)
@@ -122,6 +127,14 @@ class LevelUp(Config):
                 self.done = True
             elif self.continue_button.rect.collidepoint(mouse_pos):
                 play_sound_effect('error')
+            
+            #elif reroll1_button:
+                #if party_gold >= reroll_cost:
+                    #self.reroll_sample(hero)
+                    #party_gold -= reroll_cost
+                    #play_sound_effect('click')
+                #else:
+                    #play_sound_effect('error)
 
             for talent_card in self.talent_cards:
                 if talent_card[0].rect.collidepoint(mouse_pos):

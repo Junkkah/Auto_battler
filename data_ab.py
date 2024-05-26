@@ -57,7 +57,14 @@ def get_talent_data(hero_class: str) -> pd.DataFrame:
     db.close()
     return talents_df
 
-# Produces dataframe with duplicates from dataset2
+def get_simulation_results() -> pd.DataFrame:
+    db = sqlite3.connect('./ab_data/simulation_results.db')
+    db.isolation_level = None
+    query = "SELECT * FROM Results"
+    df = pd.read_sql_query(query, db)
+    db.close()
+    return df
+
 def get_simulation_dataset(set_number: int) -> pd.DataFrame:
     num = str(set_number)
     db = sqlite3.connect('./ab_data/simulation_datasets/simulation_results_' + num + '.db')
@@ -95,42 +102,21 @@ def enter_simulation_result(row):
 
     exp = row['exp']
     boss = row['bosses']
-
-    result_query = """
-        INSERT INTO Results (exp, boss) VALUES (?, ?)"""
-    
-    cursor.execute(result_query, (exp, boss))
-    result_id = cursor.lastrowid
-    
     heroes = row['heroes']
     hero_data = [hero for hero_tuple in heroes for hero in hero_tuple]
 
-    hero_query = """
-        INSERT INTO Heroes (result_id, name1, class1, name2, class2, name3, class3) 
-        VALUES (?, ?, ?, ?, ?, ?, ?)"""
-    db.execute(hero_query, (result_id,) + tuple(hero_data))
-  
-    #take talent data input as list
-    #talent_dicts = []
-    #for hero_name, talents in row['talents'].items():
-    #    talent_dict = {'hero_name': hero_name, 'talents': talents}
-    #    talent_dicts.append(talent_dict)
-    
-    #talent_query = """
-    #    INSERT INTO Talents 
-    #    (result_id, hero1_talent1, hero1_talent2, hero1_talent3, hero1_talent4, hero1_talent5,
-    #    hero2_talent1, hero2_talent2, hero2_talent3, hero2_talent4, hero2_talent5, 
-    #    hero3_talent1, hero3_talent2, hero3_talent3, hero3_talent4, hero3_talent5)
-    #    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
+    #up to (Config).max_party_size
+    hero1_talents = row['talents1']
+    hero2_talents = row['talents2']
+    hero3_talents = row['talents3']
+    hero1_json = json.dumps(hero1_talents)
+    hero2_json = json.dumps(hero2_talents)
+    hero3_json = json.dumps(hero3_talents)
 
-    #talent_values = [result_id]
-
-    #for t_dict in talent_dicts:
-    #    talents = t_dict['talents']
-    #    talents.extend([None] * (5 - len(talents)))
-    #    talent_values += talents
-
-    #db.execute(talent_query, tuple(talent_values))
+    result_query = """
+        INSERT INTO Results (exp, boss, name1, class1, name2, class2, name3, class3, hero1_talents, hero2_talents, hero3_talents) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
+    cursor.execute(result_query, (exp, boss, *hero_data, hero1_json, hero2_json, hero3_json))
 
     cursor.close()
     db.commit()

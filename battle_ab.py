@@ -299,6 +299,8 @@ class BattleManager(Config):
             #if not Config.acting_character.is_monster:
             if Config.acting_character.is_player or Config.acting_character.is_follower:
                 for fighting_monster in Config.room_monsters:
+                    #def monster_defeated(self):
+                    #call function after activating location talents, fix for ambush / smite
                     if fighting_monster.health <=0:
                         self.combat_mob_sprites.remove(fighting_monster)
                         self.actions_ordered.remove(fighting_monster)

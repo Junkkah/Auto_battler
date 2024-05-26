@@ -49,7 +49,7 @@ class Simulator(Config):
         self.party_exp = 0
         self.exp_reward = 0
         self.bosses_defeated = 0
-        self.party_size = 3
+        #self.party_size = 3
         self.simu_paths = []
         self.names_df = get_data('names')
         self.talent_lists = get_data('talents')
@@ -135,7 +135,7 @@ class Simulator(Config):
         selection = random.sample(self.names, 8)
         self.party = random.sample(selection, 3)
 
-        for simulated_hero in range(self.party_size):
+        for simulated_hero in range(self.max_party_size):
             SIMU_X = 0
             SIMU_Y = 0
             self.simulated_hero = Hero(self.simulation_hero_sprites, (SIMU_X, SIMU_Y), self.party[simulated_hero][0], self.party[simulated_hero][1])
@@ -176,11 +176,10 @@ class Simulator(Config):
             simulated_path = self.navigate_path(start_loc)
             simulated_monsters = []
         
-            #simulation_results.append(simulated_path)
-            #talent_dicts = {}
-            #for p in range(self.party_size):
-            #    talent_dicts[simulation_results[1][p][0]] = []
-            #simulation_results.append(talent_dicts)
+            talent_dict = {}
+            for name_hero in Config.party_heroes:
+                talent_dict[name_hero.name] = []
+            simulation_results.append(talent_dict)
             Config.combat_log = []
             monsters = []
             path_instance = Path()
@@ -276,7 +275,6 @@ class Simulator(Config):
                         random_row = talent_df.sample(n=1)
                         talents.append(random_row)
 
-                    
                     for i in range(self.numer_of_heroes):
                         talent = talents[i]
                         hero = Config.party_heroes[i] 
@@ -285,7 +283,7 @@ class Simulator(Config):
                         talent_type = talent['type'].iloc[0]
                         
                         hero.add_talent(talent_name, talent_type)
-                        #simulation_results[2][hero.name].append(talent_name)
+                        simulation_results[1][hero.name].append(talent_name)
             if Config.party_heroes:
                 Config.completed_adventures.append(Config.current_adventure)
                 self.bosses_defeated += 1
@@ -308,11 +306,16 @@ class Simulator(Config):
                 play_sound_effect('click')
                 for _ in range(self.COUNT):
                     result = self.run_simulation()
-                    print(result)
-                    self.results_list.append(result)
-                    self.screen.blit(self.info_text, self.info_text_rect)
 
-                columns = ['heroes', 'exp', 'bosses']
+                    talent_dict = result.pop(1)
+                    for i in range(self.max_party_size):
+                        talents = talent_dict[result[0][i][0]]
+                        result.append(talents)
+
+                    print(result[0], result[1], result[2])
+                    self.results_list.append(result)
+
+                columns = ['heroes', 'exp', 'bosses', 'talents1', 'talents2', 'talents3']
                 results_df = pd.DataFrame(self.results_list, columns=columns)
                 
                 for _, row in results_df.iterrows():

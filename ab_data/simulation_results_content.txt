@@ -1,36 +1,16 @@
-#put all results into single table
+
 Table: Results
-- Measure of heroes success in simulation
+- Results of a simulation
 Columns: 
 - id: Unique identifier for each simulation.
 - exp: Experience points awarded for heroes during the simulation.
-- boss: Was boss defeated True/False.
-
-Table: Nodes
-- Names of locations in random path for simulation.
-- Contains full list of locations, even if heroes fail earlier
-Columns: 
-- id: Unique identifier for each simulation.
-- result_id: Foreign key reference to Results ID. Redundant.
-- node1 to node13: Name of the location. 
-
-Table: Heroes
-- Names and classes of heroes in simulation
-Columns:
-- id: Unique identifier for each simulation.
-- result_id: Foreign key reference to Results ID. Redundant.
+- boss: Number of bosses defeated during the simulation.
 - name1: Name of first hero in the party.
-- class1: Name of the class of first hero in the party.
+- class1: Class of first hero in the party.
 - name2: Name of second hero in the party.
-- class2: Name of the class of second hero in the party.
+- class2: Class of second hero in the party.
 - name3: Name of third hero in the party.
-- class3: Name of the class of third hero in the party.
-
-Table: Talents
-- Names of talents for each Hero.
-- Hero gains new talent each level. 
-- None values indicate hero did not reach that level
-Columns: 
-- id: Unique identifier for each simulation.
-- result_id: Foreign key reference to Results ID. Redundant.
-- hero[i]_talent[j]: Talent number j of hero number i. Maximum of three heroes, five talents
+- class3: Class of third hero in the party.
+- hero1_talents: Names of the talents of hero1 as string.
+- hero2_talents: Names of the talents of hero2 as string.
+- hero3_talents: Names of the talents of hero3 as string.
