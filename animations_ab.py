@@ -5,6 +5,7 @@ from sprites_ab import Monster
 from data_ab import get_data
 from sounds_ab import play_sound_effect
 import numpy as np
+import math
 
 #Stab, Slash and Blast class code adapted from
 #https://github.com/clear-code-projects/animation 
@@ -22,6 +23,82 @@ def set_animation_speed(speed: float):
 
 def get_animation_speed() -> float:
     return animation_speed
+
+
+def get_angle(hero_center, mob_center) -> int:
+	angle_radians = math.atan2(mob_center[1] - hero_center[1], mob_center[0] - hero_center[0])
+	angle_degrees = math.degrees(angle_radians)
+	return angle_degrees
+
+def get_position(center_x, center_y, offset, angle_degrees): 
+	angle_radians = math.radians(angle_degrees)
+	point_x = center_x + offset * math.cos(angle_radians)
+	point_y = center_y + offset * math.sin(angle_radians)
+	return point_x, point_y
+
+class MinorEffect(Config, pg.sprite.Sprite): 
+	def __init__(self, groups, pos_x, pos_y, effect):
+		super().__init__()
+		pg.sprite.Sprite.__init__(self, groups) 
+		effect_image = pg.image.load('./ab_images/' + effect + '.png').convert_alpha()
+		self.rect = self.image.get_rect()
+		self.rect.center = (pos_x, pos_y)
+		self.duration = 10
+
+	def animate(self, timer):
+		pass
+
+
+class StabAngle(Config, pg.sprite.Sprite): 
+	#swing weapons vs stab weapons
+	def __init__(self, groups, weapon, pos_x, pos_y, hero_center, target_center):
+		super().__init__()
+		pg.sprite.Sprite.__init__(self, groups) 
+		self.attack_animation = False
+
+		angle = get_angle(hero_center, target_center)
+		adjusted_angle = angle + 90
+
+		weapon_df = weapons_data[weapons_data['name'] == weapon].reset_index(drop=True)
+		weapon_image = pg.image.load('./ab_images/weapon/' + weapon + '.png').convert_alpha()
+		WIDTH, HEIGHT = weapon_image.get_size()
+		SIZE_SCALAR = weapon_df.loc[0, 'size_scalar']
+		SCALED_WIDTH = WIDTH / SIZE_SCALAR
+		SCALED_HEIGHT = HEIGHT / SIZE_SCALAR
+		POS_X_ADJUST = weapon_df.loc[0, 'offset_x']
+		POS_Y_ADJUST = weapon_df.loc[0, 'offset_y']
+		#pos_x += POS_X_ADJUST
+		#pos_y += POS_Y_ADJUST
+
+		self.pos_y = pos_y
+		self.pos_x = pos_x
+		self.attack_speed = 3 
+		#use XY_ADJUST for DIST
+		DIST = 100 
+
+		base_image = pg.transform.smoothscale(weapon_image, (SCALED_WIDTH, SCALED_HEIGHT))
+		self.image = pg.transform.rotozoom(base_image, -adjusted_angle, 1) 
+		self.rect = self.image.get_rect()
+		OFFSET_POSITION = get_position(pos_x, pos_y, DIST, adjusted_angle)
+		self.rect.center = [OFFSET_POSITION[0], OFFSET_POSITION[1]]
+
+		self.reach = 20
+		self.radian_angle = math.radians(adjusted_angle)
+		
+	def animation_start(self):
+		self.attack_animation = True
+
+	def animate(self, speed):
+		if self.attack_animation == True:
+			self.reach -= speed
+			delta_x = speed * math.cos(self.radian_angle) 
+			delta_y = speed * math.sin(self.radian_angle)
+			#<1 speed breaks, current 0.3
+			self.rect.x += delta_x  
+			self.rect.y += delta_y 
+			if int(self.reach) <= 0:
+				self.attack_animation = False
+				return True
 
 class Stab(Config, pg.sprite.Sprite): #Groupsingle
 	def __init__(self, groups, weapon, pos_x, pos_y):

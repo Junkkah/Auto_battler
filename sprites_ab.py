@@ -61,14 +61,14 @@ class Monster(Config, pg.sprite.Sprite):
         target = np.random.choice(Config.party_heroes, p=prob)
         return target
 
-    def melee_attack(self):
-        target = self.get_target()
+    def melee_attack(self, target):
+        #target = self.get_target()
         self.animation = False
         DAMAGE = self.total_stat('damage')
         LOG_DAMAGE = max(0, DAMAGE - target.total_stat('armor'))
         log_entry = (self.name, LOG_DAMAGE, target.name)
         Config.combat_log.append(log_entry)
-        target.take_damage(DAMAGE, 'physical')
+        target.take_damage(DAMAGE, 'physical', self)
 
     def take_damage(self, damage_amount, damage_type, armor_penalty):
         ARMOR = max(0, self.total_stat('armor') - armor_penalty)
@@ -220,7 +220,7 @@ class EquipmentSlot(Config):
         pg.draw.rect(self.screen, self.border_color, self.rect, self.border_width)
 
 class Equipment(Config, pg.sprite.Sprite): 
-    def __init__(self, name: str, item_type: str, slot_type: str, prefix: str, suffix: str, effect_type: str, effect: str, tier: int):
+    def __init__(self, name: str, item_type: str, slot_type: str, prefix: str, suffix: str, prefix_effect_type, prefix_effect, suffix_effect_type, suffix_effect, prefix_tier: int, suffix_tier: int):
         super().__init__()
         pg.sprite.Sprite.__init__(self)
         self.item_name = name #subtype
@@ -243,28 +243,37 @@ class Equipment(Config, pg.sprite.Sprite):
             self.base_damage = damage
         self.prefix = prefix
         self.suffix = suffix
-        self.modifier_tier = tier
+        self.prefix_tier = prefix_tier
+        self.suffix_tier = suffix_tier
+        self.modifier_tier = self.prefix_tier + self.suffix_tier
         self.speed_mod = 1
-        self.effect_type = effect_type
-        self.effect = effect
+
+        self.prefix_effect_type = prefix_effect_type
+        self.prefix_effect = prefix_effect
+        self.suffix_effect_type = suffix_effect_type
+        self.suffix_effect = suffix_effect
         self.buy_value = None
-        self.sell_value = tier * 2
+        self.sell_value = self.modifier_tier * 4
 
     @property
     def desc(self):
-        prefix_c = self.prefix.capitalize()
-        name_c = self.item_name.capitalize()
+        prefix_cap = self.prefix.capitalize()
+        name_cap = self.item_name.capitalize()
         if self.suffix:
             words = self.suffix.split()
             words[1] = words[1].capitalize()
-            suffix_c = ' '.join(words)
+            suffix_cap = ' '.join(words)
         else:
-            suffix_c = self.suffix
-        return f'{prefix_c} {name_c} {suffix_c}'
+            suffix_cap = self.suffix
+        return f'{prefix_cap} {name_cap} {suffix_cap}'
 
     @property
-    def item_effect(self):
-        return (self.effect, self.modifier_tier, self.effect_type)
+    def item_prefix_effect(self):
+        return (self.prefix_effect, self.prefix_tier, self.prefix_effect_type)
+    
+    @property
+    def item_suffix_effect(self):
+        return (self.suffix_effect, self.suffix_tier, self.suffix_effect_type)
 
     def activate_effect(self, rank):
         pass

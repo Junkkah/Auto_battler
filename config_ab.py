@@ -13,6 +13,7 @@ class Config(object):
     gold_count = 50
     party_discount = 0
     magic_find = 0
+    revive_divisor = 2
     current_location = None
     current_adventure = None
     acting_character = None

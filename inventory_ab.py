@@ -6,6 +6,7 @@ from sounds_ab import play_sound_effect
 from sprites_ab import Button, EquipmentSlot, Equipment
 from hero_ab import Hero
 from battle_ab import BattleManager
+from items_ab  import ItemManager
 from data_ab import get_json_data
 
 
@@ -139,7 +140,8 @@ class Inventory(Config):
     def handle_book(self, drop_spot_number):
         for reading_hero in Config.party_heroes:
             if reading_hero.inventory_spot_number == drop_spot_number:
-                reading_hero.activate_book(self.dragged_object)
+                #reading_hero.activate_book(self.dragged_object)
+                ItemManager.activate_book(reading_hero, self.dragged_object)
                 self.inventory_items.remove(self.dragged_object)
                 self.inventory_icon_sprites.remove(self.dragged_object)
                 break
@@ -148,7 +150,8 @@ class Inventory(Config):
     def display_item_info(screen, screen_height, hovered_item, item_info_font, black, white):
         mouse_pos = pg.mouse.get_pos()
         desc_text_line1 = item_info_font.render(hovered_item.desc, True, black)
-        item_effect = hovered_item.item_effect
+        #desc line 2 = if prefix +3speed, if suffix no need?
+        item_effect = hovered_item.item_prefix_effect
         if item_effect[0]:
             item_stat = item_effect[0].capitalize()
             stat_mod = str(item_effect[1])
@@ -370,5 +373,6 @@ class Inventory(Config):
         gold_text = self.create_gold_text()
         self.screen.blit(gold_text, self.coords_gold)
 
+        #weapon base damage in info. Armor bases?
         if self.hovered_item and not self.dragging_item:
             self.display_item_info(self.screen, self.screen_height, self.hovered_item, self.item_info_font, self.black, self.white)

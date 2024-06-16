@@ -8,7 +8,7 @@ from sprites_ab import Button, EquipmentSlot
 from inventory_ab import Inventory
 from data_ab import get_data, get_talent_data, get_json_data
 from sounds_ab import play_sound_effect
-from battle_ab import BattleManager
+from items_ab import ItemManager
 import pandas as pd
 
 
@@ -77,7 +77,7 @@ class Shop(Config):
         num_items = 3 #random.randint(1, 3)
         item_probabilities = get_json_data('item_probabilities')
         for i in range(num_items):
-            item = BattleManager.create_random_item(item_probabilities)
+            item = ItemManager.create_random_item(item_probabilities)
             item.inventory_spot = i + 1
             item_selection.append(item)
         return item_selection
@@ -215,8 +215,7 @@ class Shop(Config):
                                 play_sound_effect('money')
                                 buy_button.item_sold = True
                                 Config.gold_count -= item.buy_value
-                                #single_object_to_backpack()
-                                BattleManager.item_to_backpack(item)
+                                ItemManager.item_to_backpack(item)
                                 self.shop_icon_sprites.remove(item)
                                 self.item_selection.remove(item)
                                 can_buy_item = True

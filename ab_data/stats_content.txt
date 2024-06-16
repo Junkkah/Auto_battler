@@ -111,7 +111,7 @@ Table: Item_modifiers
 - Table for magic item prefixes and suffixes.
 Columns:
 - id: Unique identifier for each item type modifier.
-- mod_effect: What the modifier effects.
+- mod_effect: What the modifier effects or activation method of the modifier.
 - mod_affix: Type of the modifier, prefix or suffix.
 - item_type: Item type that can have the modifier.
 - desc: Description of the modifier.
@@ -121,6 +121,7 @@ Columns:
 - tier_3: Level three modifier text.
 - tier_4: Level four modifier text.
 - tier_5: Level five modifier text.
+- mod_ratio: How much power each tier of the modifier requires.
 
 Table: Followers
 - Table for hero minions.

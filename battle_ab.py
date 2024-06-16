@@ -2,9 +2,10 @@ import pygame as pg
 from config_ab import Config
 from hero_ab import Hero, Follower
 from sprites_ab import Monster, Equipment
-from animations_ab import Stab, Slash, Blast, Smash, SongAnimation, FollowerAttack, get_animation_speed
+from animations_ab import Stab, Slash, Blast, Smash, SongAnimation, FollowerAttack, get_animation_speed, StabAngle
 from sounds_ab import play_sound_effect
 from data_ab import get_json_data, get_affix
+from items_ab import ItemManager
 import random
 import pygame.mixer
 
@@ -30,8 +31,11 @@ class BattleManager(Config):
         self.actions_unordered = []
         Config.room_monsters = []
         Config.combat_log = []
+        self.current_target = None
         for loot_item in self.item_loot:
-            BattleManager.item_to_backpack(loot_item)
+
+            #BattleManager.item_to_backpack(loot_item)
+            ItemManager.item_to_backpack(loot_item)
             #handle backpack overflow
 
         self.item_loot = []
@@ -40,7 +44,7 @@ class BattleManager(Config):
         if not self.party_defeated:
             for risen_hero in self.defeated_heroes:
                 Config.party_heroes.append(risen_hero)
-                risen_hero.health = risen_hero.max_health // 2
+                risen_hero.health = risen_hero.max_health // Config.revive_divisor
         self.defeated_heroes = []
 
         for cleanup_hero in Config.party_heroes:
@@ -64,64 +68,6 @@ class BattleManager(Config):
         total_loot = random.randint(total_min_gold, total_max_gold)
         return total_loot
     
-    @staticmethod
-    def item_to_backpack(item):
-        sorted_keys = sorted(Config.party_backpack.keys(), key=lambda x: int(x.split('slot')[1]))
-        for key in sorted_keys:
-            if Config.party_backpack[key] is None:
-                Config.party_backpack[key] = item
-                break 
-    
-    #create itemhandler class
-    @staticmethod
-    def create_magic_item(item_type, subtype, item_power):
-        tier = random.randint(1, item_power)
-        slot_type_mapping = {'weapon': 'hand1', 'armor': subtype}
-
-        #add tiers above 5
-        if tier > 5:
-            tier = 5
-        
-        item_tier = 'tier_' + str(tier)
-        #tie certain modifiers to item subtypes (staff = magic_power)
-        if item_type == 'consumable':
-            affix_df = get_affix(subtype, 'suffix')
-            random_affix = affix_df.sample(n = 1)
-            suffix = random_affix[item_tier].iloc[0]
-            prefix = ''
-        else:
-            affix_df = get_affix(item_type, 'prefix')
-            random_affix = affix_df.sample(n = 1)
-            prefix = random_affix[item_tier].iloc[0]
-            suffix = ''
-        effect_type = random_affix['mod_type'].iloc[0]
-        effect = random_affix['mod_effect'].iloc[0]
-
-        slot_type = slot_type_mapping.get(item_type, item_type)
-        magic_item = Equipment(subtype, item_type, slot_type, prefix, suffix, effect_type, effect, tier)
-        return magic_item
-
-    @classmethod
-    def create_random_item(cls, item_probabilities):
-        item_type = random.choices(list(item_probabilities.keys()), weights=[40, 45, 15])[0]
-        subtype = random.choices(item_probabilities[item_type]['types'], weights=item_probabilities[item_type]['prob'])[0]
-        maximum_power = max(1, Config.current_location.tier // 2)
-        item_power = random.randint(1, maximum_power)
-        created_item = cls.create_magic_item(item_type, subtype, item_power)
-        return created_item
-
-    def create_item_loot(self):
-        looted_items = []
-        item_probabilities = get_json_data('item_probabilities')
-        drop_chance_bonus = (Config.current_location.tier / 100)
-        for monster in Config.room_monsters:
-            #number_of_loot_rolls attribute, 1-5. Repeat for each 
-            item_drop_chance = monster.loot_roll + drop_chance_bonus + Config.magic_find
-            if random.random() <= item_drop_chance:
-                random_item = self.create_random_item(item_probabilities)
-                looted_items.append(random_item)
-        return looted_items    
-    
     def reset_game(self):
         Config.party_backpack = {}
         self.defeated_heroes = []
@@ -134,6 +80,7 @@ class BattleManager(Config):
         Config.current_adventure = None
         Config.current_location = None
         Config.acting_character = None
+        self.current_target = None
         Config.gold_count = 50
         Config.party_discount = 0
         Config.magic_find = 0
@@ -177,6 +124,7 @@ class BattleManager(Config):
             play_sound_effect(Config.current_location.name)
         self.combat_started = False
         self.delay_timer = 0.0
+        self.current_target = None
 
         self.position_heroes()
         monster_count = len(Config.room_monsters)
@@ -201,7 +149,8 @@ class BattleManager(Config):
             activation_hero.activate_aura()
 
         self.gold_loot = self.create_gold_loot()
-        self.item_loot = self.create_item_loot()
+        self.item_loot = ItemManager.create_item_loot()
+
         self.actions_ordered = self.order_sort(self.actions_unordered)
         Config.acting_character = self.actions_ordered[0]
 
@@ -243,10 +192,11 @@ class BattleManager(Config):
         Config.acting_character = self.actions_ordered[0]
         # Attack animation has not started and both monster and hero lists have list items
         if not Config.acting_character.animation and Config.room_monsters and Config.party_heroes: 
+            self.current_target = Config.acting_character.get_target()
             if Config.acting_character.is_player:
                 pos_x = Config.acting_character.pos_x
                 pos_y = Config.acting_character.pos_y
-
+                
                 if Config.acting_character.attack_type == 'spell':
                     Config.acting_character.active_spell = Config.acting_character.evaluate_spells()
                     self.combat_animation = Blast(self.animation_sprites, Config.acting_character.active_spell, pos_x, pos_y)
@@ -261,6 +211,9 @@ class BattleManager(Config):
                     else:
                         held_weapon = Config.acting_character.worn_items['hand1'].item_name
                     self.combat_animation = Stab(self.animation_sprites, held_weapon, pos_x, pos_y)
+                    #target_center = self.current_target.rect.center
+                    #hero_center = Config.acting_character.rect.center
+                    #self.combat_animation = StabAngle(self.animation_sprites, held_weapon, pos_x, pos_y, hero_center, target_center)
 
             elif Config.acting_character.is_follower:
                 play_sound_effect(Config.acting_character.type)
@@ -284,14 +237,19 @@ class BattleManager(Config):
                 Config.acting_character.activate_item_effects()
             if Config.acting_character.attack_type == 'spell':
                 Config.acting_character.activate_talent_group('combat')
-                Config.acting_character.spell_attack(Config.acting_character.active_spell)
+                Config.acting_character.spell_attack(Config.acting_character.active_spell, self.current_target)
             elif Config.acting_character.attack_type == 'song':
                 Config.acting_character.activate_talent_group('song')
                 Config.acting_character.song_attack()
             else:
                 if Config.acting_character.is_player:
                     Config.acting_character.activate_talent_group('combat')
-                Config.acting_character.melee_attack()
+                    Config.acting_character.melee_attack(self.current_target)
+                elif Config.acting_character.is_follower:
+                    Config.acting_character.melee_attack(self.current_target)
+                else: #monster attack
+                    Config.acting_character.melee_attack(self.current_target)
+
 
             self.animation_sprites.remove(self.combat_animation)
             self.actions_ordered.append(self.actions_ordered.pop(0))

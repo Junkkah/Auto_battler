@@ -138,7 +138,8 @@ class Path(Config):
         mouse_pos = pg.mouse.get_pos()
         gold_text = self.create_gold_text()
         self.screen.blit(gold_text, self.coords_gold)
-
+        #display legend
+        #pull legend data from json, conditional on current adventure
         radius = self.max_pulse_radius * abs(math.sin(pg.time.get_ticks() * self.pulsation_speed))
 
         if Config.current_location:
@@ -162,6 +163,7 @@ class Path(Config):
 
         if Config.scout_active:
             if self.hovered_item:
+                #capitalize()
                 desc_text = self.item_info_font.render(self.hovered_item.type, True, self.black)
                 text_rect = desc_text.get_rect()
                 offset_divisor = 54

@@ -2,6 +2,7 @@ import pygame as pg
 from data_ab import row_to_dict, get_data, get_talent_data, get_json_data
 from config_ab import Config
 from sprites_ab import Equipment
+from items_ab import SuffixActivations
 import numpy as np
 import pandas as pd
 import random
@@ -96,14 +97,14 @@ class Hero(Config, pg.sprite.Sprite):
         chosen_spell = random.choice(max_damage_spells)
         return chosen_spell
         
-    #def evaluate_action(self):
-        #if attack_type == 'spell':
-            #spell_attack()
-        #if attack_type == 'song':
-            #song()
-        #else:
-            #evaluate_special_attack
-            #or melee_attack()
+    def evaluate_action(self):
+        if attack_type == 'spell':
+            self.spell_attack()
+        if attack_type == 'song':
+            self.song_attack()
+        else:
+            #self.special_attack()
+            self.melee_attack()
         
     #if type == 'stat', 'combat', 'instant'
     #need separate activation methods for stat, combat and instant
@@ -117,21 +118,18 @@ class Hero(Config, pg.sprite.Sprite):
     def activate_item_stats(self):
         for item_slot, item in self.worn_items.items():
             if item is not None:
-                item_effect = self.worn_items[item_slot].item_effect #return (effect, tier, effect_type)
+                item_effect = self.worn_items[item_slot].item_prefix_effect #return (effect, tier, effect_type)
                 effect_name = item_effect[0]
                 effect_tier = item_effect[1]
                 effect_type = item_effect[2]
                 if effect_name is not None and effect_type == 'stat':
                     self.item_stats_dict[effect_name] += effect_tier
 
-    #activated when acting
-    #divide combat effects to off/def 
-    #activate off with attack()
-    #activate def with take_damage()
+
     def activate_item_effects(self):
         for item_slot, item in self.worn_items.items():
             if item is not None:
-                item_effect = self.worn_items[item_slot].item_effect #return (effect, tier, effect_type)
+                item_effect = self.worn_items[item_slot].item_suffix_effect #return (effect, tier, effect_type)
                 effect_name = item_effect[0]
                 effect_tier = item_effect[1]
                 effect_type = item_effect[2]
@@ -142,15 +140,29 @@ class Hero(Config, pg.sprite.Sprite):
                         activation_method(effect_tier)
                         self.worn_items[item_slot] = None
 
-    def activate_book(self, book):
-        #activate_stat_book
-        tier = book.modifier_tier
-        effect_mapping = {1: 'speed', 2: 'menace', 3: 'max_health', 4: 'damage', 5: 'armor'}
-        effect_strength_mapping = {'speed': '2', 'menace': '2', 'max_health': '5', 'damage': '2', 'armor': '1'}
-        effect = effect_mapping.get(tier)
-        strength = effect_strength_mapping.get(effect)
-        stat_bonus = effect + ' ' + strength
-        self.add_stat(stat_bonus)
+    def activate_def_item_effects(self, taken_damage: int, damage_type: str, attacker): 
+        for item_slot, item in self.worn_items.items():
+            if item is not None:
+                item_effect = self.worn_items[item_slot].item_suffix_effect #return (effect, tier, effect_type)
+                effect_name = item_effect[0]
+                effect_type = item_effect[2]
+                if effect_name is not None and effect_type == 'defence':
+                    method_name = effect_name
+                    activation_method = getattr(SuffixActivations, method_name)
+                    activation_method(taken_damage, damage_type, attacker, self)
+    
+    #returns values: can active only single item
+    def activate_off_item_effects(self, damage: int, armor_penalty: int, crit_multi: int, target): 
+        for item_slot, item in self.worn_items.items():
+            if item is not None:
+                item_effect = self.worn_items[item_slot].item_suffix_effect #return (effect, tier, effect_type)
+                effect_name = item_effect[0]
+                effect_type = item_effect[2]
+                if effect_name is not None and effect_type == 'offence':
+                    method_name = effect_name
+                    activation_method = getattr(SuffixActivations, method_name)
+                    damage, armor_penalty, crit_multi = activation_method(damage, armor_penalty, crit_multi, target, self)
+        return damage, armor_penalty, crit_multi
 
     def total_stat(self, stat: str):
         base_value = getattr(self, stat)
@@ -196,20 +208,25 @@ class Hero(Config, pg.sprite.Sprite):
         else:
             return False
 
-    def melee_attack(self):
-        target = self.get_target()
+    #separate melee_hit() that performs hit
+    #leave melee_attack() as method that activates item/talents and calls melee_hit
+    def melee_attack(self, target):
         self.animation = False
         DAMAGE = self.total_stat('damage')
-        if self.critical_hit():
-            DAMAGE = 2 * DAMAGE
+        critical_multiplier = 2
+
         armor_penalty = self.enemy_armor_penalty
+        DAMAGE, armor_penalty, critical_multiplier = self.activate_off_item_effects(DAMAGE, armor_penalty, critical_multiplier, target)
+        if self.critical_hit():
+            DAMAGE = critical_multiplier * DAMAGE
+
         LOG_DAMAGE = DAMAGE - max(0, target.total_stat('armor') - armor_penalty)
         log_entry = (self.name, LOG_DAMAGE, target.name)
         Config.combat_log.append(log_entry)
         target.take_damage(DAMAGE, 'physical', armor_penalty)
         self.enemy_armor_penalty = 0
 
-    def spell_attack(self, spell: dict):
+    def spell_attack(self, spell: dict, target):
         damage_type = spell['type']
         self.animation = False
         DAMAGE = spell['damage'] + (self.spell_mastery[damage_type] * ((self.level // 2) + 1)) + self.total_stat('magic_power')
@@ -222,27 +239,28 @@ class Hero(Config, pg.sprite.Sprite):
             for target_mob in Config.room_monsters:
                 target_mob.take_damage(DAMAGE, damage_type, armor_penalty)
         if spell['area'] == 0:
-            target = self.get_target()
+            #target = self.get_target()
             log_entry = (self.name, DAMAGE, target.name)
             Config.combat_log.append(log_entry)
             target.take_damage(DAMAGE, damage_type, armor_penalty)
 
     def song_attack(self):
         #actual song attack is handled by talent group activation
+        #handle song group activation here
+        #add magic_power to songs-dome something about healing
         self.animation = False
         log_entry = (self.name, 'song', 'everyone')
         Config.combat_log.append(log_entry)
 
-    def take_damage(self, damage_amount: int, damage_type: str):
-        #activate defensive talent
+    def take_damage(self, damage_amount: int, damage_type: str, attacker):
         if damage_type == 'physical':   
             armor = self.total_stat('armor')
             taken_damage = max(0, damage_amount - armor)
         else:
             taken_damage = damage_amount
+        self.activate_def_item_effects(taken_damage, damage_type, attacker)
         if self.evade_attack():
             taken_damage = 0
-            #log entry?
         self.health -= taken_damage
 
     def gain_health(self, gained_health: int):
@@ -256,7 +274,7 @@ class Hero(Config, pg.sprite.Sprite):
     
     def equip_starting_weapon(self):
         if self.attack_type not in ['spell', 'song']:
-            weapon = Equipment(self.attack_type, 'weapon', 'hand1', '', '', None, None, 0)
+            weapon = Equipment(self.attack_type, 'weapon', 'hand1', '', '', None, None, None, None, 0, 0)
             self.worn_items['hand1'] = weapon
 
     def equip_item(self, item: object):
@@ -391,7 +409,7 @@ class Hero(Config, pg.sprite.Sprite):
     def sooth_activation(self, rank):
         total_rank = self.songmaster_rank + rank
         healing_per_rank = 1
-        total_healing = healing_per_rank * total_rank
+        total_healing = (healing_per_rank * total_rank) - 1
         for healing_hero in Config.party_heroes:
             healing_hero.gain_health(total_healing)
 
@@ -568,10 +586,14 @@ class Hero(Config, pg.sprite.Sprite):
         self.attack_type = 'spell'
         self.add_talent('Burn', 'spell')
     
-    def waterheal(self, effect):
+    def waterheal_activation(self, effect):
         for healed_hero in Config.party_heroes:
             health = healed_hero.max_health
             healed_hero.gain_health(health)
+    
+    def revivify_activation(self, effect):
+        Config.revive_divisor = 1.5
+
 
 class Follower(Config, pg.sprite.Sprite):
     def __init__(self, follower_name: str, follower_type: str, master):
@@ -603,8 +625,9 @@ class Follower(Config, pg.sprite.Sprite):
         target = np.random.choice(Config.room_monsters, p=prob)
         return target
 
-    def melee_attack(self):
-        target = self.get_target()
+    #def melee_attack(self):
+    def melee_attack(self, target):
+        #target = self.get_target()
         self.animation = False
         DAMAGE = self.total_stat('damage')
         armor_penalty = 0

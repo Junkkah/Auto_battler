@@ -51,6 +51,7 @@ class WorldMap(Config):
         return coords_dict
     
     def assign_node_type(self, layer: int, node_type_data: dict, fight_prob: float, final_layer: bool):
+        #additional types: event, rest(town?), elite monsters
         if final_layer:
             node_type = 'boss'
             node_image = 'cave'
