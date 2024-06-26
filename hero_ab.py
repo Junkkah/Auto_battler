@@ -1,5 +1,5 @@
 import pygame as pg
-from data_ab import row_to_dict, get_data, get_talent_data, get_json_data
+from data_ab import row_to_dict, get_data
 from config_ab import Config
 from sprites_ab import Equipment
 from items_ab import SuffixActivations
@@ -12,8 +12,6 @@ from enum import Enum
 hero_data = get_data('classes')
 exp_data = get_data('experience')
 spells_data = get_data('spells')
-follower_data = get_data('followers')
-#weapons_data = get_data('weapons')
 
 class AttackType(Enum):
     MELEE = 'melee'
@@ -53,7 +51,9 @@ class Hero(Config, pg.sprite.Sprite):
         self.level = 1
         self.exp_df = exp_data
         self.next_level = self.exp_df.at[0, 'exp']
-        self.worn_items = {'head': None, 'body': None, 'hand1': None, 'hand2': None, 'consumable': None}
+        self.worn_items = {'head': None, 'body': None, 'hand1': None, 'consumable': None}
+        #self.worn_items = {'head': None, 'body': None, 'hand1': None, 'hand2': None, 'consumable': None}
+        #"hand2": [[0.37, 0.27], [0.57, 0.27], [0.77, 0.27]],
 
         self.df = hero_data[hero_data['type'] == self.type].reset_index(drop=True)
         # Assign stats type, health, max_health, damage, speed, exp, menace, armor, attack_type
@@ -71,7 +71,7 @@ class Hero(Config, pg.sprite.Sprite):
 
         self.talent_bonus = {'speed': 0, 'damage': 0, 'menace': 0, 'armor': 0, 'magic_power': 0, 'critical': 0, 'evasion': 0}
         self.spell_mastery = {'fire': 0, 'lightning': 0, 'acid': 0, 'cold': 0, 'nature': 0}
-        self.talent_groups = {'combat': {}, 'location': {}, 'map': {}, 'song': {}}
+        self.talent_groups = {'combat': {}, 'location': {}, 'map': {}, 'song': {}} #combat -> off/def
         self.item_stats_dict = {'speed': 0, 'damage': 0, 'menace': 0, 'armor': 0, 'magic_power': 0, 'critical': 0, 'evasion': 0}
 
         self.talent_activations = {}
@@ -184,12 +184,13 @@ class Hero(Config, pg.sprite.Sprite):
         return target
 
     #calling static methods
+    #combat -> off/def
     def activate_talent_group(self, group):
         for talent_effect, talent_info in self.talent_groups[group].items():
             activation_method = talent_info['activation_method']
             rank = talent_info['rank']
-            activation_method(rank)
-    
+            activation_method(self, rank)
+            
     def critical_hit(self):
         crit_stat = self.total_stat('critical')
         critical_chance = crit_stat * 0.10
@@ -291,69 +292,6 @@ class Hero(Config, pg.sprite.Sprite):
         new_val = old_val + stat_val
         setattr(self, stat_name, new_val) 
     
-    def add_talent(self, talent_name: str, talent_type: str):
-        hero_talents = get_talent_data(self.type)
-        talents_row = hero_talents[hero_talents['name'] == talent_name]
-        talents = row_to_dict(talents_row, talent_name)
-
-        if talent_type == 'spell':
-            #resolve name/effect in spells with id
-            #Talent name: 'Fire Gush' effect: 'fire_gush'
-            #effect should be name, name should be name_text
-
-            spell_name = talents['effect'] 
-            talent_spell = row_to_dict(spells_data, spell_name)
-            self.talents.append(talent_name)
-            self.spells.append(talent_spell)
-
-        elif talent_type == 'stat':
-            self.talents.append(talent_name)
-            stat_bonus = talents['effect']
-            self.add_stat(stat_bonus)
-
-        elif talent_type in ['location', 'combat', 'map', 'song']:
-            self.talents.append(talent_name)
-            effect = talents['effect']
-            effect_name, rank = effect.split()
-            talent_rank = int(rank)
-            method_name = f'{effect_name}_activation'
-            activation_method = getattr(self, method_name)
-            self.talent_groups[talent_type][effect] = {'activation_method': activation_method, 'rank': talent_rank}
-            
-        elif talent_type == 'domain':
-            self.talents.append(talent_name) 
-            self.type = talents['effect']
-
-        elif talent_type == 'm_stat':
-            self.talents.append(talent_name)
-            string = talents['effect']
-            stats = string.split()
-            first_bonus = ' '.join(stats[:2])
-            second_bonus = ' '.join(stats[2:])
-            self.add_stat(first_bonus)
-            self.add_stat(second_bonus)
-        
-        elif talent_type == 'aura':
-            self.talents.append(talent_name)
-            self.aura = talents['effect']
-        
-        elif talent_type == 'spell_mastery':
-            self.talents.append(talent_name)
-            mastery_type = talents['effect']
-            self.spell_mastery[mastery_type] += 1
-        
-        elif talent_type == 'once':
-            self.talents.append(talent_name)
-            effect = talents['effect']
-            if len(effect.split()) == 3:
-                method, eff1, eff2 = effect.split()
-                effect = eff1 + ' ' + eff2
-            else:
-                method, effect = effect.split()
-            method_name = f'{method}_activation'
-            activation_method = getattr(self, method_name)
-            activation_method(effect)
-
     def display_name(self):
         health_bar_height = 20
         OFFSET = (self.screen_height / self.offset_divisor) + health_bar_height
@@ -376,12 +314,6 @@ class Hero(Config, pg.sprite.Sprite):
     def draw_frame(self):
         pg.draw.rect(self.screen, self.red, [self.pos_x, self.pos_y, self.width, self.height], self.frame_width)
     
-#class TalentActivation(Config):
-    #def __init__(self)
-    #Config.__init__(self)
-    #@staticmethod
-    #def invisibility_activation(hero, rank):
-    #    hero.menace = 1
     def fire_spell_activation(self, rank):
         if rank > 1:
             spell_name = 'fireball'
@@ -396,245 +328,3 @@ class Hero(Config, pg.sprite.Sprite):
         healing_per_rank = 3
         total_healing = healing_per_rank * total_rank
         self.gain_health(total_healing)
-
-    def invisibility_activation(self, rank):
-        self.menace = 1
-    
-    def uplift_activation(self, rank):
-        total_rank = self.songmaster_rank + rank
-        damage_bonus_per_rank = 1
-        total_damage_bonus = damage_bonus_per_rank * total_rank
-        Config.aura_bonus['damage'] += total_damage_bonus
-
-    def sooth_activation(self, rank):
-        total_rank = self.songmaster_rank + rank
-        healing_per_rank = 1
-        total_healing = (healing_per_rank * total_rank) - 1
-        for healing_hero in Config.party_heroes:
-            healing_hero.gain_health(total_healing)
-
-    def loud_activation(self, rank):
-        total_rank = self.songmaster_rank + rank
-        damage_per_rank = 1
-        total_damage = damage_per_rank * total_rank
-        damage_type = 'physical'
-        DAMAGE = total_damage
-        armor_penalty = 1
-        for target_mob in Config.room_monsters:
-            target_mob.take_damage(DAMAGE, damage_type, armor_penalty)
-
-    def songmaster_activation(self, effect):
-        rank = int(effect)
-        self.songmaster_rank += rank
-
-    def scout_activation(self, effect):
-        Config.scout_active = True 
-    
-    def surprise_activation(self, rank):
-        speed_penalty_per_rank = 3
-        total_speed_penalty = speed_penalty_per_rank * rank
-        for surprised_monster in Config.room_monsters:
-            surprised_monster.take_debuff('speed', total_speed_penalty)
-    
-    def reveal_activation(self, rank):
-        armor_penalty_per_rank = 1
-        total_armor_penalty = armor_penalty_per_rank * rank
-        for revealed_monster in Config.room_monsters:
-            revealed_monster.take_debuff('armor', total_armor_penalty)
-
-    def berserk_activation(self, rank):
-        #self.talent_bonus['menace'] = 0
-        damage_bonus_per_rank = 3
-        menace_bonus_per_rank = 2
-        total_damage = damage_bonus_per_rank * rank
-        total_menace = menace_bonus_per_rank * rank
-        if self.health < self.max_health // 2:
-            self.talent_bonus['damage'] += total_damage
-            #self.talent_bonus['menace'] += total_menace
-
-    def crush_activation(self, rank):
-        armor_pierced_per_rank = 2
-        total_pierce = armor_pierced_per_rank * rank
-        self.enemy_armor_penalty += total_pierce
-
-    def smite_activation(self, rank):
-        damage_per_rank = 2
-        damage_type = 'holy'
-        DAMAGE = damage_per_rank * rank
-        armor_penalty = 0
-        for target_mob in Config.room_monsters:
-            target_mob.take_damage(DAMAGE, damage_type, armor_penalty)
-
-    def roots_activation(self, rank):
-        damage_per_rank = 1
-        damage_type = 'nature'
-        DAMAGE = damage_per_rank * rank
-        armor_penalty = 0
-        for target_mob in Config.room_monsters:
-            target_mob.take_damage(DAMAGE, damage_type, armor_penalty)
-    
-    def smiting_activation(self, rank):
-        damage_per_rank = 1
-        damage_type = 'holy'
-        DAMAGE = damage_per_rank * rank
-        armor_penalty = 0
-        for target_mob in Config.room_monsters:
-            target_mob.take_damage(DAMAGE, damage_type, armor_penalty)
-
-    def replenish_activation(self, rank):
-        healing_per_rank = 2
-        total_healing = healing_per_rank * rank
-        for healing_hero in Config.party_heroes:
-            healing_hero.gain_health(total_healing)
-    
-    def pilfer_activation(self, rank):
-        gold_per_rank = 2
-        extra_gold = gold_per_rank * rank
-        Config.gold_count += extra_gold
-
-    def ambush_activation(self, rank):
-        DAMAGE = self.worn_items['hand1'].base_damage
-        target = self.get_target()
-        armor_penalty = 0
-        target.take_damage(DAMAGE, 'physical', armor_penalty)
-    
-    def lonewolf_activation(self, rank):
-        damage_bonus_per_rank = 4
-        total_damage_bonus = damage_bonus_per_rank * rank
-        armor_bonus_per_rank = 1
-        total_armor_bonus = armor_bonus_per_rank * rank
-        if len(Config.party_heroes) == 1:
-            self.talent_bonus['damage'] += total_damage_bonus
-            self.talent_bonus['armor'] += total_armor_bonus
-    
-    def inevitable_activation(self, rank):
-        damage_increase_per_rank = 1
-        total_damage_increase = damage_increase_per_rank * rank
-        self.damage += total_damage_increase
-    
-    def bloodthirst_activation(self, rank):
-        healing_per_rank = 2
-        total_healing = healing_per_rank * rank
-        self.gain_health(total_healing)
-
-    def shelter_activation(self, rank):
-        armor_per_rank = 1
-        total_armor = armor_per_rank * rank
-        Config.aura_bonus['armor'] += total_armor
-
-    def xtr_att_activation(self, rank):
-        extra_attacks_per_rank = 1
-        total_extra_attacks = extra_attacks_per_rank * rank
-        self.melee_attack()
-
-    def haste_activation(self, rank):
-        for dancing_hero in Config.party_heroes:
-            dancing_hero.melee_attack()
-    
-    def coordinate_activation(self, rank):
-        menace_debuff_per_rank = 3
-        total_menace_debuff = menace_debuff_per_rank * rank
-        target = self.get_target()
-        target.take_debuff('menace', total_menace_debuff)
-
-    def homing_activation(self, rank):
-        menace_per_rank = 1
-        total_menace = menace_per_rank * rank
-        target = self.get_target()
-        target.menace += total_menace
-    
-    def entrap_activation(self, rank):
-        armor_penalty_per_rank = 1
-        total_armor_penalty = armor_penalty_per_rank * rank
-        for entrapped_monster in Config.room_monsters:
-            entrapped_monster.take_debuff('armor', total_armor_penalty)
-    
-    def dark_activation(self, rank):
-        damage_penalty_per_rank = 1
-        total_damage_penalty = damage_penalty_per_rank * rank
-        for blinded_monster in Config.room_monsters:
-            blinded_monster.take_debuff('damage', total_damage_penalty)
-    
-    def magicfind_activation(self, effect):
-        rank = int(effect)
-        magic_find_per_rank = 0.02
-        total_magic_find = magic_find_per_rank * rank
-        Config.magic_find += total_magic_find
-    
-    def follower_activation(self, effect):
-        follower_type = effect
-        follower_names = get_json_data('follower_names')
-        name = random.choice(follower_names[follower_type])
-        new_follower = Follower(name, follower_type, self)
-        Config.party_followers.append(new_follower)
-    
-    def foll_dam_activation(self, effect):
-        rank = int(effect)
-        damage_increase_per_rank = 2
-        total_damage_increase = damage_increase_per_rank * rank
-        for follower in Config.party_followers:
-            if follower.following == self:
-                follower.damage += total_damage_increase
-    
-    def bargain_activation(self, effect):
-        rank = int(effect)
-        discount_per_rank = 3
-        total_discount = discount_per_rank * rank
-        Config.party_discount += total_discount
-    
-    def fiery_activation(self, effect):
-        self.attack_type = 'spell'
-        self.add_talent('Burn', 'spell')
-    
-    def waterheal_activation(self, effect):
-        for healed_hero in Config.party_heroes:
-            health = healed_hero.max_health
-            healed_hero.gain_health(health)
-    
-    def revivify_activation(self, effect):
-        Config.revive_divisor = 1.5
-
-
-class Follower(Config, pg.sprite.Sprite):
-    def __init__(self, follower_name: str, follower_type: str, master):
-        Config.__init__(self)
-
-        self.following = master
-        self.type = follower_type 
-        self.name = follower_name
-        self.attack_type = 'melee'
-        self.is_follower = True
-        self.is_player = False
-        self.is_monster = False
-        self.animation = False
-        self.attacked = False
-
-        self.df = follower_data[follower_data['type'] == self.type].reset_index(drop=True)
-        # Assign stats type, size_scalar, damage, speed, offset_x, offset_y
-        for stat_name in self.df.columns:
-            setattr(self, stat_name, int(self.df.at[0, stat_name]) if str(self.df.at[0, stat_name]).isdigit() else self.df.at[0, stat_name])
- 
-    def total_stat(self, stat: str):
-        base_value = getattr(self, stat)
-        total_value = max(0, base_value)
-        return total_value
-
-    def get_target(self):
-        total_menace = sum(monster.total_stat('menace') for monster in Config.room_monsters)
-        prob = [monster.total_stat('menace')/total_menace for monster in Config.room_monsters]
-        target = np.random.choice(Config.room_monsters, p=prob)
-        return target
-
-    #def melee_attack(self):
-    def melee_attack(self, target):
-        #target = self.get_target()
-        self.animation = False
-        DAMAGE = self.total_stat('damage')
-        armor_penalty = 0
-        LOG_DAMAGE = max(0, DAMAGE - target.total_stat('armor'))
-        log_entry = (self.name, LOG_DAMAGE, target.name)
-        Config.combat_log.append(log_entry)
-        target.take_damage(DAMAGE, 'physical', armor_penalty)
-    
-    def activate_talent_group(self, group):
-        pass

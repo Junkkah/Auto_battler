@@ -4,12 +4,14 @@ import random
 from config_ab import Config
 from hero_ab import Hero
 from sprites_ab import Button
-from data_ab import get_data, enter_simulation_result, get_talent_data, get_monster_encounters
+from data_ab import get_data, enter_simulation_result, get_talent_data, get_monster_encounters, get_monster_sim_stats, update_monster_sim_stats
 from battle_ab import BattleManager
 from sounds_ab import play_sound_effect
 from path_ab import Path
 from overworld_ab import WorldMap
 from levelup_ab import LevelUp
+from items_ab import ItemManager
+from talents_ab import TalentsManager
 import json
 
 class Simulator(Config):
@@ -21,6 +23,9 @@ class Simulator(Config):
         self.party = []
         self.results_list = []
         self.simu_paths = []
+        self.item_loot = []
+        self.fallen_heroes = []
+        self.monster_stats = []
         Config.party_heroes = []
         Config.completed_adventures = []
         Config.party_backpack = {}
@@ -39,6 +44,7 @@ class Simulator(Config):
         self.aura_bonus_damage = 0
         self.aura_bonus_armor = 0
         self.bosses_defeated = 0
+        self.gold_loot = 0
         self.simulation_sprites.empty()
         self.help_sprites.empty()
         
@@ -55,7 +61,7 @@ class Simulator(Config):
         self.simu_paths = []
         self.names_df = get_data('names')
         self.talent_lists = get_data('talents')
-        self.COUNT = 1000
+        self.COUNT = 100
         self.results_list = []
         self.sim_done = False
         self.aura_bonus_speed = 0
@@ -86,8 +92,12 @@ class Simulator(Config):
         Config.backpack_slots = []
         Config.equipment_slots = []
         Config.combat_log = []
+        Config.gold_count = 50
+        Config.current_location = None
         self.simu_paths = []
         self.fallen_heroes = []
+        self.item_loot = []
+        self.monster_stats = []
         self.sim_loc_df = None
         self.target = None
         self.party_exp = 0 
@@ -98,6 +108,7 @@ class Simulator(Config):
         self.aura_bonus_speed = 0
         self.aura_bonus_damage = 0
         self.aura_bonus_armor = 0
+        self.gold_loot = 0
         #missing variables that need to reset
     
     def navigate_path(self, start_node):
@@ -130,20 +141,54 @@ class Simulator(Config):
         probs = encounters_df['Probability'].tolist()
         mob_lists = encounters_df.apply(lambda row: [value for value in row[4:].tolist() if value is not None], axis=1).tolist()
         encounter = random.choices(mob_lists, weights=probs, k=1)[0]
-
         return encounter
+
+    def smallest_mod(self, slot):
+        small_tier = 18 #max tier 17
+        small_hero = None
+
+        for hero in Config.party_heroes:
+            if hero.worn_items[slot] is not None:
+                current_modifier_tier = hero.worn_items[slot].modifier_tier
+
+                if current_modifier_tier < small_tier:
+                    small_tier = current_modifier_tier
+                    small_hero = hero
+
+        return small_hero, small_tier
     
-    def equip_item(self):
-        pass
-        #iterate backpack
-        #if item and one hero has empty slot: equip
-        #if item and item power > equipped item power: equip
+    #smart equip + buy/sell
+    def smart_equip_item(self, new_item):
+        for smart_hero in Config.party_heroes:
+            for item_slot, item in smart_hero.worn_items.items():
+                if item is None and new_item.slot_type == item_slot:
+                    smart_hero.equip_item(new_item)
+                    return
+
+        new_item_slot = new_item.slot_type
+        equip_hero, tier = self.smallest_mod(new_item_slot)
+        if equip_hero:
+            if equip_hero.worn_items[new_item_slot].modifier_tier < tier:
+                equip_hero.drop_item(slot_to_drop)
+                equip_hero.equip_item(new_item)
+
+        #handle book
+        #other consumable items are activated?
+        #are items activated for combat?
 
     def run_simulation(self): 
         simulation_results = []
         self.names = [tuple(row) for row in self.names_df[['name', 'type']].values]
         selection = random.sample(self.names, 8)
         self.party = random.sample(selection, 3)
+
+        monster_df = get_data('monsters')
+        monster_name_list = monster_df['name'].tolist()
+        stats_columns = ['dam_in', 'dam_out', 'count']
+        self.monster_stats = {}
+        for data_monster in monster_name_list:
+            self.monster_stats[data_monster] = {column: 0 for column in stats_columns}
+        #self.monster_stats = pd.DataFrame(0, index=monster_name_list, columns=['dam_in', 'dam_out', 'count'])
 
         for simulated_hero in range(self.max_party_size):
             SIMU_X = 0
@@ -152,33 +197,35 @@ class Simulator(Config):
             Config.party_heroes.append(self.simulated_hero)
             self.simulation_hero_sprites.add(self.simulated_hero)
         
-        #encapsulate
+        simulation_results.append(self.party)
+        talent_dict = {}
+        for name_hero in Config.party_heroes:
+            talent_dict[name_hero.name] = []
+        simulation_results.append(talent_dict)
+
         for created_hero in Config.party_heroes:
             created_hero.equip_starting_weapon()
-            
+
             if created_hero.type == 'wizard':
                 wizard_df = (get_talent_data('wizard'))
                 wizard_spells = wizard_df[(wizard_df['type'] == 'spell') & (wizard_df['min_level'] == 1)]
                 random_row = wizard_spells.sample(n=1)
                 talent_name = random_row['name'].iloc[0]  
                 talent_type = 'spell'
-                created_hero.add_talent(talent_name, talent_type)
+                #created_hero.add_talent(talent_name, talent_type)
+                TalentsManager.add_talent(talent_name, talent_type, created_hero)
+                simulation_results[1][created_hero.name].append(talent_name)   
 
             if created_hero.type == 'bard':
-                bard_df = (get_talent_data('bard'))
-                bard_songs = bard_df[(bard_df['type'] == 'song') & (bard_df['min_level'] == 1)]
-                random_row = bard_songs.sample(n=1)
-                talent_name = random_row['name'].iloc[0]  
                 talent_type = 'song'
-                created_hero.add_talent(talent_name, talent_type)
+                talent_name = 'Loud Tune'
+                #created_hero.add_talent(talent_name, talent_type)
+                TalentsManager.add_talent(talent_name, talent_type, created_hero)
+                simulation_results[1][created_hero.name].append(talent_name)  
+
         adventure_df = get_data('adventures')
         adventure_list = adventure_df['name'].tolist()
-        simulation_results.append(self.party)
-
-        talent_dict = {}
-        for name_hero in Config.party_heroes:
-            talent_dict[name_hero.name] = []
-        simulation_results.append(talent_dict)
+        Config.current_location = DummyLocation(1)
 
         for adventure in adventure_list:
             Config.current_adventure = adventure
@@ -189,10 +236,12 @@ class Simulator(Config):
             start_loc = random.choice(start_loc_list)
 
             simulated_path = self.navigate_path(start_loc)
-            simulated_monsters = []
+            simulated_locations = []
             Config.combat_log = []
             monsters = []
             path_instance = Path()
+
+            #encapsulate
             for location in simulated_path:
                 row = self.sim_loc_df[self.sim_loc_df['name'] == location].iloc[0]
                 #skipping over shopping for now
@@ -204,20 +253,39 @@ class Simulator(Config):
                 else:
                     tier = int(row['tier'])
                     monsters = path_instance.create_encounter(tier)
-                    simulated_monsters.append(monsters)
-        #take first monster list in simulated_monsters and loop battle
-            for monster_list in simulated_monsters:
-                Config.room_monsters = monster_list
+
+                    loc_entry = (monsters, tier)
+                    simulated_locations.append(loc_entry)
+
+        #take first monster list in simulated_locations and loop battle
+            for entry in simulated_locations:
+                if not Config.party_heroes:
+                    break
+                #if list_item == 'shop':
+                #do shopping
+                #else:
+
+                Config.room_monsters = entry[0]
+                location_tier = entry[1]
+                Config.current_location.tier = location_tier
+
                 #monster objects
                 monster_count = len(Config.room_monsters)
                 monster_names = Config.room_monsters
                 Config.room_monsters = []
                 BattleManager().create_monsters(monster_count, monster_names) 
 
+                #create loot           
+                self.gold_loot = BattleManager().create_gold_loot()
+                self.item_loot = ItemManager.create_item_loot()
+
                 self.actions_unordered = []
                 
                 for room_monster in Config.room_monsters:
                     self.actions_unordered.append(room_monster)
+                    #data_to_update['MonsterA']['int_col1'] = 2
+                    self.monster_stats[room_monster.name]['count'] += 1
+                    #self.monster_stats.at[room_monster.name, 'count'] += 1
                 for party_hero in Config.party_heroes:
                     self.actions_unordered.append(party_hero)
                 for follower in Config.party_followers:
@@ -226,7 +294,6 @@ class Simulator(Config):
                 for activation_hero in Config.party_heroes:
                     activation_hero.activate_talent_group('location')
                     activation_hero.activate_item_stats()
-                    #activation_hero.acticate_item_effects()
                     activation_hero.activate_aura()
 
                 self.actions_ordered = BattleManager().order_sort(self.actions_unordered)
@@ -235,16 +302,19 @@ class Simulator(Config):
                 combat_rounds = 0
                 while Config.party_heroes and Config.room_monsters: #loop combat 
                     combat_rounds += 1
-                    if combat_rounds > 500:
+                    if combat_rounds > 750:
                         print(self.exp_reward, simulation_results[0], Config.room_monsters[0].name, len(Config.room_monsters))
                         error_talents = simulation_results[1]
                         filename = './ab_data/json_data/sim_error.json'
                         with open(filename, 'w') as json_file:
                             json.dump(error_talents, json_file, indent=4)
                         exit()
+
                     ##
                     Config.acting_character = self.actions_ordered[0] 
                     self.target = Config.acting_character.get_target()
+                    start_health = self.target.health
+
                     if not Config.acting_character.is_monster:
                         if Config.acting_character.attack_type == 'spell':
                             Config.acting_character.activate_talent_group('combat')
@@ -256,6 +326,11 @@ class Simulator(Config):
                             Config.acting_character.activate_talent_group('combat')
                             Config.acting_character.melee_attack(self.target)
 
+                        damage_in = start_health - self.target.health
+                        if damage_in > 0:
+                            self.monster_stats[self.target.name]['dam_in'] += int(damage_in)
+                            #self.monster_stats.at[self.target.name, 'dam_in'] += damage_in
+
                         for fighting_monster in Config.room_monsters:
                             if fighting_monster.health <=0:
                                 self.actions_ordered.remove(fighting_monster)
@@ -265,6 +340,12 @@ class Simulator(Config):
                     elif Config.acting_character.is_monster:
                     #elif not Config.acting_character.is_player and not Config.acting_character.is_follower:
                         Config.acting_character.melee_attack(self.target)
+
+                        damage_out = start_health - self.target.health
+                        if damage_out > 0:
+                            self.monster_stats[Config.acting_character.name]['dam_out'] += int(damage_out)
+                            #self.monster_stats.at[Config.acting_character.name, 'dam_out'] += damage_out
+
                         for fighting_hero in Config.party_heroes:
                             if fighting_hero.health <=0:
                                 self.actions_ordered.remove(fighting_hero)
@@ -275,15 +356,25 @@ class Simulator(Config):
                     self.target = None
                     self.actions_ordered.append(self.actions_ordered.pop(0))
 
+                #encapsulate combat cleanup
+                if Config.party_heroes:
+                    if self.fallen_heroes:
+                        for reviving_hero in self.fallen_heroes:
+                            Config.party_heroes.append(reviving_hero)
+                            reviving_hero.health = reviving_hero.max_health // Config.revive_divisor
+                    self.fallen_heroes = []
+
                 Config.aura_bonus = {key: 0 for key in Config.aura_bonus}
                 for map_talent_hero in Config.party_heroes:
                     map_talent_hero.activate_talent_group('map')
 
+                for found_item in self.item_loot:
+                    self.smart_equip_item(found_item)
+                self.item_loot = []
+                Config.gold_count += self.gold_loot
+                self.gold_loot = 0
+
                 if Config.party_heroes and self.exp_reward + Config.party_heroes[0].exp >= Config.party_heroes[0].next_level:
-                    if self.fallen_heroes:
-                        for reviving_hero in self.fallen_heroes:
-                            Config.party_heroes.append(reviving_hero)
-                            reviving_hero.health = reviving_hero.max_health // 2
                     for leveling_hero in Config.party_heroes:
                         leveling_hero.gain_level()
 
@@ -306,8 +397,9 @@ class Simulator(Config):
                         talent_name = talent['name'].iloc[0]
                         talent_type = talent['type'].iloc[0]
                         
-                        hero.add_talent(talent_name, talent_type)
+                        TalentsManager.add_talent(talent_name, talent_type, hero)
                         simulation_results[1][hero.name].append(talent_name)
+
             if Config.party_heroes:
                 Config.completed_adventures.append(Config.current_adventure)
                 self.bosses_defeated += 1
@@ -316,7 +408,18 @@ class Simulator(Config):
 
         simulation_results.append(self.exp_reward)
         simulation_results.append(self.bosses_defeated)
-        self.reset_variables() #cleanup 
+
+        update_df = pd.DataFrame.from_dict(self.monster_stats, orient='index')
+        self.monster_stats = []
+        old_df = get_monster_sim_stats()
+        result_df = old_df.add(update_df, fill_value=0)
+        update_monster_sim_stats(result_df)
+
+        #for item_hero in Config.party_heroes:
+        #    item_list = [item.desc for item in item_hero.worn_items.values() if item is not None]
+        #    item_str = ' '.join(desc_list)
+        #    results.append item_str 1 2 3
+        self.reset_variables() 
         return simulation_results 
 
     def get_event(self, event):
@@ -331,22 +434,25 @@ class Simulator(Config):
                 for _ in range(self.COUNT):
 
                     result = self.run_simulation()
-                    #talent_dict = result.pop(1)
                     talent_dict = result[1]
                     del result[1]
-                    #print(result)
 
                     for i in range(self.max_party_size):
                         talents = talent_dict[result[0][i][0]]
                         result.append(talents)
 
-                    self.results_list.append(result)
+                    #self.results_list.append(result)
                 
-                columns = ['heroes', 'exp', 'bosses', 'talents1', 'talents2', 'talents3']
-                results_df = pd.DataFrame(self.results_list, columns=columns)
+                    columns = ['heroes', 'exp', 'bosses', 'talents1', 'talents2', 'talents3']
+                    result_df = pd.DataFrame([result], columns=columns)
+                    for _, row in result_df.iterrows():
+                        enter_simulation_result(row)
+
+   
+                #results_df = pd.DataFrame(self.results_list, columns=columns)
                 
-                for _, row in results_df.iterrows():
-                    enter_simulation_result(row)
+                #for _, row in results_df.iterrows():
+                #    enter_simulation_result(row)
                 self.sim_done = True
 
             elif self.done_button.rect.collidepoint(mouse_pos):
@@ -364,3 +470,8 @@ class Simulator(Config):
 
         if self.sim_done:
             self.help_sprites.draw(self.screen)
+
+class DummyLocation(Config):
+    def __init__(self, tier):
+        Config.__init__(self)
+        self.tier = tier

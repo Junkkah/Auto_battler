@@ -1,8 +1,7 @@
 import pygame as pg
 from config_ab import Config
-from hero_ab import Hero, Follower
 from sprites_ab import Monster, Equipment
-from animations_ab import Stab, Slash, Blast, Smash, SongAnimation, FollowerAttack, get_animation_speed, StabAngle
+from animations_ab import Stab, Slash, Blast, Smash, SongAnimation, FollowerAttack, MonsterStab, get_animation_speed, StabAngle
 from sounds_ab import play_sound_effect
 from data_ab import get_json_data, get_affix
 from items_ab import ItemManager
@@ -33,8 +32,6 @@ class BattleManager(Config):
         Config.combat_log = []
         self.current_target = None
         for loot_item in self.item_loot:
-
-            #BattleManager.item_to_backpack(loot_item)
             ItemManager.item_to_backpack(loot_item)
             #handle backpack overflow
 
@@ -224,9 +221,14 @@ class BattleManager(Config):
             elif not Config.acting_character.is_player and not Config.acting_character.is_follower:
                 if Config.acting_character.sound:
                     play_sound_effect(Config.acting_character.sound)
-                adjusted_pos_x = Config.acting_character.pos_x + Config.acting_character.width
-                adjusted_pos_y = Config.acting_character.pos_y + Config.acting_character.height
-                self.combat_animation = Smash(self.animation_sprites, adjusted_pos_x, adjusted_pos_y)
+
+                bottomright_x, bottomright_y = Config.acting_character.rect.bottomright
+
+                if Config.acting_character.weapon:
+                    held_weapon = Config.acting_character.weapon
+                    self.combat_animation = MonsterStab(self.animation_sprites, held_weapon, bottomright_x, bottomright_y)
+                else:
+                    self.combat_animation = Smash(self.animation_sprites, bottomright_x, bottomright_y)
                 
             Config.acting_character.animation = True
             self.combat_animation.animation_start()
@@ -309,7 +311,7 @@ class BattleManager(Config):
             live_hero.draw_health_bar()
 
         if Config.acting_character.animation: 
-            self.animation_sprites.draw(screen)
+            self.animation_sprites.draw(self.screen)
 
         self.combat_log_events = Config.combat_log[-10:]
         COORDS_LOG = (self.screen_width * 0.02, self.screen_height * 0.60)

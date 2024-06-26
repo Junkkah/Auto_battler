@@ -14,3 +14,12 @@ Columns:
 - hero1_talents: Names of the talents of hero1 as string.
 - hero2_talents: Names of the talents of hero2 as string.
 - hero3_talents: Names of the talents of hero3 as string.
+
+Table: Monster_stats
+- Monster specific results of simulations
+Columns:
+- id: Unique identifier for each monster.
+- name: Name of the monster.
+- dam_in: How much damage the heroes have dealt to the monster.
+- dam_out: How much damage the monster has dealt to the heroes.
+- count: Number of times the heroes have encountered this monster.

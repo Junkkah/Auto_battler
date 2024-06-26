@@ -1,0 +1,50 @@
+{
+    "surho": [
+        "Ominous",
+        "Lone Wolf",
+        "Intimidating",
+        "Threatening",
+        "Loner Wolf",
+        "Good Defences",
+        "Well Rounded",
+        "Frightening",
+        "Precise Hits",
+        "Prepared",
+        "Healthy",
+        "Precise Blows",
+        "Fast recovery",
+        "Heavy Blows"
+    ],
+    "meijo": [
+        "Good Defences",
+        "Intimidating",
+        "Armored",
+        "Well Rounded",
+        "Lone Wolf",
+        "Loner Wolf",
+        "Dangerous",
+        "Healthy",
+        "Combat Expert",
+        "Threatening",
+        "Healthier",
+        "Fast recovery",
+        "Prepared",
+        "Ominous"
+    ],
+    "heijo": [
+        "Domain Water",
+        "Revitalizing Water",
+        "Calming Water",
+        "Domain Dark",
+        "Domain Stone",
+        "Stone Servant",
+        "Flowing Water",
+        "Seasoned",
+        "Divining Water",
+        "Stony",
+        "Dark Servant",
+        "Connected",
+        "Stone Shelter",
+        "Surging Water"
+    ]
+}

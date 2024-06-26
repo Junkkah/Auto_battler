@@ -9,6 +9,7 @@ from inventory_ab import Inventory
 from data_ab import get_data, get_talent_data, get_json_data
 from sounds_ab import play_sound_effect
 from items_ab import ItemManager
+from talents_ab import TalentsManager
 import pandas as pd
 
 
@@ -57,20 +58,22 @@ class Shop(Config):
                 HEROPOS_X -= HERO_ROW_LENGTH
             HEROPOS_X += HERO_GAP
             
-    def create_starting_spells(self, wizard_df, bard_df):
+    def create_starting_spells(self, wizard_df, bard_df, hero_list):
         wizard_spells = wizard_df[(wizard_df['type'] == 'spell') & (wizard_df['min_level'] == 1)]
         bard_songs = bard_df[(bard_df['type'] == 'song') & (bard_df['min_level'] == 1)]
 
-        for created_hero in self.selection:
+        for created_hero in hero_list:
             if created_hero.type in ['bard', 'wizard']:
                 if created_hero.type == 'bard':
-                    random_row = bard_songs.sample(n=1)
+                    #random_row = bard_songs.sample(n=1)
                     talent_type = 'song'
+                    talent_name = 'Loud Tune'
                 else:
                     random_row = wizard_spells.sample(n=1)
                     talent_type = 'spell'
-                talent_name = random_row['name'].iloc[0]  
-                created_hero.add_talent(talent_name, talent_type)
+                    talent_name = random_row['name'].iloc[0]  
+                #created_hero.add_talent(talent_name, talent_type)
+                TalentsManager.add_talent(talent_name, talent_type, created_hero)
 
     def create_item_selection(self, tier):
         item_selection = []
@@ -129,7 +132,7 @@ class Shop(Config):
             wizard_df = (get_talent_data('wizard'))
             bard_df = (get_talent_data('bard'))
             self.create_hero_selection(names_df)
-            self.create_starting_spells(wizard_df, bard_df)
+            self.create_starting_spells(wizard_df, bard_df, self.selection)
 
         if Config.current_adventure:
             Inventory.backpack_to_slots(self.backpack_items, self.shop_icon_sprites)

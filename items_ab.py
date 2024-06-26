@@ -95,7 +95,7 @@ class ItemManager(Config):
             affix_df = get_affix(item_type, 'prefix')
             random_affix = affix_df.sample(n = 1)
 
-            mod_ratio = random_prefix['mod_ratio'].iloc[0]
+            mod_ratio = random_affix['mod_ratio'].iloc[0]
             mod_power = power // mod_ratio
             prefix_tier = mod_power
             if mod_ratio == 1:

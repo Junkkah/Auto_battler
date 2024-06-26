@@ -63,8 +63,8 @@ class StabAngle(Config, pg.sprite.Sprite):
 		weapon_image = pg.image.load('./ab_images/weapon/' + weapon + '.png').convert_alpha()
 		WIDTH, HEIGHT = weapon_image.get_size()
 		SIZE_SCALAR = weapon_df.loc[0, 'size_scalar']
-		SCALED_WIDTH = WIDTH / SIZE_SCALAR
-		SCALED_HEIGHT = HEIGHT / SIZE_SCALAR
+		SCALED_WIDTH = WIDTH // SIZE_SCALAR
+		SCALED_HEIGHT = HEIGHT // SIZE_SCALAR
 		POS_X_ADJUST = weapon_df.loc[0, 'offset_x']
 		POS_Y_ADJUST = weapon_df.loc[0, 'offset_y']
 		#pos_x += POS_X_ADJUST
@@ -110,10 +110,11 @@ class Stab(Config, pg.sprite.Sprite): #Groupsingle
 		weapon_image = pg.image.load('./ab_images/weapon/' + weapon + '.png').convert_alpha()
 		WIDTH, HEIGHT = weapon_image.get_size()
 		SIZE_SCALAR = weapon_df.loc[0, 'size_scalar']
-		SCALED_WIDTH = WIDTH / SIZE_SCALAR
-		SCALED_HEIGHT = HEIGHT / SIZE_SCALAR
+		SCALED_WIDTH = WIDTH // SIZE_SCALAR
+		SCALED_HEIGHT = HEIGHT // SIZE_SCALAR
 		POS_X_ADJUST = weapon_df.loc[0, 'offset_x']
 		POS_Y_ADJUST = weapon_df.loc[0, 'offset_y']
+
 		pos_x += POS_X_ADJUST
 		pos_y += POS_Y_ADJUST
 
@@ -123,6 +124,7 @@ class Stab(Config, pg.sprite.Sprite): #Groupsingle
 
 		self.image = pg.transform.smoothscale(weapon_image, (SCALED_WIDTH, SCALED_HEIGHT))
 		self.rect = self.image.get_rect()
+		#use bottomleft?
 		self.rect.bottomright = [self.pos_x, self.pos_y]
 
 		self.reach = 10
@@ -142,6 +144,7 @@ class Stab(Config, pg.sprite.Sprite): #Groupsingle
 		self.attack_speed = speed * 10
 		self.pos_y -= self.attack_speed
 		self.rect = self.image.get_rect()
+		#bottomleft?
 		self.rect.bottomright = [self.pos_x, self.pos_y]
 
 class Blast(Config, pg.sprite.Sprite):
@@ -154,8 +157,8 @@ class Blast(Config, pg.sprite.Sprite):
 		CAST_IMAGE = pg.image.load('./ab_images/blast/spell.png').convert_alpha()
 		WIDTH, HEIGHT = CAST_IMAGE.get_size()
 		SIZE_SCALAR = 15
-		SCALED_WIDTH = WIDTH / SIZE_SCALAR
-		SCALED_HEIGHT = HEIGHT / SIZE_SCALAR
+		SCALED_WIDTH = WIDTH // SIZE_SCALAR
+		SCALED_HEIGHT = HEIGHT // SIZE_SCALAR
 		self.spell_type = spell['type']
 
 		self.image = pg.transform.smoothscale(CAST_IMAGE, (SCALED_WIDTH, SCALED_HEIGHT))
@@ -194,8 +197,8 @@ class FollowerAttack(Config, pg.sprite.Sprite):
 		follower_image = pg.image.load('./ab_images/monster/' + follower_type + '.png').convert_alpha()
 		WIDTH, HEIGHT = follower_image.get_size()
 		SIZE_SCALAR = follower_obj.size_scalar
-		SCALED_WIDTH = WIDTH / SIZE_SCALAR
-		SCALED_HEIGHT = HEIGHT / SIZE_SCALAR
+		SCALED_WIDTH = WIDTH // SIZE_SCALAR
+		SCALED_HEIGHT = HEIGHT // SIZE_SCALAR
 		POS_X_ADJUST = follower_obj.offset_x
 		POS_Y_ADJUST = follower_obj.offset_y
 		pos_x += POS_X_ADJUST
@@ -237,8 +240,8 @@ class SongAnimation(pg.sprite.Sprite):
 		CAST_IMAGE = pg.image.load('./ab_images/song.png').convert_alpha()
 		WIDTH, HEIGHT = CAST_IMAGE.get_size()
 		SIZE_SCALAR = 15
-		SCALED_WIDTH = WIDTH / SIZE_SCALAR
-		SCALED_HEIGHT = HEIGHT / SIZE_SCALAR
+		SCALED_WIDTH = WIDTH // SIZE_SCALAR
+		SCALED_HEIGHT = HEIGHT // SIZE_SCALAR
 
 		self.image = pg.transform.smoothscale(CAST_IMAGE, (SCALED_WIDTH, SCALED_HEIGHT))
 		
@@ -259,6 +262,54 @@ class SongAnimation(pg.sprite.Sprite):
 				self.timer = 0
 				self.attack_animation = False
 				return True
+
+class MonsterStab(Config, pg.sprite.Sprite):
+	def __init__(self, groups, weapon, pos_x, pos_y):
+		super().__init__()
+		pg.sprite.Sprite.__init__(self, groups) 
+		self.attack_animation = False
+
+		weapon_df = weapons_data[weapons_data['name'] == weapon].reset_index(drop=True)
+		weapon_image = pg.image.load('./ab_images/weapon/' + weapon + '.png').convert_alpha()
+		width, height = weapon_image.get_size()
+		size_scalar = weapon_df.loc[0, 'size_scalar']
+		scaled_width = width // size_scalar
+		scaled_height = height // size_scalar
+
+		adjust_x = weapon_df.loc[0, 'offset_x']
+		adjust_y = weapon_df.loc[0, 'offset_y']
+		pos_x += adjust_x
+		pos_y += adjust_y
+
+		self.pos_y = pos_y
+		self.pos_x = pos_x
+		
+		scaled_image = pg.transform.smoothscale(weapon_image, (scaled_width, scaled_height))
+		half_spin = 180
+		self.image = pg.transform.rotozoom(scaled_image, half_spin, 1) 
+
+		self.rect = self.image.get_rect()
+		self.rect.topleft = [self.pos_x, self.pos_y]
+
+		self.attack_speed = 3 
+		self.reach = 10
+		self.animation_timer = 0
+		
+	def animation_start(self):
+		self.attack_animation = True
+
+	#speed = Combat.animation_speed
+	def animate(self, speed): 
+		if self.attack_animation == True:
+			self.reach -= speed
+			if int(self.reach) <= 0:
+				self.attack_animation = False
+				return True
+
+		self.attack_speed = speed * 10
+		self.pos_y += self.attack_speed
+		self.rect = self.image.get_rect()
+		self.rect.topleft = [self.pos_x, self.pos_y]
 	
 
 #Slash animation not working properly
@@ -302,9 +353,18 @@ class Slash(pg.sprite.Sprite):
 
 class Smash(pg.sprite.Sprite):
 	def __init__(self, groups, pos_x, pos_y):
+		#take weapon as parameter
 		super().__init__()
 		pg.sprite.Sprite.__init__(self, groups) 
 		self.attack_animation = False
+
+		#weapon_df = weapons_data[weapons_data['name'] == weapon].reset_index(drop=True)
+		#weapon_image = pg.image.load('./ab_images/weapon/' + weapon + '.png').convert_alpha()
+		#WIDTH, HEIGHT = weapon_image.get_size()
+		#SIZE_SCALAR = weapon_df.loc[0, 'size_scalar']
+		#SCALED_WIDTH = WIDTH / SIZE_SCALAR
+		#SCALED_HEIGHT = HEIGHT / SIZE_SCALAR
+
 		self.pos_x = pos_x
 		self.pos_y = pos_y
 		CLUB_IMAGE = pg.image.load('./ab_images/claw.png').convert_alpha()

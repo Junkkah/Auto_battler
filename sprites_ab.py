@@ -8,6 +8,7 @@ import sys
 
 monster_data = get_data('monsters')
 weapons_data = get_data('weapons')
+follower_data = get_data('followers')
 
 class Monster(Config, pg.sprite.Sprite):
     def __init__(self, groups, pos, monster_type: str):
@@ -42,6 +43,9 @@ class Monster(Config, pg.sprite.Sprite):
         self.attack_type = 'claw'
 
         self.debuff_dict = {'speed': 0, 'damage': 0, 'menace': 0, 'armor': 0}
+        self.special_attacks = {'rend': 0, 'regenerate': 0, 'scare': 0, 'summon_skeleton': 0, 'poison_breath': 0, 'trample': 0, 'lightning_breath': 0}
+        #keys are names of special attack ativations, values number of times mob can execute
+        #adjust value -= 1 after executing special attack
 
     def take_debuff(self, stat: str, debuff: int):
         if stat == 'menace':
@@ -69,6 +73,15 @@ class Monster(Config, pg.sprite.Sprite):
         log_entry = (self.name, LOG_DAMAGE, target.name)
         Config.combat_log.append(log_entry)
         target.take_damage(DAMAGE, 'physical', self)
+    
+    def evaluate_action(self, target):
+        pass
+        #if special action != 0:
+        #special action -=1, execute special
+        #if weapon = spell
+            #cast spell
+        #else:
+        #melee
 
     def take_damage(self, damage_amount, damage_type, armor_penalty):
         ARMOR = max(0, self.total_stat('armor') - armor_penalty)
@@ -157,6 +170,51 @@ class Button(Config, pg.sprite.Sprite):
 
     def draw_border(self):
         pg.draw.rect(self.image, self.border_color, self.image.get_rect(), self.border_width)
+
+
+class Follower(Config, pg.sprite.Sprite):
+    def __init__(self, follower_name: str, follower_type: str, master):
+        Config.__init__(self)
+
+        self.following = master
+        self.type = follower_type 
+        self.name = follower_name
+        self.attack_type = 'melee'
+        self.is_follower = True
+        self.is_player = False
+        self.is_monster = False
+        self.animation = False
+        self.attacked = False
+
+        self.df = follower_data[follower_data['type'] == self.type].reset_index(drop=True)
+        # Assign stats type, size_scalar, damage, speed, offset_x, offset_y
+        for stat_name in self.df.columns:
+            setattr(self, stat_name, int(self.df.at[0, stat_name]) if str(self.df.at[0, stat_name]).isdigit() else self.df.at[0, stat_name])
+ 
+    def total_stat(self, stat: str):
+        base_value = getattr(self, stat)
+        total_value = max(0, base_value)
+        return total_value
+
+    def get_target(self):
+        total_menace = sum(monster.total_stat('menace') for monster in Config.room_monsters)
+        prob = [monster.total_stat('menace')/total_menace for monster in Config.room_monsters]
+        target = np.random.choice(Config.room_monsters, p=prob)
+        return target
+
+    #def melee_attack(self):
+    def melee_attack(self, target):
+        #target = self.get_target()
+        self.animation = False
+        DAMAGE = self.total_stat('damage')
+        armor_penalty = 0
+        LOG_DAMAGE = max(0, DAMAGE - target.total_stat('armor'))
+        log_entry = (self.name, LOG_DAMAGE, target.name)
+        Config.combat_log.append(log_entry)
+        target.take_damage(DAMAGE, 'physical', armor_penalty)
+    
+    def activate_talent_group(self, group):
+        pass
 
 
 class TalentCard(Config, pg.sprite.Sprite):

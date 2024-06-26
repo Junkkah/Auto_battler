@@ -7,6 +7,7 @@ from data_ab import get_data, get_talent_data
 from sprites_ab import Button, TalentCard
 from battle_ab import BattleManager
 from sounds_ab import play_sound_effect
+from talents_ab import TalentsManager
 
 class LevelUp(Config): 
     def __init__(self):
@@ -58,14 +59,18 @@ class LevelUp(Config):
 
     def cleanup(self):
         for selected_talent in self.talents_selected:
-            selected_talent.hero.add_talent(selected_talent.name, selected_talent.type)
+            #selected_talent.hero.add_talent(selected_talent.name, selected_talent.type)
+            hero_to_add = selected_talent.hero
+            talent_name = selected_talent.name
+            talent_type = selected_talent.type
+            TalentsManager.add_talent(talent_name, talent_type, hero_to_add)
 
         self.talent_buttons = []
         self.talents_selected = []
         self.levelup_hero_sprites.empty()
         self.levelup_sprites.empty()
         Config.map_next = False
-    
+
     def startup(self):
         self.talent_buttons = []
         self.talents_selected = []
@@ -186,6 +191,3 @@ class LevelUp(Config):
         COORDS_INFO = (self.screen_width * 0.35, self.screen_height * 0.09)
         INFO_RECT = INFO_TEXT.get_rect(topleft = COORDS_INFO)
         self.screen.blit(INFO_TEXT, INFO_RECT)
-            
-        
-       

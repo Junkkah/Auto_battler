@@ -122,6 +122,31 @@ def enter_simulation_result(row):
     db.commit()
     db.close()
 
+def get_monster_sim_stats():
+    db = sqlite3.connect('./ab_data/simulation_results.db')
+    db.isolation_level = None
+
+    query = "SELECT * FROM monster_stats"
+    existing_stats = pd.read_sql_query(query, db, index_col='name')
+    db.close()
+    return existing_stats
+
+def update_monster_sim_stats(updated_stats):
+    db = sqlite3.connect('./ab_data/simulation_results.db')
+    db.isolation_level = None
+    cursor = db.cursor()
+    
+    for name, row in updated_stats.iterrows():
+        query = """
+        INSERT OR REPLACE INTO monster_stats (name, dam_in, dam_out, count)
+        VALUES (?, ?, ?, ?)
+        """
+        cursor.execute(query, (name, int(row['dam_in']), int(row['dam_out']), int(row['count'])))
+    
+    cursor.close()
+    db.commit()
+    db.close()
+
 def get_data_simulation(table: str, set_number: int):
     num = str(set_number)
     db = sqlite3.connect('./ab_data/simulation_datasets/simulation_results_' + num + '.db')
