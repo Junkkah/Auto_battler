@@ -106,3 +106,13 @@ class Config(object):
         font = pg.font.SysFont(self.gold_font_name, self.gold_font_size)
         text_surface = font.render(gold, True, self.yellow) 
         return text_surface
+    
+    def load_and_scale_image(self, image_path, size_scalar):
+        image = pg.image.load(image_path).convert_alpha()
+        width, height = image.get_width(), image.get_height()
+        return pg.transform.smoothscale(image, (width // size_scalar, height // size_scalar))
+    
+    def create_text_and_rect(self, font, text, color, coords):
+        rendered_text = font.render(text, True, color)
+        text_rect = rendered_text.get_rect(topleft=coords)
+        return rendered_text, text_rect

@@ -51,7 +51,7 @@ class WorldMap(Config):
         return coords_dict
     
     def assign_node_type(self, layer: int, node_type_data: dict, fight_prob: float, final_layer: bool):
-        #additional types: event, rest(town?), elite monsters (mighty ogre)
+        #additional types: event, rest(town?), tough monsters (mighty ogre)
         if final_layer:
             node_type = 'boss'
             node_image = 'cave'
@@ -59,6 +59,8 @@ class WorldMap(Config):
             node_type = 'fight'
         else:
             node_type = 'fight' if random.random() < fight_prob else 'shop'
+            #if node_type == 'fight':
+                #node_type = 'tough' if random.random() < tough_prob else 'fight'
             if layer %  2 == 0:
                 if node_type == 'shop':
                     node_type = 'fight'
@@ -91,11 +93,16 @@ class WorldMap(Config):
                 node_type = self.assign_node_type(layer, node_type_data, fight_prob, final_layer)
                 tier = math.ceil(layer / 4) + (len(Config.completed_adventures) * 3)
 
+                if Config.completed_adventures == 1:
+                    scalar = 11
+                else:
+                    scalar = 10
+
                 node_dict = {
                     'name': name, #'node12_1'
                     'type': node_type[0],  #fight or shop, if layer == 13: boss
                     'y_coord': node_coords,
-                    'size_scalar': 10, #based on adventure, set 8-9 for ruins
+                    'size_scalar': scalar, #based on adventure, set 8-9 for ruins
                     'tier': tier,  
                     'depth': layer,  # Depth
                     'desc': '',  # not used
@@ -290,17 +297,16 @@ class WorldMap(Config):
                     obj.child = next((child_obj for child_obj in self.map_objects if child_obj.name == obj_child_name), None)
         set_child(self.map_data)
 
-        hood = pg.image.load('./ab_images/hood.png').convert_alpha()
-        self.coords_dialogue = ((self.screen_width * 0.12, self.screen_height * 0.72))
+        hood_path = './ab_images/hood.png'
         COORDS_HOOD = (self.screen_width * 0.05, self.screen_height * 0.80)
-        SCALAR_HOOD = ((hood.get_width() / self.npc_size_scalar), (hood.get_height() / self.npc_size_scalar))
+        self.hood_image = self.load_and_scale_image(hood_path, self.npc_size_scalar)
+        self.hood_rect = self.hood_image.get_rect(topleft=COORDS_HOOD)
 
         adventure_number = len(Config.completed_adventures)
         next_adventure = self.map_objects[adventure_number].desc
+        self.coords_dialogue = ((self.screen_width * 0.12, self.screen_height * 0.72))
         self.overworld_dialogue = [f'"Choose {next_adventure} for', 'your next adventure"']
 
-        self.hood_image = pg.transform.smoothscale(hood, SCALAR_HOOD)
-        self.hood_rect = self.hood_image.get_rect(topleft=COORDS_HOOD)
 
     def get_event(self, event):
         mouse_pos = pg.mouse.get_pos()

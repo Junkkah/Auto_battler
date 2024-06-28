@@ -119,13 +119,11 @@ class Shop(Config):
         
         #raise rows to make room for hire buttons
         if not Config.current_adventure:
-            hood = pg.image.load('./ab_images/hood.png').convert_alpha()
-            COORDS_HOOD = (self.screen_width * 0.05, self.screen_height * 0.80)
-            SCALAR_HOOD = ((hood.get_width() / self.npc_size_scalar), (hood.get_height() / self.npc_size_scalar))
-
             self.coords_dialogue_1 = ((self.screen_width * 0.12, self.screen_height * 0.72))
             self.shop_dialogue_1 = ['"Choose three heroes', 'and press continue"']
-            self.hood_image = pg.transform.smoothscale(hood, SCALAR_HOOD)
+            COORDS_HOOD = (self.screen_width * 0.05, self.screen_height * 0.80)
+            hood_path = './ab_images/hood.png'
+            self.hood_image = self.load_and_scale_image(hood_path, self.npc_size_scalar)
             self.hood_rect = self.hood_image.get_rect(topleft=COORDS_HOOD)
 
             names_df = get_data('names')
@@ -137,19 +135,18 @@ class Shop(Config):
         if Config.current_adventure:
             Inventory.backpack_to_slots(self.backpack_items, self.shop_icon_sprites)
 
-            shopkeeper = pg.image.load('./ab_images/shopkeeper.png').convert_alpha()
-            sell_cursor = pg.image.load('./ab_images/sell_arrow.png').convert_alpha() 
             COORDS_SHOPKEEPER = (self.screen_width * 0.48, self.screen_height * 0.15)
-            SCALAR_SHOPKEEPER = ((shopkeeper.get_width() / self.npc_size_scalar), (shopkeeper.get_height() / self.npc_size_scalar))
+            shopkeeper_path = './ab_images/shopkeeper.png'
+            self.shopkeeper_image = self.load_and_scale_image(shopkeeper_path, self.npc_size_scalar)
+            self.shopkeeper_rect = self.shopkeeper_image.get_rect(topleft=COORDS_SHOPKEEPER)
+
+            cursor_path = './ab_images/sell_arrow.png'
             cursor_size_scalar = 30
-            SCALAR_CURSOR = ((sell_cursor.get_width() / cursor_size_scalar), (sell_cursor.get_height() / cursor_size_scalar))
+            self.sell_cursor_image = self.load_and_scale_image(cursor_path, cursor_size_scalar)
+            self.sell_cursor_rect = self.sell_cursor_image.get_rect()
 
             self.coords_dialogue_2 = (self.screen_width * 0.53, self.screen_height * 0.10)
             self.shop_dialogue_2 = '"I have some wares to sell"'
-            self.shopkeeper_image = pg.transform.smoothscale(shopkeeper, SCALAR_SHOPKEEPER)
-            self.shopkeeper_rect = self.shopkeeper_image.get_rect(topleft=COORDS_SHOPKEEPER)
-            self.sell_cursor_image = pg.transform.smoothscale(sell_cursor, SCALAR_CURSOR)
-            self.sell_cursor_rect = self.sell_cursor_image.get_rect()
 
             sell_text = 'Sell Item'
             SELL_COORDS = (self.screen_width * 0.30, self.screen_height * 0.13)

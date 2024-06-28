@@ -2,7 +2,7 @@ import pygame as pg
 from config_ab import Config
 from sprites_ab import Location, Button
 from hero_ab import Hero
-from data_ab import get_data, get_monster_encounters
+from data_ab import get_data, get_monster_encounters, get_json_data
 from sounds_ab import play_music_effect, play_sound_effect
 import pandas as pd
 import math
@@ -22,6 +22,8 @@ class Path(Config):
     def cleanup(self):
         self.path_sprites.empty()
         self.loc_objects = []
+        self.map_key_images = []
+        self.map_key_texts = []
         self.hovered_item = None
 
     def create_encounter(self, tier) -> list:
@@ -31,6 +33,59 @@ class Path(Config):
         encounter = random.choices(mob_lists, weights=probs, k=1)[0]
         return encounter
     
+    def set_children(self, df):
+        #assign locations objects as child nodes
+        for loc_object in self.loc_objects:
+            obj_name = loc_object.name
+            obj_child1_name = df.loc[df['name'] == obj_name, 'child1'].values[0]
+            obj_child2_name = df.loc[df['name'] == obj_name, 'child2'].values[0]
+
+            if pd.notna(obj_child1_name):
+                loc_object.child1 = next((child_obj for child_obj in self.loc_objects if child_obj.name == obj_child1_name), None)
+            if pd.notna(obj_child2_name):
+                loc_object.child2 = next((child_obj for child_obj in self.loc_objects if child_obj.name == obj_child2_name), None)
+
+    def create_map_key(self, adventure):
+
+        node_json = get_json_data('node_types')
+        node_type_data = node_json[adventure]
+        
+        shop = node_type_data['shop']
+        tough = node_type_data['tough']
+        fight_options = node_type_data['fight']
+        if isinstance(fight_options, list):
+            fight1 = fight_options[0]
+            fight2 = fight_options[1]
+        else:
+            fight1, fight2 = fight_options
+
+        map_key_image_data = {
+            'fight1': (f'./ab_images/location/{fight1}.png', (self.screen_width * 0.20, self.screen_height * 0.92)),
+            'fight2': (f'./ab_images/location/{fight2}.png', (self.screen_width * 0.24, self.screen_height * 0.93)),
+            'tough': (f'./ab_images/location/{tough}.png', (self.screen_width * 0.37, self.screen_height * 0.92)),
+            'shop': (f'./ab_images/location/{shop}.png', (self.screen_width * 0.49, self.screen_height * 0.93)),
+            'boss': ('./ab_images/location/cave.png', (self.screen_width * 0.62, self.screen_height * 0.93))
+        }
+
+        size_scalar = 15
+        self.map_key_images = []
+        for key, (path, coords) in map_key_image_data.items():
+            image = self.load_and_scale_image(path, size_scalar)
+            rect = image.get_rect(topleft=coords)
+            self.map_key_images.append({'image': image, 'rect': rect})
+        
+        map_key_text_data = {
+            'fight': ('Monsters:', (self.screen_width * 0.15, self.screen_height * 0.94)),
+            'tough': ('Tough Monster:', (self.screen_width * 0.29, self.screen_height * 0.94)),
+            'shop': ('Merchant:', (self.screen_width * 0.43, self.screen_height * 0.94)),
+            'boss': ('Boss Monster:', (self.screen_width * 0.55, self.screen_height * 0.94))
+        }
+
+        self.map_key_texts = []
+        for key, (desc_text, coords) in map_key_text_data.items():
+            text, rect = self.create_text_and_rect(self.info_font, desc_text, self.black, coords)
+            self.map_key_texts.append({'text': text, 'rect': rect})
+
     def startup(self):
         play_music_effect(Config.current_adventure)
 
@@ -48,18 +103,8 @@ class Path(Config):
             new_location = Location(self.path_sprites, row, width_gap)
             self.loc_objects.append(new_location)
 
-        def set_children(df):
-            #assign locations objects as child nodes
-            for loc_object in self.loc_objects:
-                obj_name = loc_object.name
-                obj_child1_name = df.loc[df['name'] == obj_name, 'child1'].values[0]
-                obj_child2_name = df.loc[df['name'] == obj_name, 'child2'].values[0]
-
-                if pd.notna(obj_child1_name):
-                    loc_object.child1 = next((child_obj for child_obj in self.loc_objects if child_obj.name == obj_child1_name), None)
-                if pd.notna(obj_child2_name):
-                    loc_object.child2 = next((child_obj for child_obj in self.loc_objects if child_obj.name == obj_child2_name), None)
-        set_children(locations_data)
+        self.create_map_key(Config.current_adventure)
+        self.set_children(locations_data)
 
         self.COORDS_INV = (self.screen_width * 0.91, self.screen_height * 0.95)
         self.COORDS_INFO = (self.screen_width * 0.06, self.screen_height * 0.95)
@@ -138,10 +183,15 @@ class Path(Config):
         mouse_pos = pg.mouse.get_pos()
         gold_text = self.create_gold_text()
         self.screen.blit(gold_text, self.coords_gold)
-        #display legend
-        #pull legend data from json, conditional on current adventure
+
         radius = self.max_pulse_radius * abs(math.sin(pg.time.get_ticks() * self.pulsation_speed))
 
+        for desc_text in self.map_key_texts:
+            self.screen.blit(desc_text['text'], desc_text['rect'])
+
+        for map_key in self.map_key_images:
+            self.screen.blit(map_key['image'], map_key['rect'])
+        
         if Config.current_location:
             self.draw_circle(self.white, Config.current_location.child1.pos, int(radius), 2)
             if Config.current_location.child2:
@@ -164,7 +214,7 @@ class Path(Config):
         if Config.scout_active:
             if self.hovered_item:
                 #capitalize()
-                desc_text = self.item_info_font.render(self.hovered_item.type, True, self.black)
+                desc_text = self.item_info_font.render(self.hovered_item.type.capitalize(), True, self.black)
                 text_rect = desc_text.get_rect()
                 offset_divisor = 54
                 offset_y = self.screen_height // offset_divisor

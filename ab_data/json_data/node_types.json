@@ -1,27 +1,33 @@
 {
     "dark_forest": {
       "fight": ["tree", "bush"],
-      "shop": "town"
+      "shop": "town",
+      "tough": "t_tree"
     },
     "ruins": {
       "fight": ["rock", "column"],
-      "shop": "tower"
+      "shop": "tower",
+      "tough": "question"
     },
     "swamp": {
       "fight": "swamp",
-      "shop": "swamp"
+      "shop": "swamp",
+      "tough": "question"
     },
     "canyon": {
     "fight": ["sand", "wall"],
-    "shop": "camp"
+    "shop": "camp",
+    "tough": "question"
     },
     "mountain": {
     "fight": ["cliff1", "cliff2"],
-    "shop": "cliff3"
+    "shop": "cliff3",
+    "tough": "question"
     },
     "rift": {
     "fight": "blaze",
-    "shop": "blaze"
+    "shop": "blaze",
+    "tough": "question"
     }
 
   }
