@@ -38,11 +38,8 @@ class TalentsManager(Config):
             talent_rank = int(rank)
             method_name = f'{effect_name}_activation'
 
-            #dynamic activation
             activation_method = getattr(TalentActivations, method_name)
-            #activation_method = getattr(hero, method_name)
             hero.talent_groups[talent_type][effect_name] = {'activation_method': activation_method, 'rank': talent_rank}
-            #[effect] = [effect_name]
         elif talent_type == 'domain':
             hero.talents.append(talent_name) 
             hero.type = talents['effect']
@@ -76,7 +73,6 @@ class TalentsManager(Config):
             method_name = f'{method}_activation'
 
             activation_method = getattr(TalentActivations, method_name)
-            #activation_method = getattr(hero, method_name)
             activation_method(hero, effect)
 
 class TalentActivations(Config):
@@ -298,9 +294,6 @@ class TalentActivations(Config):
         total_magic_find = magic_find_per_rank * rank
         Config.magic_find += total_magic_find
     
-    #requires importing Follower from hero_ab
-    #hero_ab needs to import talentactivation
-    #move follower to sprites
     @staticmethod
     def follower_activation(hero, effect):
         follower_type = effect

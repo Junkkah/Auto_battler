@@ -5,12 +5,13 @@ Columns:
 - id: Unique identifier for each monster.
 - name: Name of the monster.
 - size_scalar: Scalar for resizing image.
-- speed: Movement speed of the monster.
 - health: Health points (HP) of the monster.
 - max_health: Maximum HP of the monster.
-- damage: Amount of damage the monster can deal.
-- armor: Armor value, reducing incoming damage.
 - exp: Experience points awarded when the monster is defeated.
+- damage: Amount of damage the monster can deal.
+- speed: Movement speed of the monster.
+- armor: Armor value, reducing incoming damage.
+- weapon: Weapon of the monster, if any.
 - gold_min: Minimum amount of gold awarded when the monster is defeated.
 - gold_max: Maximum amount of gold awarded when the monster is defeated.
 - loot_roll: Probability of the monster awarding magic item when defeated.
@@ -36,8 +37,8 @@ Table: Names
 Columns:
 - id: Unique identifier for each hero.
 - name: Name of the hero.
-- type: Class of the hero
-#should have foreign key reference, classes(id)
+- type: Class of the hero.
+- cost: Price of the hero in gold, not used.
 
 Table: Spells
 Columns:
@@ -53,11 +54,15 @@ Table: Adventures
 Columns:
 - id: Unique identifier for each adventure.
 - name: Name of the adventure.
-- pos_x: Locations x-coordinate relative to screen width.
-- pos_y: Locations y-coordinate relative to screen height.
+- pos_x: Adventure's x-coordinate relative to screen width.
+- pos_y: Adventure's y-coordinate relative to screen height.
 - desc: Description of the location displayed in game.
+- child: Name of the next adventure.
 - layers: Number of node layers in the adventure.
 - fight_p: Probability of a fight in nodes of the adventure.
+- start_size: Number of nodes in the first layer of the adventure.
+- width_gap: How far a part horizontally the nodes in the adventure are.
+- tough_p: Probability of a tough fight in node.
 
 Table: Location_encounters
 - Monster encounter distribution.
@@ -78,7 +83,7 @@ Columns:
 - name: Name of the talent.
 - desc: Short description of the talent.
 - effect: Instruction for how the talent effects the hero.
-- type: Talent types are: stat, spell, special, song.
+- type: Talent types are: stat, m_stat, spell, location,combat, map, song, aura, domain, spell_mastery and once.
 - min_level: Minimum level required to learn the talent.
 - req1: Another talent hero needs to have in order to learn the talent.
 - req2: Another talent hero needs to have in order to learn the talent.

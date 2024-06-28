@@ -109,13 +109,10 @@ class Simulator(Config):
         self.aura_bonus_damage = 0
         self.aura_bonus_armor = 0
         self.gold_loot = 0
-        #missing variables that need to reset
     
     def navigate_path(self, start_node):
         random_path = [start_node]
         current_node = start_node
-        #correct condition? not 'node13_1'?
-        #cause of infinite loop?
         while current_node != 'cave':
             current_row = self.sim_loc_df[self.sim_loc_df['name'] == current_node].iloc[0]
             
@@ -212,14 +209,12 @@ class Simulator(Config):
                 random_row = wizard_spells.sample(n=1)
                 talent_name = random_row['name'].iloc[0]  
                 talent_type = 'spell'
-                #created_hero.add_talent(talent_name, talent_type)
                 TalentsManager.add_talent(talent_name, talent_type, created_hero)
                 simulation_results[1][created_hero.name].append(talent_name)   
 
             if created_hero.type == 'bard':
                 talent_type = 'song'
                 talent_name = 'Loud Tune'
-                #created_hero.add_talent(talent_name, talent_type)
                 TalentsManager.add_talent(talent_name, talent_type, created_hero)
                 simulation_results[1][created_hero.name].append(talent_name)  
 
@@ -283,9 +278,7 @@ class Simulator(Config):
                 
                 for room_monster in Config.room_monsters:
                     self.actions_unordered.append(room_monster)
-                    #data_to_update['MonsterA']['int_col1'] = 2
                     self.monster_stats[room_monster.name]['count'] += 1
-                    #self.monster_stats.at[room_monster.name, 'count'] += 1
                 for party_hero in Config.party_heroes:
                     self.actions_unordered.append(party_hero)
                 for follower in Config.party_followers:
@@ -329,7 +322,6 @@ class Simulator(Config):
                         damage_in = start_health - self.target.health
                         if damage_in > 0:
                             self.monster_stats[self.target.name]['dam_in'] += int(damage_in)
-                            #self.monster_stats.at[self.target.name, 'dam_in'] += damage_in
 
                         for fighting_monster in Config.room_monsters:
                             if fighting_monster.health <=0:
@@ -344,7 +336,6 @@ class Simulator(Config):
                         damage_out = start_health - self.target.health
                         if damage_out > 0:
                             self.monster_stats[Config.acting_character.name]['dam_out'] += int(damage_out)
-                            #self.monster_stats.at[Config.acting_character.name, 'dam_out'] += damage_out
 
                         for fighting_hero in Config.party_heroes:
                             if fighting_hero.health <=0:
@@ -418,7 +409,6 @@ class Simulator(Config):
         #for item_hero in Config.party_heroes:
         #    item_list = [item.desc for item in item_hero.worn_items.values() if item is not None]
         #    item_str = ' '.join(desc_list)
-        #    results.append item_str 1 2 3
         self.reset_variables() 
         return simulation_results 
 
@@ -441,18 +431,11 @@ class Simulator(Config):
                         talents = talent_dict[result[0][i][0]]
                         result.append(talents)
 
-                    #self.results_list.append(result)
-                
                     columns = ['heroes', 'exp', 'bosses', 'talents1', 'talents2', 'talents3']
                     result_df = pd.DataFrame([result], columns=columns)
                     for _, row in result_df.iterrows():
                         enter_simulation_result(row)
 
-   
-                #results_df = pd.DataFrame(self.results_list, columns=columns)
-                
-                #for _, row in results_df.iterrows():
-                #    enter_simulation_result(row)
                 self.sim_done = True
 
             elif self.done_button.rect.collidepoint(mouse_pos):

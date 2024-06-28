@@ -48,9 +48,8 @@ class MinorEffect(Config, pg.sprite.Sprite):
 	def animate(self, timer):
 		pass
 
-
 class StabAngle(Config, pg.sprite.Sprite): 
-	#swing weapons vs stab weapons
+	#animates weapon to move towards the target
 	def __init__(self, groups, weapon, pos_x, pos_y, hero_center, target_center):
 		super().__init__()
 		pg.sprite.Sprite.__init__(self, groups) 

@@ -213,7 +213,6 @@ class Path(Config):
 
         if Config.scout_active:
             if self.hovered_item:
-                #capitalize()
                 desc_text = self.item_info_font.render(self.hovered_item.type.capitalize(), True, self.black)
                 text_rect = desc_text.get_rect()
                 offset_divisor = 54
