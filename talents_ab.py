@@ -321,7 +321,7 @@ class TalentActivations(Config):
     @staticmethod
     def fiery_activation(hero, effect):
         hero.attack_type = 'spell'
-        TalentsManager.add_talent('Burn', 'spell')
+        TalentsManager.add_talent('Burn', 'spell', hero)
     
     @staticmethod
     def waterheal_activation(hero, effect):
