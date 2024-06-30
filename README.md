@@ -1,8 +1,11 @@
 # Auto_battler
 
-Python game project for a single-player auto battler (Version 1.1).
-This project boasts a built-in simulator designed for capturing automated gameplay data.
-The collected data is utilized in analyzing and refining game balance.
+Python game project for a single-player auto battler (Version 1.3.1).
+
+This game is a hobby project aimed at learning Python and various libraries, such as SQLite, NumPy, 
+and Pandas, which are used extensively throughout the codebase. It includes a built-in simulator for 
+capturing gameplay data. The collected data is then used to analyze and refine game balance, 
+enhancing the overall gameplay experience.
 
 ## Requirements
 * Python 3.9 or 3.10
