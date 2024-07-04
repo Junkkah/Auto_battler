@@ -1,3 +1,10 @@
+"""
+Initialization module for the game.
+
+Contains:
+    - Initialize: Handles the creation and storage of game objects.
+"""
+
 import pygame as pg
 import sys
 from config_ab import Config
@@ -5,6 +12,13 @@ from sprites_ab import EquipmentSlot
 from data_ab import get_json_data
 
 class Initialize(Config):
+    """
+    Manages the creation and storage of game objects.
+
+    This class initializes lists of game objects, optimizing loading times 
+    by preparing essential resources in advance.
+    """
+
     def __init__(self):
         super().__init__()
         self.next = 'shop'
@@ -55,7 +69,6 @@ class Initialize(Config):
         self.updated = False
 
     def startup(self):
-
         LOADING_FONT_NAME = "Arial"
         LOADING_FONT_SIZE = 50
         MIDDLE_WIDTH = self.screen_width * 0.50

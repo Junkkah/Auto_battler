@@ -1,3 +1,13 @@
+"""
+Menu Module
+
+This module contains classes for handling the game's main menu and settings menu.
+
+Classes:
+    MainMenu: Handles the main menu that appears at game startup.
+    SettingsMenu: Handles the settings menu that can be accessed from the main menu.
+"""
+
 import pygame as pg
 import sys
 from config_ab import Config
@@ -7,6 +17,13 @@ from data_ab import get_json_data
 from animations_ab import set_animation_speed, get_animation_speed
 
 class MainMenu(Config):
+    """
+    Main menu screen for the game.
+
+    This class handles drawing the main menu buttons ('new game', 'settings', 'simulator', 'quit') 
+    and processing the events for button clicks.
+    """
+
     def __init__(self):
         Config.__init__(self)
         self.next = 'shop' 
@@ -86,6 +103,13 @@ class MainMenu(Config):
         self.menu_button_sprites.draw(self.screen)
 
 class SettingsMenu(Config):
+    """
+    Settings menu screen for the game.
+
+    This class handles drawing the settings buttons and processing the events 
+    for changing settings such as volume.
+    """
+
     def __init__(self):
         Config.__init__(self)
         self.next = 'menu' 

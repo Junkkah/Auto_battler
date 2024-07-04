@@ -1,11 +1,25 @@
+"""
+Items module for managing item creation and activation in the game.
+
+Contains:
+    - ItemManager: Handles the creation of magic item loot and various helper functions for managing items.
+    - SuffixActivation: Manages the activation of item effects dynamically.
+"""
+
 import pygame as pg
 from config_ab import Config
 from sprites_ab import Equipment
 from data_ab import get_json_data, get_affix
 import random
 
-
 class ItemManager(Config):
+    """
+    Handles the creation of magic item loot and various helper functions for managing items.
+
+    This class includes methods to generate items with magical properties and provides helper functions
+    for item management within the game.
+    """
+
     def __init__(self):
         Config.__init__(self)
 
@@ -150,6 +164,12 @@ class ItemManager(Config):
         hero.add_stat(stat_bonus)
 
 class SuffixActivations(Config):
+    """
+    Manages the activation of item effects dynamically.
+
+    This class contains methods to dynamically activate the effects of items based on their suffixes.
+    """
+    
     def __init__(self):
         Config.__init__(self)
 

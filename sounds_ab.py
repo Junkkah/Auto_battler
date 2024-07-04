@@ -1,10 +1,16 @@
+"""
+Sound module for managing and playing sound effects and music.
+
+This module initializes the mixer and provides functions to play sound 
+effects and music, as well as adjust their volumes.
+"""
+
 import pygame as pg
 import pygame.mixer
 
 pg.mixer.init()
 SFX_volume = 0.3
 music_volume = 0.5
-#pg.mixer.stop()
 
 def play_sound_effect(effect: str):
     sound_effect = pygame.mixer.Sound('./ab_sounds/' + effect + '.wav')

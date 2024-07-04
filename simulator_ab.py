@@ -1,3 +1,19 @@
+"""
+Simulator Module
+
+This module contains the Simulator and DummyLocation classes.
+
+The Simulator class runs a set number of game simulations with random choices, 
+gathers data for analysis, and serves as an automated testing tool to identify 
+potential outliers in the game.
+
+The DummyLocation class creates dummy objects needed for the the simulator.
+
+Classes:
+    Simulator: Runs game simulations and collects data for analysis and testing.
+    DummyLocation: Creates dummy objects for use in simulations.
+"""
+
 import pygame as pg
 import pandas as pd
 import random
@@ -15,6 +31,10 @@ from talents_ab import TalentsManager
 import json
 
 class Simulator(Config):
+    """
+    Runs game simulations with random choices and gathers data for analysis.
+    """
+
     def __init__(self):
         Config.__init__(self)
         self.next = 'menu'
@@ -61,7 +81,7 @@ class Simulator(Config):
         self.simu_paths = []
         self.names_df = get_data('names')
         self.talent_lists = get_data('talents')
-        self.COUNT = 100
+        self.COUNT = 1
         self.results_list = []
         self.sim_done = False
         self.aura_bonus_speed = 0
@@ -455,6 +475,10 @@ class Simulator(Config):
             self.help_sprites.draw(self.screen)
 
 class DummyLocation(Config):
+    """
+    Creates dummy objects needed for the simulator's operation.
+    """
+    
     def __init__(self, tier):
         Config.__init__(self)
         self.tier = tier

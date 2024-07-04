@@ -1,3 +1,12 @@
+"""
+Inventory module for managing and displaying hero items and inventory.
+
+Contains:
+    - Inventory: Displays hero equipment, backpack items, and handles 
+      item management including dragging, dropping, and displaying
+      item info.
+"""
+
 import pygame as pg
 import sys
 import itertools
@@ -9,8 +18,15 @@ from battle_ab import BattleManager
 from items_ab  import ItemManager
 from data_ab import get_json_data
 
-
 class Inventory(Config):
+    """
+    Manages and displays hero items and inventory.
+
+    This class handles the display of hero equipment and backpack items, 
+    allowing for item management through dragging, dropping, and reordering 
+    heroes and their items.
+    """
+
     def __init__(self):
         Config.__init__(self)
         self.next = 'path' 

@@ -1,3 +1,10 @@
+"""
+Animations module for managing attack animations during battles.
+
+This module contains various classes that create sprite objects for different types of attacks, 
+including hero weapon and spell attacks, attacks from heroes' minions, song attacks and various monster attacks.
+"""
+
 import pygame as pg, sys
 from config_ab import Config
 from hero_ab import Hero
@@ -24,7 +31,6 @@ def set_animation_speed(speed: float):
 def get_animation_speed() -> float:
     return animation_speed
 
-
 def get_angle(hero_center, mob_center) -> int:
 	angle_radians = math.atan2(mob_center[1] - hero_center[1], mob_center[0] - hero_center[0])
 	angle_degrees = math.degrees(angle_radians)
@@ -37,6 +43,12 @@ def get_position(center_x, center_y, offset, angle_degrees):
 	return point_x, point_y
 
 class MinorEffect(Config, pg.sprite.Sprite): 
+	"""
+    Creates and manages the sprite object for short animation effects.
+
+    This class handles the placement, timing, and graphical representation of a minoreffect animation during battles.
+	"""
+
 	def __init__(self, groups, pos_x, pos_y, effect):
 		super().__init__()
 		pg.sprite.Sprite.__init__(self, groups) 
@@ -49,7 +61,12 @@ class MinorEffect(Config, pg.sprite.Sprite):
 		pass
 
 class StabAngle(Config, pg.sprite.Sprite): 
-	#animates weapon to move towards the target
+	"""
+    Creates and manages the sprite object for a hero's stabangle attack animation.
+
+    This class handles the movement, timing, and graphical representation of a stabangle animation during battles.
+	"""
+
 	def __init__(self, groups, weapon, pos_x, pos_y, hero_center, target_center):
 		super().__init__()
 		pg.sprite.Sprite.__init__(self, groups) 
@@ -100,6 +117,12 @@ class StabAngle(Config, pg.sprite.Sprite):
 				return True
 
 class Stab(Config, pg.sprite.Sprite): #Groupsingle
+	"""
+    Creates and manages the sprite object for a hero's stab attack animation.
+
+    This class handles the movement, timing, and graphical representation of a stab animation during battles.
+	"""
+
 	def __init__(self, groups, weapon, pos_x, pos_y):
 		super().__init__()
 		pg.sprite.Sprite.__init__(self, groups) 
@@ -147,6 +170,12 @@ class Stab(Config, pg.sprite.Sprite): #Groupsingle
 		self.rect.bottomright = [self.pos_x, self.pos_y]
 
 class Blast(Config, pg.sprite.Sprite):
+	"""
+    Creates and manages the sprite object for a hero's blast attack animation.
+
+    This class handles the movement, timing, and graphical representation of a blast animation during battles.
+	"""
+
 	def __init__(self, groups, spell, pos_x, pos_y):
 		super().__init__()
 		pg.sprite.Sprite.__init__(self, groups) 
@@ -188,6 +217,12 @@ class Blast(Config, pg.sprite.Sprite):
 				return True
 
 class FollowerAttack(Config, pg.sprite.Sprite):
+	"""
+    Creates and manages the sprite object for a hero's minion followerattack attack animation.
+
+    This class handles the movement, timing, and graphical representation of a followerattack animation during battles.
+	"""
+
 	def __init__(self, groups, follower_obj, pos_x, pos_y):
 		super().__init__()
 		pg.sprite.Sprite.__init__(self, groups) 
@@ -230,6 +265,12 @@ class FollowerAttack(Config, pg.sprite.Sprite):
 		self.rect.bottomright = [self.pos_x, self.pos_y]
 
 class SongAnimation(pg.sprite.Sprite):
+	"""
+    Creates and manages the sprite object for a hero's song attack animation.
+
+    This class handles the movement, timing, and graphical representation of a song animation during battles.
+	"""
+
 	def __init__(self, groups, pos_x, pos_y):
 		super().__init__()
 		pg.sprite.Sprite.__init__(self, groups) 
@@ -263,6 +304,12 @@ class SongAnimation(pg.sprite.Sprite):
 				return True
 
 class MonsterStab(Config, pg.sprite.Sprite):
+	"""
+    Creates and manages the sprite object for a monster's monsterstab attack animation.
+
+    This class handles the movement, timing, and graphical representation of a monsterstab animation during battles.
+	"""
+
 	def __init__(self, groups, weapon, pos_x, pos_y):
 		super().__init__()
 		pg.sprite.Sprite.__init__(self, groups) 
@@ -313,6 +360,12 @@ class MonsterStab(Config, pg.sprite.Sprite):
 
 #Slash animation not working properly
 class Slash(pg.sprite.Sprite):
+	"""
+    Creates and manages the sprite object for a monster's slash attack animation.
+
+    This class handles the movement, timing, and graphical representation of a slash animation during battles.
+	"""
+
 	def __init__(self, groups, pos_x, pos_y):
 		super().__init__()
 		pg.sprite.Sprite.__init__(self, groups)
@@ -351,6 +404,12 @@ class Slash(pg.sprite.Sprite):
 
 
 class Smash(pg.sprite.Sprite):
+	"""
+    Creates and manages the sprite object for a hero's smash attack animation.
+
+    This class handles the movement, timing, and graphical representation of a smash animation during battles.
+	"""
+	
 	def __init__(self, groups, pos_x, pos_y):
 		#take weapon as parameter
 		super().__init__()

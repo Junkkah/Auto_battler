@@ -1,7 +1,14 @@
+"""
+Data module for handling data retrieval and entry.
+
+This module provides functions for pulling data from databases and JSON files,
+and entering data into databases. It supports various game-related data
+operations such as retrieving character info, adventure data, and simulation results.
+"""
+
 import sqlite3
 import pandas as pd
 import json
-
 
 def row_to_dict(dataframe, name) -> dict:
     name_index_df = dataframe.set_index('name')

@@ -1,6 +1,17 @@
+"""
+Configuration module for game settings and resources.
+
+This module defines the Config class, which manages global game settings,
+resources, and provides helper functions for game operations.
+"""
+
 import pygame as pg
 
 class Config(object):
+    """
+    Manages global game settings, resources, and provides helper functions.
+    """
+
     party_heroes = []
     room_monsters = []
     party_backpack = {}

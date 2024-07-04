@@ -1,3 +1,11 @@
+"""
+Overworld module for managing the world map and adventure selection.
+
+Contains:
+    - WorldMap: Handles the creation and interaction with the world map, 
+      and generates adventure maps for the game.
+"""
+
 import pygame as pg
 import sys
 from config_ab import Config
@@ -7,8 +15,16 @@ import pandas as pd
 import random
 import math
 
-
 class WorldMap(Config):
+    """
+    Manages the world map and adventure selection.
+
+    This class creates the world map objects for different adventures, 
+    handles their display, and allows the player to select adventures. 
+    It also contains methods for procedurally generating adventure nodes 
+    and the adventure map used in the Path class.
+    """
+
     def __init__(self):
         Config.__init__(self)
         self.next = 'path'
@@ -270,6 +286,14 @@ class WorldMap(Config):
         random_path = self.write_path_df(num_layers)
 
         return random_path
+    
+    def set_child(self, df):
+        for obj in self.map_objects:
+            obj_name = obj.name
+            obj_child_name = df.loc[df['name'] == obj_name, 'child'].values[0]
+
+            if pd.notna(obj_child_name):
+                obj.child = next((child_obj for child_obj in self.map_objects if child_obj.name == obj_child_name), None)
 
     def startup(self):
         self.error = False
@@ -287,15 +311,7 @@ class WorldMap(Config):
             adventure = Adventure(coords, self.map_sprites, desc, name, child)
             self.map_objects.append(adventure)
 
-
-        def set_child(df):
-            for obj in self.map_objects:
-                obj_name = obj.name
-                obj_child_name = df.loc[df['name'] == obj_name, 'child'].values[0]
-
-                if pd.notna(obj_child_name):
-                    obj.child = next((child_obj for child_obj in self.map_objects if child_obj.name == obj_child_name), None)
-        set_child(self.map_data)
+        self.set_child(self.map_data)
 
         hood_path = './ab_images/hood.png'
         COORDS_HOOD = (self.screen_width * 0.05, self.screen_height * 0.80)

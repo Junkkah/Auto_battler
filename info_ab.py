@@ -1,3 +1,11 @@
+"""
+Info module for displaying hero attributes, talents, and spells.
+
+Contains:
+    - CharacterInfo: Displays relevant attributes, talents, spells, 
+      and descriptions for heroes.
+"""
+
 import pygame as pg
 import sys
 from config_ab import Config
@@ -6,8 +14,14 @@ from sprites_ab import Button
 from hero_ab import Hero
 from data_ab import get_data, get_json_data
 
-
 class CharacterInfo(Config):
+    """
+    Displays hero attributes, talents, spells, and descriptions.
+
+    This class handles the presentation of all relevant hero information 
+    including their attributes, talents and spells on the info screen.
+    """
+
     def __init__(self):
         Config.__init__(self)
         self.next = 'path' 

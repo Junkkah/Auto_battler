@@ -1,3 +1,7 @@
+"""
+Shop module for managing the shop functionality of the game.
+"""
+
 import pygame as pg
 import sys
 import random
@@ -12,8 +16,14 @@ from items_ab import ItemManager
 from talents_ab import TalentsManager
 import pandas as pd
 
-
 class Shop(Config):
+    """
+    Shop screen for the game.
+
+    This class handles drawing the shop and hero selection interface 
+    and processing events for purchasing, selling and moving items.
+    """
+
     def __init__(self):
         Config.__init__(self)
         self.next = 'map'
@@ -65,14 +75,12 @@ class Shop(Config):
         for created_hero in hero_list:
             if created_hero.type in ['bard', 'wizard']:
                 if created_hero.type == 'bard':
-                    #random_row = bard_songs.sample(n=1)
                     talent_type = 'song'
                     talent_name = 'Loud Tune'
                 else:
                     random_row = wizard_spells.sample(n=1)
                     talent_type = 'spell'
                     talent_name = random_row['name'].iloc[0]  
-                #created_hero.add_talent(talent_name, talent_type)
                 TalentsManager.add_talent(talent_name, talent_type, created_hero)
 
     def create_item_selection(self, tier):

@@ -1,3 +1,10 @@
+"""
+LevelUp module for managing hero level-ups and talent selection.
+
+Contains:
+    - LevelUp: Handles the display and selection of new talents when heroes gain a level.
+"""
+
 import pygame as pg
 import sys
 import random
@@ -10,11 +17,25 @@ from sounds_ab import play_sound_effect
 from talents_ab import TalentsManager
 
 class LevelUp(Config): 
+    """
+    Manages hero level-ups and talent selection.
+
+    This class displays a selection of two viable talents for each hero to choose from 
+    when they gain a level.
+    """
+    
     def __init__(self):
         Config.__init__(self)
         self.next = 'path'
         self.levelup_hero_sprites = pg.sprite.Group()
         self.levelup_sprites = pg.sprite.Group()
+        self.exp_df = get_data('experience')
+    
+    def gain_level(self, hero):
+        hero.level += 1
+        hero.next_level = self.exp_df.loc[self.exp_df['level'] == hero.level, 'exp'].iloc[0]
+        hero.gain_max_health(hero.level_health)
+        hero.gain_health(hero.level_health)  
     
     def create_talent_sample(self, hero) -> pd.DataFrame:
         talent_df = get_talent_data(hero.type)
@@ -83,8 +104,8 @@ class LevelUp(Config):
         battle_instance.position_heroes()
         for leveling_hero in Config.party_heroes:
             self.levelup_hero_sprites.add(leveling_hero)
-            leveling_hero.gain_level()
-
+            #leveling_hero.gain_level()
+            self.gain_level(leveling_hero)
 
         self.numer_of_heroes = len(Config.party_heroes)
         samples = []

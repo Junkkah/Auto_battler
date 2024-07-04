@@ -1,3 +1,11 @@
+"""
+Talents module for managing hero talents and their activations.
+
+Contains:
+    - TalentsManager: Handles adding new talents to heroes.
+    - TalentActivations: Provides methods for activating talents dynamically.
+"""
+
 import pygame as pg
 from config_ab import Config
 from data_ab import get_talent_data, row_to_dict, get_data, get_json_data
@@ -7,6 +15,13 @@ import random
 spells_data = get_data('spells')
 
 class TalentsManager(Config):
+    """
+    Manages the addition of new talents to heroes.
+
+    This class is responsible for assigning new talents to heroes as they progress
+    and gain levels.
+    """
+
     def __init__(self):
         Config.__init__(self)
 
@@ -76,9 +91,14 @@ class TalentsManager(Config):
             activation_method(hero, effect)
 
 class TalentActivations(Config):
+    """
+    Handles the activation of hero talents.
+
+    This class provides methods to activate talents, which are called dynamically during gameplay.
+    """
+    
     def __init__(self):
         Config.__init__(self)
-
 
     #scroll activation
     #move to items?

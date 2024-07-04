@@ -1,3 +1,11 @@
+"""
+Hero module for managing hero characters in the game.
+
+Contains:
+    - Hero: Represents a hero character with attributes, stats, worn items, and methods for actions such as 
+      displaying the hero's name and health bar, attacking, and casting spells.
+"""
+
 import pygame as pg
 from data_ab import row_to_dict, get_data
 from config_ab import Config
@@ -6,20 +14,16 @@ from items_ab import SuffixActivations
 import numpy as np
 import pandas as pd
 import random
-import sys
-from enum import Enum
 
 hero_data = get_data('classes')
 exp_data = get_data('experience')
 spells_data = get_data('spells')
 
-class AttackType(Enum):
-    MELEE = 'melee'
-    SPELL = 'spell'
-    SONG = 'song'
-#if Config.acting_character.attack_type == AttackType.SPELL:
-
 class Hero(Config, pg.sprite.Sprite):
+    """
+    Represents a hero character used by the player to battle monsters.
+    """
+
     def __init__(self, groups, pos, name: str, hero_type: str):
         super().__init__()
         pg.sprite.Sprite.__init__(self, groups) 
@@ -263,15 +267,19 @@ class Hero(Config, pg.sprite.Sprite):
         if self.evade_attack():
             taken_damage = 0
         self.health -= taken_damage
+    
+    def gain_max_health(self, gained_max_health:int):
+        self.max_health += gained_max_health
 
     def gain_health(self, gained_health: int):
         self.health = min(self.health + gained_health, self.max_health)
 
-    def gain_level(self):
-        self.level += 1
-        self.next_level = self.exp_df.loc[self.exp_df['level'] == self.level, 'exp'].iloc[0]
-        self.max_health += self.level_health
-        self.gain_health(self.level_health)  
+    #move to levelup
+    #def gain_level(self):
+    #    self.level += 1
+    #    self.next_level = self.exp_df.loc[self.exp_df['level'] == self.level, 'exp'].iloc[0]
+    #    self.max_health += self.level_health
+    #    self.gain_health(self.level_health)  
     
     def equip_starting_weapon(self):
         if self.attack_type not in ['spell', 'song']:

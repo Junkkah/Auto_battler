@@ -5,9 +5,9 @@ This script serves as the entry point for the game and operates the main game lo
 state management, and screen rendering.
 
 Usage:
-    Run this script to start the game. The game initializes various game states such as
-    the menu, shop, world map, battle, and others, and transitions between them based on
-    user input and game events.
+    Run this script to start the game. The game initializes various game states stored 
+    in state_dict such as the menu, shop, world map, battle, and others, and transitions 
+    between them based on user input and game events.
 
 Attributes:
     size (tuple): The size of the game window in pixels (width, height).
@@ -28,6 +28,17 @@ Methods:
     main_game_loop(): Start the main game loop, continuously updating and rendering the
     game until the user exits or the game is terminated.
 
+    **Common Methods**:
+
+    Many game states (e.g., MainMenu, SettingsMenu, Shop, WorldMap) have a common structure
+    with the following methods:
+
+    - cleanup(): Cleanup resources used by the state.
+    - startup(): Setup the state when it becomes active.
+    - get_event(event): Handle events such as user inputs.
+    - update(screen, dt): Update the state screen.
+    - draw(screen): Draw the state screen.
+
 Usage Example:
     Run the script with the appropriate Python interpreter to start the game:
 
@@ -36,6 +47,7 @@ Usage Example:
     ```
 
 """
+
 import pygame as pg
 import sys
 from menu_ab import MainMenu, SettingsMenu
@@ -54,6 +66,26 @@ from info_ab import CharacterInfo
 #https://python-forum.io/thread-336.html 
 
 class Control:
+    """
+    Main game controller managing the game loop, state transitions, and screen rendering.
+
+    Attributes:
+        done (bool): Flag to indicate if the game loop should continue running.
+        screen (pygame.Surface): The main display surface for rendering the game.
+        clock (pygame.time.Clock): Clock object to manage the frame rate.
+        state_dict (dict): Dictionary mapping state names to state objects.
+        state_name (str): The current state's name.
+        state (object): The current state object.
+
+    Methods:
+        __init__(settings): Initialize the game controller with the given settings.
+        setup_states(state_dict, start_state): Set up the game states and the initial state.
+        flip_state(): Transition to the next game state.
+        update(dt): Update the current game state.
+        event_loop(): Handle user input events.
+        main_game_loop(): Run the main game loop until termination.
+    """
+    
     def __init__(self, **settings):
         pg.init()
         self.__dict__.update(settings)

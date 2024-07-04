@@ -1,3 +1,13 @@
+"""
+MLModel module for analyzing simulation data and developing data-driven solutions.
+
+This module uses machine learning techniques to analyze game simulation data and includes functions for:
+    - Data preprocessing
+    - Training and evaluating a Random Forest regression model
+    - Training and evaluating a Polynomial regression model
+    - Plotting actual vs. predicted values
+"""
+
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.model_selection import train_test_split
@@ -9,7 +19,6 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 from data_ab import get_simulation_dataset, get_data_simulation
-
 
 # Random Forest Regression and Polynomial Regression
 # Supervised learning

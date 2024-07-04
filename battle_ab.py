@@ -1,3 +1,10 @@
+"""
+Battle module for managing combat between heroes and monsters.
+
+This module contains the BattleManager class, which handles the combat mechanics, 
+processes hero and monster actions, and manages the end-game conditions.
+"""
+
 import pygame as pg
 from config_ab import Config
 from sprites_ab import Monster, Equipment
@@ -8,8 +15,14 @@ from items_ab import ItemManager
 import random
 import pygame.mixer
 
-
 class BattleManager(Config):
+    """
+    Manages combat between heroes and monsters.
+
+    This class handles the combat mechanics, processes actions of both heroes and monsters, 
+    and manages scenarios where all heroes are defeated, resulting in the end of the game.
+    """
+
     def __init__(self):
         Config.__init__(self)
         self.next = 'path' 

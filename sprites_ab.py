@@ -1,3 +1,11 @@
+"""
+Module for handling all non-hero and non-animation sprites in the game.
+
+This module includes classes for managing various types of game sprites, such as monsters, 
+adventures, locations, buttons, followers, talent cards, equipment slots, and equipment. 
+Some classes provide methods for specific behaviors and interactions.
+"""
+
 import pygame as pg
 from data_ab import get_data
 from config_ab import Config
@@ -11,6 +19,12 @@ weapons_data = get_data('weapons')
 follower_data = get_data('followers')
 
 class Monster(Config, pg.sprite.Sprite):
+    """
+    Class for handling monster sprites, their attributes, and behaviors.
+
+    This class manages monster objects, including attacking, taking damage, and other related behaviors.
+    """
+
     def __init__(self, groups, pos, monster_type: str):
         super().__init__()
         pg.sprite.Sprite.__init__(self, groups) 
@@ -104,6 +118,12 @@ class Monster(Config, pg.sprite.Sprite):
         pass
 
 class Adventure(pg.sprite.Sprite):
+    """
+    Class for handling adventure sprites used in the WorldMap class.
+
+    This class manages adventure sprites, including their initialization and interaction on the world map.
+    """
+
     def __init__(self, pos, groups, desc: str, name: str, child):
         super().__init__(groups)
         scenery = pg.image.load('./ab_images/map/' + name + '.png').convert_alpha()
@@ -124,6 +144,12 @@ class Adventure(pg.sprite.Sprite):
         
 
 class Location(pg.sprite.Sprite):
+    """
+    Class for handling location sprites used in the Path class.
+
+    This class manages location sprites, including their attributes and behaviors within the game paths.
+    """
+
     def __init__(self, groups, df, width_gap):
         super().__init__(groups)
         # Assign id, name, type, y_coord, size_scalar, tier, depth, desc, image_name, parent1, parent2, child1, child2
@@ -145,6 +171,12 @@ class Location(pg.sprite.Sprite):
         #self.treasure = []
 
 class Button(Config, pg.sprite.Sprite):
+    """
+    Class for handling button sprites and player interactions.
+
+    This class manages the drawing and interaction of buttons in the game.
+    """
+
     def __init__(self, groups, text, font_name, font_size, text_color, center):
         super().__init__() 
         pg.sprite.Sprite.__init__(self, groups) 
@@ -173,6 +205,12 @@ class Button(Config, pg.sprite.Sprite):
 
 
 class Follower(Config, pg.sprite.Sprite):
+    """
+    Class for handling follower sprites, their attributes, and attack behavior.
+
+    This class manages follower objects, including their attributes and attack mechanisms.
+    """
+
     def __init__(self, follower_name: str, follower_type: str, master):
         Config.__init__(self)
 
@@ -218,6 +256,12 @@ class Follower(Config, pg.sprite.Sprite):
 
 
 class TalentCard(Config, pg.sprite.Sprite):
+    """
+    Class for handling talent card sprites from which players choose talents.
+
+    This class manages the display and interaction of talent selection in the game.
+    """
+
     def __init__(self, groups, df, pos_x, pos_y, hero, font):
         super().__init__() 
         pg.sprite.Sprite.__init__(self, groups) 
@@ -259,6 +303,12 @@ class TalentCard(Config, pg.sprite.Sprite):
         return combined_surface
 
 class EquipmentSlot(Config):
+    """
+    Class for handling equipment slot sprites where items can be dragged to.
+
+    This class manages the display and interaction of equipment slots in the game.
+    """
+
     def __init__(self, name, pos_x, pos_y, width: int, height: int, slot_type: str, spot_number: int):
         super().__init__()
         self.name = name
@@ -278,6 +328,12 @@ class EquipmentSlot(Config):
         pg.draw.rect(self.screen, self.border_color, self.rect, self.border_width)
 
 class Equipment(Config, pg.sprite.Sprite): 
+    """
+    Class for handling equipment sprites, their attributes, and images on screen.
+
+    This class manages equipment objects, including their attributes and visual representation.
+    """
+    
     def __init__(self, name: str, item_type: str, slot_type: str, prefix: str, suffix: str, prefix_effect_type, prefix_effect, suffix_effect_type, suffix_effect, prefix_tier: int, suffix_tier: int):
         super().__init__()
         pg.sprite.Sprite.__init__(self)

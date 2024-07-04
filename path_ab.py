@@ -1,3 +1,10 @@
+"""
+Path module for managing adventure maps and player interactions.
+
+Contains:
+    - Path: Creates, displays, and handles interactions with adventure map objects.
+"""
+
 import pygame as pg
 from config_ab import Config
 from sprites_ab import Location, Button
@@ -10,6 +17,14 @@ import random
 
 
 class Path(Config):
+    """
+    Manages the adventure map and player interactions.
+
+    This class creates adventure map objects, draws them on the screen, 
+    and handles player interactions, including navigation to the inventory 
+    and information screens.
+    """
+
     def __init__(self):
         Config.__init__(self)
         self.next = 'battle'
@@ -27,6 +42,8 @@ class Path(Config):
         self.hovered_item = None
 
     def create_encounter(self, tier) -> list:
+        #generate encounters for all possible next nodes at startup
+        #could display possible encounters for advanced scouting talent
         encounters_df = get_monster_encounters(Config.current_adventure, tier)
         probs = encounters_df['Probability'].tolist()
         mob_lists = encounters_df.apply(lambda row: [value for value in row[4:].tolist() if value is not None], axis=1).tolist()
@@ -46,7 +63,6 @@ class Path(Config):
                 loc_object.child2 = next((child_obj for child_obj in self.loc_objects if child_obj.name == obj_child2_name), None)
 
     def create_map_key(self, adventure):
-
         node_json = get_json_data('node_types')
         node_type_data = node_json[adventure]
         
