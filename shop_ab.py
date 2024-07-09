@@ -29,6 +29,7 @@ class Shop(Config):
         self.next = 'map'
 
     def cleanup(self):
+        """Reset class-specific variables and clear associated sprites."""
         self.names = []
         self.selection = []
         self.backpack_items = []

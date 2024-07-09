@@ -70,6 +70,7 @@ class BattleManager(Config):
             self.reset_game()
     
     def create_gold_loot(self):
+        """Return amount of gold awarded by location monsters."""
         total_min_gold = 0
         total_max_gold = 0
         for loot_monster in Config.room_monsters:
@@ -120,14 +121,15 @@ class BattleManager(Config):
             monster = Monster(self.monster_sprites, (pos_x, pos_y), monster_names[j])
             Config.room_monsters.append(monster)
 
-    #tie breaker, first in hero/mob list > lower, hero > mob, class prios
     def order_sort(self, incombat: list):
+        """Returns a list of combat participants sorted by speed."""
         def speed_order(battle_participant: object):
             participant_speed = battle_participant.total_stat('speed')
             return participant_speed
+        # Sort participants by speed in descending order.
+        # Tie breaker: first in hero/mob list > lower, hero > mob, class.
         return sorted(incombat, key=speed_order, reverse=True)
     
-
     def startup(self):
         self.party_defeated = False
         if Config.current_location.type == 'boss' and Config.current_adventure == 'dark_forest':
@@ -239,6 +241,9 @@ class BattleManager(Config):
 
                 if Config.acting_character.weapon:
                     held_weapon = Config.acting_character.weapon
+                    #get Config.acting_character action
+                    #animation = MonsterAction
+                    #action replaces melee_attack in monster attack
                     self.combat_animation = MonsterStab(self.animation_sprites, held_weapon, bottomright_x, bottomright_y)
                 else:
                     self.combat_animation = Smash(self.animation_sprites, bottomright_x, bottomright_y)

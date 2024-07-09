@@ -80,7 +80,6 @@ class Monster(Config, pg.sprite.Sprite):
         return target
 
     def melee_attack(self, target):
-        #target = self.get_target()
         self.animation = False
         DAMAGE = self.total_stat('damage')
         LOG_DAMAGE = max(0, DAMAGE - target.total_stat('armor'))
@@ -88,7 +87,7 @@ class Monster(Config, pg.sprite.Sprite):
         Config.combat_log.append(log_entry)
         target.take_damage(DAMAGE, 'physical', self)
     
-    def evaluate_action(self, target):
+    def monster_action(self, target):
         pass
         #if special action != 0:
         #special action -=1, execute special
@@ -96,6 +95,11 @@ class Monster(Config, pg.sprite.Sprite):
             #cast spell
         #else:
         #melee
+
+        #attribute normal/tough/boss
+        #if boss
+        #run attack list
+        #troll berserk: melee_attack, rend, attack, regenerate
 
     def take_damage(self, damage_amount, damage_type, armor_penalty):
         ARMOR = max(0, self.total_stat('armor') - armor_penalty)

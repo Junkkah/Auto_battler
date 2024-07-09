@@ -269,9 +269,11 @@ class Hero(Config, pg.sprite.Sprite):
         self.health -= taken_damage
     
     def gain_max_health(self, gained_max_health:int):
+        """Increase hero's maximum health by the given amount."""
         self.max_health += gained_max_health
 
     def gain_health(self, gained_health: int):
+        """Increase hero's health by the given amount, up to hero's maximum health."""
         self.health = min(self.health + gained_health, self.max_health)
 
     #move to levelup

@@ -25,25 +25,18 @@ class MainMenu(Config):
     """
 
     def __init__(self):
+        """Initialize MainMenu with default settings and set next state to 'shop'."""
         Config.__init__(self)
         self.next = 'shop' 
 
     def cleanup(self):
+        """Reset class-specific variables and clear associated sprites."""
         self.menu_buttons = []
         self.menu_button_sprites.empty()
 
-    def startup(self):
-        menu_bg = pg.image.load('./ab_images/background/menu_bg_og.png').convert()
-        self.menu_bg = pg.transform.scale(menu_bg, (self.screen_width, self.screen_height))
-        MENU_FONT = self.default_font
-
-        COORDS_TITLE = (self.screen_width * 0.50, self.screen_height * 0.16)
-        TITLE = 'Auto Battler'
-        title_font = pg.font.SysFont(MENU_FONT, self.title_font_size)
-        self.title_text = title_font.render(TITLE, True, self.black)
-        self.title_rect = self.title_text.get_rect(center=COORDS_TITLE)
-
-        menu_button_data = volume_button_data = get_json_data('menu_buttons')
+    def create_menu_button_objects(self):
+        """Create and initialize button objects for the menu."""
+        menu_button_data = get_json_data('menu_buttons')
         button_texts = ['New Game', 'Settings', 'Simulator', 'Quit']
         self.menu_buttons = []
         for i, (button_name, (x, y)) in enumerate(menu_button_data.items()):
@@ -51,7 +44,7 @@ class MainMenu(Config):
             button = Button(
                 self.menu_button_sprites,
                 button_text,
-                MENU_FONT,
+                self.menu_font,
                 self.big_font_size,
                 self.black,
                 (self.screen_width * x, self.screen_height * y)
@@ -59,7 +52,22 @@ class MainMenu(Config):
             setattr(self, button_name, button)
             self.menu_buttons.append(button)
 
+    def startup(self):
+        """Initialize resources and set up the main menu state."""
+        menu_bg = pg.image.load('./ab_images/background/menu_bg_og.png').convert()
+        self.menu_bg = pg.transform.scale(menu_bg, (self.screen_width, self.screen_height))
+        self.menu_font = self.default_font
+
+        COORDS_TITLE = (self.screen_width * 0.50, self.screen_height * 0.16)
+        TITLE = 'Auto Battler'
+        title_font = pg.font.SysFont(self.menu_font, self.title_font_size)
+        self.title_text = title_font.render(TITLE, True, self.black)
+        self.title_rect = self.title_text.get_rect(center=COORDS_TITLE)
+
+        self.create_menu_button_objects()
+
     def get_event(self, event):
+        """Handle user input events for the main menu state."""
         mouse_pos = pg.mouse.get_pos()
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_ESCAPE:
@@ -95,9 +103,11 @@ class MainMenu(Config):
                 exit()    
 
     def update(self, screen, dt):
+        """Update the main menu state based on user input and game events."""
         self.draw(screen)
 
     def draw(self, screen):
+        """Draw the main menu state to the screen."""
         self.screen.blit(self.menu_bg, (0,0))
         self.screen.blit(self.title_text, self.title_rect)
         self.menu_button_sprites.draw(self.screen)
@@ -111,6 +121,7 @@ class SettingsMenu(Config):
     """
 
     def __init__(self):
+        """Initialize SettingsMeni with default settings and set next state to 'menu'."""
         Config.__init__(self)
         self.next = 'menu' 
         self.maximum_volume = 1.0
@@ -119,10 +130,12 @@ class SettingsMenu(Config):
         self.maximum_animation_speed = 1.0
 
     def cleanup(self):
+        """Reset class-specific variables and clear associated sprites."""
         self.settings_button_sprites.empty()
         self.settings_buttons = []
     
-    def startup(self):
+    def create_settings_button_objects(self):
+        """Create and initialize button objects for the settings menu."""
         MENU_FONT = self.default_font
         PLUS_TEXT = '+'
         MINUS_TEXT = '-'
@@ -141,10 +154,40 @@ class SettingsMenu(Config):
             )
             setattr(self, button_name, button)
             self.settings_buttons.append(button)
+
+    def draw_settings_texts(self):
+        """Render and display settings texts and their values on the screen."""
+        SETTINGS = [
+            ('Sound effect volume', self.screen_height * 0.22, lambda: f'{get_sfx_volume():.1f}'),
+            ('Music volume', self.screen_height * 0.47, lambda: f'{get_music_volume():.1f}'),
+            ('Animation speed', self.screen_height * 0.72, lambda: f'{get_animation_speed():.1f}')
+            ]
+        TEXT_X = self.screen_width * 0.30
+        VALUE_X = self.screen_width * 0.65
+        TEXT_COLOR = self.black
+        VALUE_COLOR = self.green
+        TEXT_FONT_NAME = 'Arial'
+        VALUE_FONT_NAME = 'Verdana'
+        FONT_SIZE = 30
+
+        text_font = pg.font.SysFont(TEXT_FONT_NAME, FONT_SIZE)
+        value_font = pg.font.SysFont(VALUE_FONT_NAME, FONT_SIZE)
+
+        for setting in SETTINGS:
+            text, y, get_value = setting
+            text_surface = text_font.render(text, True, TEXT_COLOR)
+            value_surface = value_font.render(get_value(), True, VALUE_COLOR)
+            self.screen.blit(text_surface, (TEXT_X, y))
+            self.screen.blit(value_surface, (VALUE_X, y))
+    
+    def startup(self):
+        """Initialize resources and set up the settings menu state."""
+        self.create_settings_button_objects()
         self.continue_button = Button(self.settings_button_sprites, self.CONT_TEXT, self.CONT_FONT, self.CONT_SIZE, self.CONT_COL, self.COORDS_CONT)
         self.settings_buttons.append(self.continue_button)
 
     def get_event(self, event):
+        """Handle user input events for the settings menu state."""
         mouse_pos = pg.mouse.get_pos()
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_ESCAPE:
@@ -213,31 +256,11 @@ class SettingsMenu(Config):
                     set_animation_speed(spd)
 
     def update(self, screen, dt):
+        """Update the settings menu state based on user input and game events."""
         self.draw(screen)
 
     def draw(self, screen):
+        """Draw the settings menu state to the screen."""
         self.screen.fill(self.grey)
         self.settings_button_sprites.draw(self.screen)
-
-        SETTINGS = [
-            ('Sound effect volume', self.screen_height * 0.22, lambda: f'{get_sfx_volume():.1f}'),
-            ('Music volume', self.screen_height * 0.47, lambda: f'{get_music_volume():.1f}'),
-            ('Animation speed', self.screen_height * 0.72, lambda: f'{get_animation_speed():.1f}')
-            ]
-        TEXT_X = self.screen_width * 0.30
-        VALUE_X = self.screen_width * 0.65
-        TEXT_COLOR = self.black
-        VALUE_COLOR = self.green
-        TEXT_FONT_NAME = 'Arial'
-        VALUE_FONT_NAME = 'Verdana'
-        FONT_SIZE = 30
-
-        text_font = pg.font.SysFont(TEXT_FONT_NAME, FONT_SIZE)
-        value_font = pg.font.SysFont(VALUE_FONT_NAME, FONT_SIZE)
-
-        for setting in SETTINGS:
-            text, y, get_value = setting
-            text_surface = text_font.render(text, True, TEXT_COLOR)
-            value_surface = value_font.render(get_value(), True, VALUE_COLOR)
-            self.screen.blit(text_surface, (TEXT_X, y))
-            self.screen.blit(value_surface, (VALUE_X, y))
+        self.draw_settings_texts()

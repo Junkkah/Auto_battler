@@ -76,45 +76,48 @@ class Control:
         state_dict (dict): Dictionary mapping state names to state objects.
         state_name (str): The current state's name.
         state (object): The current state object.
-
-    Methods:
-        __init__(settings): Initialize the game controller with the given settings.
-        setup_states(state_dict, start_state): Set up the game states and the initial state.
-        flip_state(): Transition to the next game state.
-        update(dt): Update the current game state.
-        event_loop(): Handle user input events.
-        main_game_loop(): Run the main game loop until termination.
     """
     
     def __init__(self, **settings):
+        """Initialize the game controller with the given settings."""
         pg.init()
         self.__dict__.update(settings)
         self.done = False
         self.screen = pg.display.set_mode(self.size)
         self.clock = pg.time.Clock()
+
     def setup_states(self, state_dict, start_state):
+        """Set up the game states and the initial state."""
         self.state_dict = state_dict
         self.state_name = start_state
         self.state = self.state_dict[self.state_name]
+
     def flip_state(self):
+        """Transition to the next game state."""
         self.state.done = False
         previous,self.state_name = self.state_name, self.state.next
         self.state.cleanup()
         self.state = self.state_dict[self.state_name]
         self.state.startup()
         self.state.previous = previous
+
     def update(self, dt):
+        """Update the current game state."""
         if self.state.quit:
             self.done = True
         elif self.state.done:
             self.flip_state()
         self.state.update(self.screen, dt)
+
     def event_loop(self):
+        """Handle user input events."""
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 self.done = True       
             self.state.get_event(event)
+
     def main_game_loop(self):
+        """Run the main game loop until termination."""
         while not self.done:
             delta_time = self.clock.tick(self.fps)/1000.0
             self.event_loop()
