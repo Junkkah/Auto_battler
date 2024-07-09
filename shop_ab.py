@@ -25,6 +25,7 @@ class Shop(Config):
     """
 
     def __init__(self):
+        """Initialize Shop with default settings and set next state to 'map'."""
         Config.__init__(self)
         self.next = 'map'
 
@@ -45,10 +46,11 @@ class Shop(Config):
                 starting_hero.equip_starting_weapon()
 
     def create_hero_selection(self, names_df):
+        """Create a selection of hero objects from a DataFrame and return them."""
         SELECTABLE_HEROES = 8
-        self.names = [tuple(row) for row in names_df[['name', 'type']].values]
-        self.available = random.sample(self.names, SELECTABLE_HEROES)
-
+        names = [tuple(row) for row in names_df[['name', 'type']].values]
+        available = random.sample(names, SELECTABLE_HEROES)
+        hero_selection = []
         HEROPOS_X = (self.screen_width * 0.20)
         HEROPOS_Y_ROW1 = (self.screen_height * 0.20)
         HEROPOS_Y_ROW2 = (self.screen_height * 0.50)
@@ -60,16 +62,18 @@ class Shop(Config):
             HEROPOS_Y = HEROPOS_Y_ROW1
             if spot_hero > NEXT_ROW: 
                 HEROPOS_Y = HEROPOS_Y_ROW2
-            hero_name = self.available[spot_hero][0]
-            hero_class = self.available[spot_hero][1]
+            hero_name = available[spot_hero][0]
+            hero_class = available[spot_hero][1]
             self.spot_hero = Hero(self.hero_sprites, (HEROPOS_X, HEROPOS_Y), hero_name, hero_class)
-            self.selection.append(self.spot_hero)
+            hero_selection.append(self.spot_hero)
             self.selection_sprites.add(self.spot_hero)
             if spot_hero == NEXT_ROW:
                 HEROPOS_X -= HERO_ROW_LENGTH
             HEROPOS_X += HERO_GAP
+        return hero_selection
             
     def create_starting_spells(self, wizard_df, bard_df, hero_list):
+        """Assign starting spells or songs to wizards and bards in the hero list."""
         wizard_spells = wizard_df[(wizard_df['type'] == 'spell') & (wizard_df['min_level'] == 1)]
         bard_songs = bard_df[(bard_df['type'] == 'song') & (bard_df['min_level'] == 1)]
 
@@ -84,7 +88,8 @@ class Shop(Config):
                     talent_name = random_row['name'].iloc[0]  
                 TalentsManager.add_talent(talent_name, talent_type, created_hero)
 
-    def create_item_selection(self, tier):
+    def create_item_selection(self):
+        """Create a selection of items and return them."""
         item_selection = []
         num_items = 3 #random.randint(1, 3)
         item_probabilities = get_json_data('item_probabilities')
@@ -95,6 +100,7 @@ class Shop(Config):
         return item_selection
 
     def position_item_selection(self, item_selection):
+        """Set coordinates for items in item selection"""
         y = 0.40
         item_count = len(item_selection)
         pos_y = self.screen_height * y
@@ -109,6 +115,7 @@ class Shop(Config):
             self.shop_icon_sprites.add(item_selection[j])
 
     def sell_item(self, sold_item):
+        """Sell the given item to the shopkeeper."""
         payment = sold_item.sell_value
         Config.gold_count += payment
         slot = sold_item.inventory_spot
@@ -117,6 +124,7 @@ class Shop(Config):
         self.shop_icon_sprites.remove(sold_item)
     
     def startup(self):
+        """Initialize resources and set up the shop state."""
         self.selection = []
         self.backpack_items = []
         self.selection_sprites = pg.sprite.Group()
@@ -126,7 +134,6 @@ class Shop(Config):
         self.selling_item = False
         self.hovered_item = None
         
-        #raise rows to make room for hire buttons
         if not Config.current_adventure:
             self.coords_dialogue_1 = ((self.screen_width * 0.12, self.screen_height * 0.72))
             self.shop_dialogue_1 = ['"Choose three heroes', 'and press continue"']
@@ -138,7 +145,7 @@ class Shop(Config):
             names_df = get_data('names')
             wizard_df = (get_talent_data('wizard'))
             bard_df = (get_talent_data('bard'))
-            self.create_hero_selection(names_df)
+            self.selection = self.create_hero_selection(names_df)
             self.create_starting_spells(wizard_df, bard_df, self.selection)
 
         if Config.current_adventure:
@@ -160,7 +167,7 @@ class Shop(Config):
             sell_text = 'Sell Item'
             SELL_COORDS = (self.screen_width * 0.30, self.screen_height * 0.13)
             self.sell_item_button = Button(self.shopping_sprites, sell_text, self.info_font_name, self.info_font_size, self.black, SELL_COORDS)
-            self.item_selection = self.create_item_selection(Config.current_location.tier)
+            self.item_selection = self.create_item_selection()
             self.position_item_selection(self.item_selection)
             
             self.buy_buttons = []
@@ -185,6 +192,7 @@ class Shop(Config):
         self.continue_button = Button(self.selection_button_sprites, self.CONT_TEXT, self.CONT_FONT, self.CONT_SIZE, self.CONT_COL, self.COORDS_CONT)
 
     def get_event(self, event):
+        """Handle user input events for the shop state."""
         mouse_pos = pg.mouse.get_pos()
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_ESCAPE:
@@ -255,9 +263,11 @@ class Shop(Config):
                     self.hovered_item = None
 
     def update(self, screen, dt):
+        """Update the shop state based on user input and game events."""
         self.draw(screen)
 
     def draw(self, screen):
+        """Draw the shop state to the screen."""
         self.screen.blit(self.ground, (0,0))
         self.selection_button_sprites.draw(self.screen)
         
