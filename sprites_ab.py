@@ -216,7 +216,7 @@ class Follower(Config, pg.sprite.Sprite):
     """
 
     def __init__(self, follower_name: str, follower_type: str, master):
-        Config.__init__(self)
+        super().__init__()
 
         self.following = master
         self.type = follower_type 

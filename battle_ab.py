@@ -24,7 +24,7 @@ class BattleManager(Config):
     """
 
     def __init__(self):
-        Config.__init__(self)
+        super().__init__()
         self.next = 'path' 
         self.actions_unordered = []
         self.defeated_heroes = []

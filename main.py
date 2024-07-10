@@ -51,7 +51,7 @@ Usage Example:
 import pygame as pg
 import sys
 from menu_ab import MainMenu, SettingsMenu
-from initialize_ab import Initialize
+from loading_ab import Loading
 from shop_ab import Shop
 from overworld_ab import WorldMap
 from path_ab import Path
@@ -132,7 +132,7 @@ settings = {
 app = Control(**settings)
 state_dict = {
     'menu': MainMenu(),
-    'initialize': Initialize(),
+    'load': Loading(),
     'settings': SettingsMenu(),
     'shop': Shop(),
     'map': WorldMap(),

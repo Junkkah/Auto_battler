@@ -26,7 +26,7 @@ class Path(Config):
     """
 
     def __init__(self):
-        Config.__init__(self)
+        super().__init__()
         self.next = 'battle'
         self.rooms_done = 0
         self.line_thickness = 5

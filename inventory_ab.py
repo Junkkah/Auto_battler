@@ -28,7 +28,7 @@ class Inventory(Config):
     """
 
     def __init__(self):
-        Config.__init__(self)
+        super().__init__()
         self.next = 'path' 
 
     def cleanup(self):

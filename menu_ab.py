@@ -25,9 +25,9 @@ class MainMenu(Config):
     """
 
     def __init__(self):
-        """Initialize MainMenu with default settings and set next state to 'shop'."""
-        Config.__init__(self)
-        self.next = 'shop' 
+        """Initialize MainMenu with default settings and set next state to 'loading'."""
+        super().__init__()
+        self.next = 'load' 
 
     def cleanup(self):
         """Reset class-specific variables and clear associated sprites."""
@@ -85,7 +85,7 @@ class MainMenu(Config):
         elif event.type == pg.MOUSEBUTTONDOWN:
             if self.play_button.rect.collidepoint(mouse_pos):
                 play_sound_effect('click')
-                self.next = 'initialize'
+                self.next = 'load'
                 self.done = True
 
             elif self.settings_button.rect.collidepoint(mouse_pos):
@@ -122,7 +122,7 @@ class SettingsMenu(Config):
 
     def __init__(self):
         """Initialize SettingsMeni with default settings and set next state to 'menu'."""
-        Config.__init__(self)
+        super().__init__()
         self.next = 'menu' 
         self.maximum_volume = 1.0
         self.minimum_volume =  0.0

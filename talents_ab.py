@@ -23,7 +23,7 @@ class TalentsManager(Config):
     """
 
     def __init__(self):
-        Config.__init__(self)
+        super().__init__()
 
     @staticmethod
     def add_talent(talent_name: str, talent_type: str, hero):
@@ -98,7 +98,7 @@ class TalentActivations(Config):
     """
     
     def __init__(self):
-        Config.__init__(self)
+        super().__init__()
 
     #scroll activation
     #move to items?

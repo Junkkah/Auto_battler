@@ -36,7 +36,7 @@ class Simulator(Config):
     """
 
     def __init__(self):
-        Config.__init__(self)
+        super().__init__()
         self.next = 'menu'
 
     def cleanup(self):
@@ -480,5 +480,5 @@ class DummyLocation(Config):
     """
     
     def __init__(self, tier):
-        Config.__init__(self)
+        super().__init__()
         self.tier = tier

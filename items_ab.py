@@ -21,7 +21,7 @@ class ItemManager(Config):
     """
 
     def __init__(self):
-        Config.__init__(self)
+        super().__init__()
 
     @staticmethod
     def item_to_backpack(item):
@@ -171,7 +171,7 @@ class SuffixActivations(Config):
     """
     
     def __init__(self):
-        Config.__init__(self)
+        super().__init__()
 
     #only reflect phys damage
     @staticmethod

@@ -1,8 +1,8 @@
 """
-Initialization module for the game.
+Loading module for the game.
 
 Contains:
-    - Initialize: Handles the creation and storage of game objects.
+    - Loading: Handles the creation and storage of game objects.
 """
 
 import pygame as pg
@@ -11,7 +11,7 @@ from config_ab import Config
 from sprites_ab import EquipmentSlot
 from data_ab import get_json_data
 
-class Initialize(Config):
+class Loading(Config):
     """
     Manages the creation and storage of game objects.
 
@@ -20,10 +20,16 @@ class Initialize(Config):
     """
 
     def __init__(self):
+        """Initialize loading with default settings and set next state to 'shop'."""
         super().__init__()
         self.next = 'shop'
     
+    def cleanup(self):
+        """Reset class-specific variables"""
+        self.updated = False
+    
     def create_equipment_slots(self, slot_list):
+        """Create and initialize character slot objects for the inventory."""
         slots_data = get_json_data('inventory_slots')
         for i in range(self.max_party_size):
             figure_slots = {}
@@ -40,6 +46,7 @@ class Initialize(Config):
             slot_list.append(figure_slots)
 
     def create_backpack_slots(self, slot_list):
+        """Create and initialize backpack slot objects for the inventory."""
         first_slot_x_ratio = 0.05
         first_slot_y_ratio = 0.11
         backpack_row = 5
@@ -61,14 +68,8 @@ class Initialize(Config):
                 Config.party_backpack[slot_name] = None
                 backpack_slot_number += 1
     
-    def initialize_slots(self):
-        self.create_backpack_slots(Config.backpack_slots)
-        self.create_equipment_slots(Config.equipment_slots)
-
-    def cleanup(self):
-        self.updated = False
-
     def startup(self):
+        """Initialize resources and set up the loading state."""
         LOADING_FONT_NAME = "Arial"
         LOADING_FONT_SIZE = 50
         MIDDLE_WIDTH = self.screen_width * 0.50
@@ -78,17 +79,21 @@ class Initialize(Config):
         LOADING = 'Loading...'
         self.LOADING_TEXT = LOADING_FONT.render(LOADING, True, self.black)
         self.LOADING_RECT = self.LOADING_TEXT.get_rect(center=COORDS_LOADING)
-
-        self.initialize_slots()
+        
+        self.create_backpack_slots(Config.backpack_slots)
+        self.create_equipment_slots(Config.equipment_slots)
 
     def get_event(self, event):
+        """Handle user input events for the loading state."""
         if event.type == pg.KEYDOWN:
             pass
 
     def update(self, screen, dt):
+        """Update the loading state."""
         self.draw(screen)
         self.done = True
 
     def draw(self, window):
+        """Draw the loading state to the screen."""
         self.screen.fill(self.grey)
         self.screen.blit(self.LOADING_TEXT, self.LOADING_RECT)

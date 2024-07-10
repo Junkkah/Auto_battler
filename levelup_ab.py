@@ -25,7 +25,7 @@ class LevelUp(Config):
     """
     
     def __init__(self):
-        Config.__init__(self)
+        super().__init__()
         self.next = 'path'
         self.levelup_hero_sprites = pg.sprite.Group()
         self.levelup_sprites = pg.sprite.Group()

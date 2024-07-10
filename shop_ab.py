@@ -26,7 +26,7 @@ class Shop(Config):
 
     def __init__(self):
         """Initialize Shop with default settings and set next state to 'map'."""
-        Config.__init__(self)
+        super().__init__()
         self.next = 'map'
 
     def cleanup(self):
