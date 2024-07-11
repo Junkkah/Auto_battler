@@ -26,17 +26,20 @@ class WorldMap(Config):
     """
 
     def __init__(self):
+        """Initialize WorldMap with default settings and set next state to 'path'."""
         super().__init__()
         self.next = 'path'
         self.error = False
         self.line_thickness = 10
 
     def cleanup(self):
+        """Reset class-specific variables and clear associated sprites."""
         self.map_objects = []
         self.map_data = []
         self.map_sprites.empty()
     
     def generate_random_coordinates(self, adventure: str, num_layers: int, start_size: int):
+        """Generate and return random coordinates for adventure path nodes."""
         coords_file = adventure + '_coords'
         random_coords = get_json_data(coords_file)
 
@@ -67,6 +70,7 @@ class WorldMap(Config):
         return coords_dict
     
     def assign_node_type(self, layer: int, node_type_data: dict, fight_prob: float, final_layer: bool):
+        """Assign and return node types and corresponding images for adventure path nodes."""
         #additional types: event, rest(town?), tough monsters (mighty ogre)
         if final_layer:
             node_type = 'boss'
@@ -93,6 +97,7 @@ class WorldMap(Config):
         return (node_type, node_image)
             
     def create_node_dicts(self, num_layers: int, coords_dict: dict, adventure: str, fight_prob: float):
+        """Create and return dictionaries with data for each adventure path node."""
         node_dicts = {}
         node_json = get_json_data('node_types')
         node_type_data = node_json[adventure]
@@ -133,11 +138,12 @@ class WorldMap(Config):
         return node_dicts
     
     def edge_count(self, num_nodes_current: int, num_nodes_next: int):
+        """Generate and return the number of edges between current and next layer nodes."""
         min_edges = max(num_nodes_current, num_nodes_next)
         max_edges = 2 * (min(num_nodes_current, num_nodes_next))
+
         if num_nodes_current == num_nodes_next:
             max_edges -= 1
-
         if num_nodes_next == 1:
             num_edges = num_nodes_current
         else:
@@ -146,11 +152,13 @@ class WorldMap(Config):
         return num_edges
     
     def check_parent(self, layer, index):
+        """Check and return whether parent1 or parent2 should be assigned for a node."""
         if self.node_dicts[layer][index]['parent1'] == None:
             return 'parent1'
         return 'parent2'
 
     def assign_child_nodes(self, coords_dict: dict, num_layers: int):
+        """Assign child nodes for each adventure node based on input parameters."""
         #not iterating over final layer
         #adding parent for boss node
         self.node_dicts[num_layers][0]['parent1'] = f'node{num_layers - 1}_1'
@@ -264,6 +272,7 @@ class WorldMap(Config):
                             self.node_dicts[layer + 1][node_idx][parent] = f'node{layer}_{node_idx + 1}'
 
     def write_path_df(self, num_layers: int):
+        """Convert node dictionaries into a DataFrame and return it."""
         df = pd.DataFrame(columns=['name', 'type', 'y_coord', 'size_scalar', 'tier', 'depth', 'desc', 'image_name', 'parent1', 'parent2', 'child1', 'child2'])
         data = []
         for depth in range(1, num_layers + 1):
@@ -273,7 +282,7 @@ class WorldMap(Config):
         return df
 
     def generate_random_path(self, adventure: str):
-        #duplicate map_data needed for simulator
+        """Generate a random adventure path and return it as a DataFrame."""
         self.map_data = get_data('adventures')
         adventure_df = self.map_data[self.map_data['name'] == adventure].reset_index(drop=True)
         num_layers = adventure_df.iloc[0]['layers']
@@ -288,14 +297,15 @@ class WorldMap(Config):
         return random_path
     
     def set_child(self, df):
+        """Set child attribute for map objects based on DataFrame data."""
         for obj in self.map_objects:
             obj_name = obj.name
             obj_child_name = df.loc[df['name'] == obj_name, 'child'].values[0]
-
             if pd.notna(obj_child_name):
                 obj.child = next((child_obj for child_obj in self.map_objects if child_obj.name == obj_child_name), None)
 
     def startup(self):
+        """Initialize resources and set up the worldmap state."""
         self.error = False
         self.line_thickness = 10
         self.rect_thickness = 2
@@ -325,6 +335,7 @@ class WorldMap(Config):
 
 
     def get_event(self, event):
+        """Handle user input events for the worldmap state."""
         mouse_pos = pg.mouse.get_pos()
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_ESCAPE:
@@ -347,9 +358,11 @@ class WorldMap(Config):
                         self.error = True
 
     def update(self, screen, dt):
+        """Update the sworldmap state based on user input and game events."""
         self.draw(screen)
 
     def draw(self, screen):
+        """Draw the worldmap state to the screen."""
         self.screen.blit(self.ground, (0,0))
 
         for node in self.map_objects:
