@@ -26,6 +26,7 @@ class Path(Config):
     """
 
     def __init__(self):
+        """Initialize path with default settings and set next state to 'battle'."""
         super().__init__()
         self.next = 'battle'
         self.rooms_done = 0
@@ -35,6 +36,7 @@ class Path(Config):
         self.hovered_item = None
 
     def cleanup(self):
+        """Reset class-specific variables and clear associated sprites."""
         self.path_sprites.empty()
         self.loc_objects = []
         self.map_key_images = []
@@ -42,8 +44,7 @@ class Path(Config):
         self.hovered_item = None
 
     def create_encounter(self, tier) -> list:
-        #generate encounters for all possible next nodes at startup
-        #could display possible encounters for advanced scouting talent
+        """Create and return a random encounter based on the given tier."""
         encounters_df = get_monster_encounters(Config.current_adventure, tier)
         probs = encounters_df['Probability'].tolist()
         mob_lists = encounters_df.apply(lambda row: [value for value in row[4:].tolist() if value is not None], axis=1).tolist()
@@ -51,7 +52,7 @@ class Path(Config):
         return encounter
     
     def set_children(self, df):
-        #assign locations objects as child nodes
+        """Assign child nodes to location objects based on the given DataFrame."""
         for loc_object in self.loc_objects:
             obj_name = loc_object.name
             obj_child1_name = df.loc[df['name'] == obj_name, 'child1'].values[0]
@@ -63,9 +64,9 @@ class Path(Config):
                 loc_object.child2 = next((child_obj for child_obj in self.loc_objects if child_obj.name == obj_child2_name), None)
 
     def create_map_key(self, adventure):
+        """Create and position map key images and texts for the adventure."""
         node_json = get_json_data('node_types')
         node_type_data = node_json[adventure]
-        
         shop = node_type_data['shop']
         tough = node_type_data['tough']
         fight_options = node_type_data['fight']
@@ -103,6 +104,7 @@ class Path(Config):
             self.map_key_texts.append({'text': text, 'rect': rect})
 
     def startup(self):
+        """Initialize resources and set up the path state."""
         play_music_effect(Config.current_adventure)
 
         self.generated_path = Config.generated_path
@@ -130,8 +132,8 @@ class Path(Config):
         INFO_TEXT = 'Info (f)'
         self.info_button = Button(self.path_sprites, INFO_TEXT, self.CONT_FONT, self.CONT_SIZE, self.CONT_COL, self.COORDS_INFO)
 
-
     def get_event(self, event):
+        """Handle user input events for the path state."""
         mouse_pos = pg.mouse.get_pos()
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_ESCAPE:
@@ -189,12 +191,15 @@ class Path(Config):
         
 
     def update(self, screen, dt):
+        """Update the path state based on user input and game events."""
         self.draw(screen)
 
     def draw_circle(self, color, center, radius, thickness):
+        """Draw circle to the screen."""
         pg.draw.circle(self.screen, color, center, radius, thickness)
     
     def draw(self, screen):
+        """Draw the path state to the screen."""
         self.screen.blit(self.ground, (0,0))
         mouse_pos = pg.mouse.get_pos()
         gold_text = self.create_gold_text()

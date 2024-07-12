@@ -358,7 +358,7 @@ class WorldMap(Config):
                         self.error = True
 
     def update(self, screen, dt):
-        """Update the sworldmap state based on user input and game events."""
+        """Update the worldmap state based on user input and game events."""
         self.draw(screen)
 
     def draw(self, screen):
