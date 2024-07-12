@@ -25,6 +25,7 @@ class BattleManager(Config):
 
     def __init__(self):
         super().__init__()
+        """Initialize battlemanager with default settings and set next state to 'path'."""
         self.next = 'path' 
         self.actions_unordered = []
         self.defeated_heroes = []
@@ -36,6 +37,14 @@ class BattleManager(Config):
         self.combat_delay = 1.1
     
     def cleanup(self):
+        """
+        Reset class-specific variables and clear associated sprites.
+
+        This includes emptying sprite groups, resetting item loot, updating hero states, 
+        and handling game state transitions such as resetting the game if the party is 
+        defeated or all adventures are completed. If at least one hero survives, 
+        defeated heroes are healed to half health and added back to the party.
+        """
         self.animation_sprites.empty()
         self.combat_hero_sprites.empty()
         self.combat_mob_sprites.empty()
@@ -80,6 +89,7 @@ class BattleManager(Config):
         return total_loot
     
     def reset_game(self):
+        """Reset the game state to its initial values."""
         Config.party_backpack = {}
         self.defeated_heroes = []
         Config.party_heroes = []
@@ -101,6 +111,7 @@ class BattleManager(Config):
 
     #move to Config?
     def position_heroes(self):
+        """Position hero objects."""
         HEROPOS_X = (self.screen_width * 0.3)
         HEROPOS_Y = (self.screen_height * 0.6)
         HERO_GAP = (self.screen_width * 0.2)
@@ -110,8 +121,8 @@ class BattleManager(Config):
            spot_hero.pos_y = HEROPOS_Y
            HEROPOS_X += HERO_GAP
     
-
     def create_monsters(self, monster_count, monster_names):
+        """Create and position monster objects."""
         y = 0.2
         pos_y = self.screen_height * y
         monster_x_coords = [(i + 1) / (monster_count + 1) for i in range(monster_count)]
@@ -122,7 +133,7 @@ class BattleManager(Config):
             Config.room_monsters.append(monster)
 
     def order_sort(self, incombat: list):
-        """Returns a list of combat participants sorted by speed."""
+        """Return a list of combat participants sorted by speed."""
         def speed_order(battle_participant: object):
             participant_speed = battle_participant.total_stat('speed')
             return participant_speed
@@ -131,6 +142,7 @@ class BattleManager(Config):
         return sorted(incombat, key=speed_order, reverse=True)
     
     def startup(self):
+        """Initialize resources and set up the battlemanager state."""
         self.party_defeated = False
         if Config.current_location.type == 'boss' and Config.current_adventure == 'dark_forest':
             play_sound_effect(Config.current_location.name)
@@ -167,6 +179,7 @@ class BattleManager(Config):
         Config.acting_character = self.actions_ordered[0]
 
     def get_event(self, event):
+        """Handle user input events for the battlemanager state."""
         if event.type == pg.KEYDOWN:
             if not Config.room_monsters:
                 if Config.current_location.type == 'boss':
@@ -192,7 +205,12 @@ class BattleManager(Config):
             pass
 
     def update(self, screen, dt):
+        """
+        Update the battle manager state based on game events.
 
+        Combat is fully automated. This method processes the current action, executes 
+        attack animations, applies attack effects, and checks for battle outcomes.
+        """
         if not self.combat_started:
             if self.delay_timer >= self.combat_delay:
                 self.combat_started = True
@@ -313,6 +331,7 @@ class BattleManager(Config):
         self.draw(screen)
 
     def draw(self, screen):
+        """Draw the battlemanager state to the screen."""
         self.screen.fill(self.white)
         self.screen.blit(self.ground, (0,0))
         self.combat_hero_sprites.draw(self.screen)
