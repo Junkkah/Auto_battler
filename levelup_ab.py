@@ -25,19 +25,36 @@ class LevelUp(Config):
     """
     
     def __init__(self):
+        """Initialize levelup with default settings and set next state to 'path'."""
         super().__init__()
         self.next = 'path'
         self.levelup_hero_sprites = pg.sprite.Group()
         self.levelup_sprites = pg.sprite.Group()
         self.exp_df = get_data('experience')
+
+    def cleanup(self):
+        """Reset class-specific variables and clear associated sprites."""
+        for selected_talent in self.talents_selected:
+            hero_to_add = selected_talent.hero
+            talent_name = selected_talent.name
+            talent_type = selected_talent.type
+            TalentsManager.add_talent(talent_name, talent_type, hero_to_add)
+
+        self.talent_buttons = []
+        self.talents_selected = []
+        self.levelup_hero_sprites.empty()
+        self.levelup_sprites.empty()
+        Config.map_next = False
     
     def gain_level(self, hero):
+        """Increase the hero's level and update their attributes."""
         hero.level += 1
         hero.next_level = self.exp_df.loc[self.exp_df['level'] == hero.level, 'exp'].iloc[0]
         hero.gain_max_health(hero.level_health)
         hero.gain_health(hero.level_health)  
     
     def create_talent_sample(self, hero) -> pd.DataFrame:
+        """Create a sample DataFrame of two available talents for a hero."""
         talent_df = get_talent_data(hero.type)
         # Filter out talents the hero already has
         talent_df = talent_df[~talent_df['name'].isin(hero.talents)]
@@ -75,24 +92,8 @@ class LevelUp(Config):
         new_df = pd.DataFrame(random_rows)
         return new_df
     
-    #def reroll_sample(self, hero):
-        #handle case if rerolling selected talent
-
-    def cleanup(self):
-        for selected_talent in self.talents_selected:
-            #selected_talent.hero.add_talent(selected_talent.name, selected_talent.type)
-            hero_to_add = selected_talent.hero
-            talent_name = selected_talent.name
-            talent_type = selected_talent.type
-            TalentsManager.add_talent(talent_name, talent_type, hero_to_add)
-
-        self.talent_buttons = []
-        self.talents_selected = []
-        self.levelup_hero_sprites.empty()
-        self.levelup_sprites.empty()
-        Config.map_next = False
-
     def startup(self):
+        """Initialize resources and set up the levelup state."""
         self.talent_buttons = []
         self.talents_selected = []
         self.talent_cards = []
@@ -116,6 +117,7 @@ class LevelUp(Config):
         
         #button for rerolling talent sample
 
+        #def initialize_talent_cards(self):
         TALENTCARD_POS_Y = (self.screen_height * 0.15)
         TALENTCARD_GAP = (self.screen_height * 0.15)
         INFO_FONT_NAME = self.default_font
@@ -134,12 +136,11 @@ class LevelUp(Config):
             cards = (card1, card2)
             self.talent_cards.append(cards)
 
-
     def get_event(self, event): 
+        """Handle user input events for the levelup state."""
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_ESCAPE:
                 exit()
-
 
         elif event.type == pg.MOUSEBUTTONDOWN:
             mouse_pos = pg.mouse.get_pos()
@@ -182,9 +183,11 @@ class LevelUp(Config):
                     self.talents_selected.append(talent_card[1])
 
     def update(self, screen, dt):
+        """Update the lvelup state based on user input and game events."""
         self.draw(screen)
 
     def draw(self, screen):
+        """Draw the levelup state to the screen."""
         self.screen.fill(self.white)
         self.screen.blit(self.ground, (0,0))
         self.levelup_hero_sprites.draw(self.screen)
