@@ -24,9 +24,11 @@ class CharacterInfo(Config):
 
     def __init__(self):
         super().__init__()
+        """Initialize info with default settings and set next state to 'path'."""
         self.next = 'path' 
 
     def cleanup(self):
+        """Reset class-specific variables and clear associated sprites."""
         self.info_buttons = []
         self.info_lines = []
         self.talent_lists = []
@@ -39,6 +41,7 @@ class CharacterInfo(Config):
         Config.aura_bonus = {aura_key: 0 for aura_key in Config.aura_bonus}
     
     def set_display_hero(self, display_hero):
+        """Set and display the hero's information."""
         self.info_sprites.empty()
         display_hero_coords = (self.screen_width * 0.10, self.screen_height * 0.05)
         display_hero.rect = display_hero.image.get_rect(topleft = display_hero_coords)
@@ -61,6 +64,7 @@ class CharacterInfo(Config):
         ]
 
     def startup(self):
+        """Initialize resources and set up the info state."""
         self.info_buttons = []
         self.info_sprites = pg.sprite.Group()
         self.info_button_sprites = pg.sprite.Group()
@@ -94,6 +98,7 @@ class CharacterInfo(Config):
         self.continue_button = Button(self.info_button_sprites, self.CONT_TEXT, self.CONT_FONT, self.CONT_SIZE, self.CONT_COL, self.COORDS_CONT)
     
     def get_event(self, event):
+        """Handle user input events for the info state."""
         mouse_pos = pg.mouse.get_pos()
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_ESCAPE:
@@ -115,9 +120,11 @@ class CharacterInfo(Config):
 
     
     def update(self, screen, dt):
+        """Update the info state based on user input and game events."""
         self.draw(screen)
 
     def draw(self, screen):
+        """Draw the info state to the screen."""
         mouse_pos = pg.mouse.get_pos()
         self.screen.fill(self.grey)
         self.info_sprites.draw(self.screen)
