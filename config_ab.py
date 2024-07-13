@@ -36,6 +36,7 @@ class Config(object):
     combat_log = []
     
     def __init__(self):
+        """Initialize global game settings, resources, and default values."""
         self.done = False
         self.next = None
         self.quit = False
@@ -112,6 +113,7 @@ class Config(object):
         self.gold_font_size = 25
     
     def create_gold_text(self):
+        """Create and return a text surface displaying the current amount of gold."""
         gold_value = Config.gold_count
         gold = f'{gold_value :.0f} Gold coins'
         font = pg.font.SysFont(self.gold_font_name, self.gold_font_size)
@@ -119,11 +121,13 @@ class Config(object):
         return text_surface
     
     def load_and_scale_image(self, image_path, size_scalar):
+        """Load and scale an image, returning the scaled surface."""
         image = pg.image.load(image_path).convert_alpha()
         width, height = image.get_width(), image.get_height()
         return pg.transform.smoothscale(image, (width // size_scalar, height // size_scalar))
     
     def create_text_and_rect(self, font, text, color, coords):
+        """"Render text and create its rectangle, returning both as a tuple."""
         rendered_text = font.render(text, True, color)
         text_rect = rendered_text.get_rect(topleft=coords)
         return rendered_text, text_rect
