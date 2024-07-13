@@ -183,7 +183,7 @@ class LevelUp(Config):
                     self.talents_selected.append(talent_card[1])
 
     def update(self, screen, dt):
-        """Update the lvelup state based on user input and game events."""
+        """Update the levelup state based on user input and game events."""
         self.draw(screen)
 
     def draw(self, screen):

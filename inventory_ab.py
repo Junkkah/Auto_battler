@@ -29,9 +29,11 @@ class Inventory(Config):
 
     def __init__(self):
         super().__init__()
+        """Initialize inventory with default settings and set next state to 'path'."""
         self.next = 'path' 
 
     def cleanup(self):
+        """Reset class-specific variables and clear associated sprites."""
         self.inventory_buttons = []
         self.hero_spots = []
         self.figure_coords = []
@@ -48,6 +50,7 @@ class Inventory(Config):
         self.startup_done = False
     
     def reorder_party(self):
+        """Sort party heroes by inventory spot and update their spot numbers."""
         Config.party_heroes.sort(key=lambda hero: hero.inventory_spot)
         for i, hero in enumerate(Config.party_heroes, start=1):
             hero.inventory_spot_number = i
@@ -55,6 +58,7 @@ class Inventory(Config):
     # Equipment slots are cleared
     # Item objects in heroes item dictionaries are moved to slots
     def worn_items_to_slots(self):
+        """Clear equipment slots and move items from heroes' item dictionaries to their respective slots."""
         for eq_slots in Config.equipment_slots:
             for slot_type in eq_slots:
                 eq_slots[slot_type].equipped_item = None
@@ -78,6 +82,7 @@ class Inventory(Config):
     # Item objects in backpack dictionary are moved to backpack slots
     @staticmethod
     def backpack_to_slots(item_list, sprite_group):
+        """Clear backpack slots and move items from the backpack dictionary to the corresponding slots."""
         for clean_slot in Config.backpack_slots:
             clean_slot.equipped_item = None
         for slot_key, backpack_item in Config.party_backpack.items():
@@ -95,8 +100,8 @@ class Inventory(Config):
                         sprite_group.add(backpack_item)
                         break 
 
-    # Rect objects for hero spots
     def create_hero_spots(self):
+        """Create and assign Rect objects for hero inventory spots."""
         self.hero_spots = []
         for i, hero in enumerate(Config.party_heroes, start = 1):
             var_name = f'hero_spot{i}'
@@ -109,6 +114,7 @@ class Inventory(Config):
             hero.inventory_spot_number = i
     
     def create_figures(self):
+        """Load and scale figure images, then set their coordinates."""
         figure_count = 3
         figure_size_scalar = 3
         figure = pg.image.load('./ab_images/figure.png').convert_alpha()
@@ -118,6 +124,7 @@ class Inventory(Config):
         self.figure_coords = [(self.screen_width * (0.27 + 0.2 * i), self.screen_height * 0.10) for i in range(figure_count)]
     
     def move_bumped_item(self, bumped_item):
+        """Move an item to the original slot of the dragged item."""
         bumped_item.rect.x = self.original_spot.rect.x
         bumped_item.rect.y = self.original_spot.rect.y
         bumped_item.inventory_spot = self.original_spot
@@ -130,11 +137,11 @@ class Inventory(Config):
                     origin_hero.drop_item(bumped_item.slot_type)
                     origin_hero.equip_item(bumped_item)
                     break
-
         self.original_spot.equipped_item = None
         self.original_spot.equipped_item = bumped_item
     
     def clear_origin_slot(self):
+        """Clear the original slot of the dragged item."""
         self.original_spot.equipped_item = None
         origin_spot_number = self.original_spot.spot_number
         if origin_spot_number == 0:
@@ -147,6 +154,7 @@ class Inventory(Config):
                     break
 
     def equip_dropped_item(self, drop_spot_number):
+        """Equip the dragged item for the hero at the specified inventory spot."""
         for drop_hero in Config.party_heroes:
             if drop_hero.inventory_spot_number == drop_spot_number:
                 item_to_equip = self.dragged_object
@@ -154,9 +162,9 @@ class Inventory(Config):
                 break
     
     def handle_book(self, drop_spot_number):
+        """Activate the book item for the hero at the specified inventory spot."""
         for reading_hero in Config.party_heroes:
             if reading_hero.inventory_spot_number == drop_spot_number:
-                #reading_hero.activate_book(self.dragged_object)
                 ItemManager.activate_book(reading_hero, self.dragged_object)
                 self.inventory_items.remove(self.dragged_object)
                 self.inventory_icon_sprites.remove(self.dragged_object)
@@ -164,9 +172,9 @@ class Inventory(Config):
     
     @staticmethod
     def display_item_info(screen, screen_height, hovered_item, item_info_font, black, white):
+        """Render and display item information on the screen."""
         mouse_pos = pg.mouse.get_pos()
         desc_text_line1 = item_info_font.render(hovered_item.desc, True, black)
-        #desc line 2 = if prefix +3speed, if suffix no need?
         item_effect = hovered_item.item_prefix_effect
         if item_effect[0]:
             item_stat = item_effect[0].capitalize()
@@ -196,6 +204,7 @@ class Inventory(Config):
         screen.blit(desc_text_line2, text_rect_line2.topleft)
 
     def startup(self):
+        """Initialize resources and set up the inventory state."""
         self.inventory_buttons = []
         self.figure_coords = []
         self.inventory_items = []
@@ -227,6 +236,7 @@ class Inventory(Config):
         self.startup_done = True
  
     def get_event(self, event):
+        """Handle user input events for the inventory state."""
         mouse_pos = pg.mouse.get_pos()
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_ESCAPE:
@@ -351,6 +361,7 @@ class Inventory(Config):
                     self.original_spot = None
 
     def update(self, screen, dt):
+        """Update the inventory state based on user input and game events."""
         if self.dragging_hero or self.dragging_item:
             mouse_x, mouse_y = pg.mouse.get_pos()
             self.dragged_object.rect.x = mouse_x - self.offset_x
@@ -359,6 +370,7 @@ class Inventory(Config):
         self.draw(screen)
 
     def draw(self, screen):
+        """Draw the inventory state to the screen."""
         mouse_pos = pg.mouse.get_pos()
         self.screen.fill(self.grey)
         for draw_coords in self.figure_coords:
