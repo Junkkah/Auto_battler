@@ -5,7 +5,7 @@ This module contains various classes that create sprite objects for different ty
 including hero weapon and spell attacks, attacks from heroes' minions, song attacks and various monster attacks.
 """
 
-import pygame as pg, sys
+import pygame as pg
 from config_ab import Config
 from hero_ab import Hero
 from sprites_ab import Monster
@@ -25,105 +25,23 @@ follower_data = get_data('followers')
 
 animation_speed = 0.3
 def set_animation_speed(speed: float):
-    global animation_speed
-    animation_speed = speed
+	"""Set the animation speed."""
+	global animation_speed
+	animation_speed = speed
 
 def get_animation_speed() -> float:
-    return animation_speed
+	"""Return the current animation speed."""
+	return animation_speed
 
-def get_angle(hero_center, mob_center) -> int:
-	angle_radians = math.atan2(mob_center[1] - hero_center[1], mob_center[0] - hero_center[0])
-	angle_degrees = math.degrees(angle_radians)
-	return angle_degrees
-
-def get_position(center_x, center_y, offset, angle_degrees): 
-	angle_radians = math.radians(angle_degrees)
-	point_x = center_x + offset * math.cos(angle_radians)
-	point_y = center_y + offset * math.sin(angle_radians)
-	return point_x, point_y
-
-class MinorEffect(Config, pg.sprite.Sprite): 
+class Stab(Config, pg.sprite.Sprite):
 	"""
-    Creates and manages the sprite object for short animation effects.
+	Creates and manages the sprite object for a hero's stab attack animation.
 
-    This class handles the placement, timing, and graphical representation of a minoreffect animation during battles.
-	"""
-
-	def __init__(self, groups, pos_x, pos_y, effect):
-		super().__init__()
-		pg.sprite.Sprite.__init__(self, groups) 
-		effect_image = pg.image.load('./ab_images/' + effect + '.png').convert_alpha()
-		self.rect = self.image.get_rect()
-		self.rect.center = (pos_x, pos_y)
-		self.duration = 10
-
-	def animate(self, timer):
-		pass
-
-class StabAngle(Config, pg.sprite.Sprite): 
-	"""
-    Creates and manages the sprite object for a hero's stabangle attack animation.
-
-    This class handles the movement, timing, and graphical representation of a stabangle animation during battles.
-	"""
-
-	def __init__(self, groups, weapon, pos_x, pos_y, hero_center, target_center):
-		super().__init__()
-		pg.sprite.Sprite.__init__(self, groups) 
-		self.attack_animation = False
-
-		angle = get_angle(hero_center, target_center)
-		adjusted_angle = angle + 90
-
-		weapon_df = weapons_data[weapons_data['name'] == weapon].reset_index(drop=True)
-		weapon_image = pg.image.load('./ab_images/weapon/' + weapon + '.png').convert_alpha()
-		WIDTH, HEIGHT = weapon_image.get_size()
-		SIZE_SCALAR = weapon_df.loc[0, 'size_scalar']
-		SCALED_WIDTH = WIDTH // SIZE_SCALAR
-		SCALED_HEIGHT = HEIGHT // SIZE_SCALAR
-		POS_X_ADJUST = weapon_df.loc[0, 'offset_x']
-		POS_Y_ADJUST = weapon_df.loc[0, 'offset_y']
-		#pos_x += POS_X_ADJUST
-		#pos_y += POS_Y_ADJUST
-
-		self.pos_y = pos_y
-		self.pos_x = pos_x
-		self.attack_speed = 3 
-		#use XY_ADJUST for DIST
-		DIST = 100 
-
-		base_image = pg.transform.smoothscale(weapon_image, (SCALED_WIDTH, SCALED_HEIGHT))
-		self.image = pg.transform.rotozoom(base_image, -adjusted_angle, 1) 
-		self.rect = self.image.get_rect()
-		OFFSET_POSITION = get_position(pos_x, pos_y, DIST, adjusted_angle)
-		self.rect.center = [OFFSET_POSITION[0], OFFSET_POSITION[1]]
-
-		self.reach = 20
-		self.radian_angle = math.radians(adjusted_angle)
-		
-	def animation_start(self):
-		self.attack_animation = True
-
-	def animate(self, speed):
-		if self.attack_animation == True:
-			self.reach -= speed
-			delta_x = speed * math.cos(self.radian_angle) 
-			delta_y = speed * math.sin(self.radian_angle)
-			#<1 speed breaks, current 0.3
-			self.rect.x += delta_x  
-			self.rect.y += delta_y 
-			if int(self.reach) <= 0:
-				self.attack_animation = False
-				return True
-
-class Stab(Config, pg.sprite.Sprite): #Groupsingle
-	"""
-    Creates and manages the sprite object for a hero's stab attack animation.
-
-    This class handles the movement, timing, and graphical representation of a stab animation during battles.
+	This class handles the movement, timing, and graphical representation of a stab animation during battles.
 	"""
 
 	def __init__(self, groups, weapon, pos_x, pos_y):
+		"""Initialize the stab attack sprite."""
 		super().__init__()
 		pg.sprite.Sprite.__init__(self, groups) 
 		self.attack_animation = False
@@ -153,14 +71,16 @@ class Stab(Config, pg.sprite.Sprite): #Groupsingle
 		self.animation_timer = 0
 		
 	def animation_start(self):
+		"""Start the stab animation."""
 		self.attack_animation = True
 
-	#speed = Combat.animation_speed
 	def animate(self, speed): 
+		"""Animate the stab attack and return True if animation is complete."""
 		if self.attack_animation == True:
 			self.reach -= speed
 			if int(self.reach) <= 0:
 				self.attack_animation = False
+				self.kill()
 				return True
 
 		self.attack_speed = speed * 10
@@ -171,12 +91,13 @@ class Stab(Config, pg.sprite.Sprite): #Groupsingle
 
 class Blast(Config, pg.sprite.Sprite):
 	"""
-    Creates and manages the sprite object for a hero's blast attack animation.
+	Creates and manages the sprite object for a hero's blast attack animation.
 
-    This class handles the movement, timing, and graphical representation of a blast animation during battles.
+	This class handles the movement, timing, and graphical representation of a blast animation during battles.
 	"""
 
 	def __init__(self, groups, spell, pos_x, pos_y):
+		"""Initialize the blast attack sprite."""
 		super().__init__()
 		pg.sprite.Sprite.__init__(self, groups) 
 
@@ -192,7 +113,7 @@ class Blast(Config, pg.sprite.Sprite):
 		self.image = pg.transform.smoothscale(CAST_IMAGE, (SCALED_WIDTH, SCALED_HEIGHT))
 		spell = pg.image.load('./ab_images/blast/' + self.spell_type + '.png').convert_alpha()
 		self.spell_image = pg.transform.smoothscale(spell, (SCALED_WIDTH, SCALED_HEIGHT))
-        
+
 		self.rect = self.image.get_rect()
 		OFFSET_X = self.screen_width // 16 #120
 		OFFSET_Y = self.screen_height // 27 #40
@@ -203,9 +124,11 @@ class Blast(Config, pg.sprite.Sprite):
 		self.finger_time = 5
 
 	def animation_start(self):
+		"""Start the blast attack animation."""
 		self.attack_animation = True
 
 	def animate(self, speed):
+		"""Animate the blast attack and return True if animation is complete."""
 		if self.attack_animation == True:
 			self.timer += speed
 			if self.timer > self.finger_time:
@@ -214,16 +137,18 @@ class Blast(Config, pg.sprite.Sprite):
 			if self.timer >= self.animation_time:
 				self.timer = 0
 				self.attack_animation = False
+				self.kill()
 				return True
 
 class FollowerAttack(Config, pg.sprite.Sprite):
 	"""
-    Creates and manages the sprite object for a hero's minion followerattack attack animation.
+	Creates and manages the sprite object for a hero's minion followerattack attack animation.
 
-    This class handles the movement, timing, and graphical representation of a followerattack animation during battles.
+	This class handles the movement, timing, and graphical representation of a followerattack animation during battles.
 	"""
 
 	def __init__(self, groups, follower_obj, pos_x, pos_y):
+		"""Initialize the follower attack sprite."""
 		super().__init__()
 		pg.sprite.Sprite.__init__(self, groups) 
 		self.attack_animation = False
@@ -250,14 +175,16 @@ class FollowerAttack(Config, pg.sprite.Sprite):
 		self.animation_timer = 0
 		
 	def animation_start(self):
+		"""Start the follower attack animation."""
 		self.attack_animation = True
 
-	#speed = Combat.animation_speed
 	def animate(self, speed): 
+		"""Animate the follower attack and return True if animation is complete."""
 		if self.attack_animation == True:
 			self.reach -= speed
 			if int(self.reach) <= 0:
 				self.attack_animation = False
+				self.kill()
 				return True
 
 		self.pos_y -= self.attack_speed
@@ -266,12 +193,13 @@ class FollowerAttack(Config, pg.sprite.Sprite):
 
 class SongAnimation(pg.sprite.Sprite):
 	"""
-    Creates and manages the sprite object for a hero's song attack animation.
+	Creates and manages the sprite object for a hero's song attack animation.
 
-    This class handles the movement, timing, and graphical representation of a song animation during battles.
+	This class handles the movement, timing, and graphical representation of a song animation during battles.
 	"""
 
 	def __init__(self, groups, pos_x, pos_y):
+		"""Initialize the song attack sprite."""
 		super().__init__()
 		pg.sprite.Sprite.__init__(self, groups) 
 
@@ -293,24 +221,28 @@ class SongAnimation(pg.sprite.Sprite):
 		self.animation_time = 12
 
 	def animation_start(self):
+		"""Start the song attack animation."""
 		self.attack_animation = True
 
 	def animate(self, speed):
+		"""Animate the song attack and return True if animation is complete."""
 		if self.attack_animation == True:
 			self.timer += speed
 			if self.timer >= self.animation_time:
 				self.timer = 0
 				self.attack_animation = False
+				self.kill()
 				return True
 
 class MonsterStab(Config, pg.sprite.Sprite):
 	"""
-    Creates and manages the sprite object for a monster's monsterstab attack animation.
+	Creates and manages the sprite object for a monster's monsterstab attack animation.
 
-    This class handles the movement, timing, and graphical representation of a monsterstab animation during battles.
+	This class handles the movement, timing, and graphical representation of a monsterstab animation during battles.
 	"""
 
 	def __init__(self, groups, weapon, pos_x, pos_y):
+		"""Initialize the monster stab attack sprite."""
 		super().__init__()
 		pg.sprite.Sprite.__init__(self, groups) 
 		self.attack_animation = False
@@ -342,14 +274,17 @@ class MonsterStab(Config, pg.sprite.Sprite):
 		self.animation_timer = 0
 		
 	def animation_start(self):
+		"""Start the monster stab attack animation."""
 		self.attack_animation = True
 
 	#speed = Combat.animation_speed
 	def animate(self, speed): 
+		"""Animate the monster stab attack and return True if animation is complete."""
 		if self.attack_animation == True:
 			self.reach -= speed
 			if int(self.reach) <= 0:
 				self.attack_animation = False
+				self.kill()
 				return True
 
 		self.attack_speed = speed * 10
@@ -357,60 +292,15 @@ class MonsterStab(Config, pg.sprite.Sprite):
 		self.rect = self.image.get_rect()
 		self.rect.topleft = [self.pos_x, self.pos_y]
 	
-
-#Slash animation not working properly
-class Slash(pg.sprite.Sprite):
-	"""
-    Creates and manages the sprite object for a monster's slash attack animation.
-
-    This class handles the movement, timing, and graphical representation of a slash animation during battles.
-	"""
-
-	def __init__(self, groups, pos_x, pos_y):
-		super().__init__()
-		pg.sprite.Sprite.__init__(self, groups)
-
-		self.attack_animation = False
-		self.claw_sprites = []
-		claw = pg.image.load('./ab_images/claw/claw.png').convert_alpha()
-		WIDTH, HEIGHT = claw.get_size()
-		SIZE_SCALAR = 10
-		SCALED_WIDTH = WIDTH / SIZE_SCALAR
-		SCALED_HEIGHT = HEIGHT / SIZE_SCALAR
-
-		for i in range(10):
-			CLAW_ROTATION = pg.transform.rotate(claw, ((i * -9) + 45))
-			self.claw_sprites.append(pg.transform.smoothscale(CLAW_ROTATION, (SCALED_WIDTH, SCALED_HEIGHT)))
-        
-		self.current_sprite = 0
-		self.image = self.claw_sprites[self.current_sprite]
-		self.rect = self.image.get_rect()
-		self.rect.center = [pos_x, pos_y]
-		
-	def animation_start(self):
-		self.attack_animation = True
-
-	def animate(self, speed):
-		if self.attack_animation == True:
-			self.current_sprite += speed
-			if int(self.current_sprite) >= len(self.claw_sprites):
-				self.current_sprite = 0
-				self.attack_animation = False
-				self.image = self.claw_sprites[int(self.current_sprite)]
-				return True
-
-		self.image = self.claw_sprites[int(self.current_sprite)]
-		self.rect = self.image.get_rect(topleft = self.rect.topleft)
-
-
 class Smash(pg.sprite.Sprite):
 	"""
-    Creates and manages the sprite object for a hero's smash attack animation.
+	Creates and manages the sprite object for a hero's smash attack animation.
 
-    This class handles the movement, timing, and graphical representation of a smash animation during battles.
+	This class handles the movement, timing, and graphical representation of a smash animation during battles.
 	"""
 	
 	def __init__(self, groups, pos_x, pos_y):
+		"""Initialize the smash attack sprite."""
 		#take weapon as parameter
 		super().__init__()
 		pg.sprite.Sprite.__init__(self, groups) 
@@ -443,6 +333,7 @@ class Smash(pg.sprite.Sprite):
 		self.rect.center = [pos_x, pos_y]
 
 	def rotate(self, rotation_speed):
+		"""Rotate the image and return the rotated image and its rect."""
 		self.rotation -= rotation_speed
 		self.rotation_remaining -= np.degrees(rotation_speed)
 		image = pg.transform.rotozoom(self.club, np.degrees(self.rotation), 1)
@@ -451,9 +342,11 @@ class Smash(pg.sprite.Sprite):
 		return image, rect
 
 	def animation_start(self):
+		"""Start the smash attack animation."""
 		self.attack_animation = True
 
 	def animate(self, speed):
+		"""Animate the smash attack and return True if animation is complete."""
 		if self.attack_animation == True:
 			ROTA_SPEED = 3 * speed
 			SPEED_RADIANS = np.radians(ROTA_SPEED)
@@ -461,6 +354,7 @@ class Smash(pg.sprite.Sprite):
 			if self.rotation_remaining <= 0:
 				self.attack_animation = False
 				self.image = pg.transform.rotozoom(self.club, np.degrees(self.rotation), 1)
+				self.kill()
 				return True
 		
 		XOFFSET, YOFFSET = np.cos(self.rotation) * self.offset, -np.sin(self.rotation) * self.offset

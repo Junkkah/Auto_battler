@@ -8,7 +8,6 @@ Contains:
 """
 
 import pygame as pg
-import sys
 import itertools
 from config_ab import Config
 from sounds_ab import play_sound_effect

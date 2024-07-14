@@ -8,7 +8,7 @@ processes hero and monster actions, and manages the end-game conditions.
 import pygame as pg
 from config_ab import Config
 from sprites_ab import Monster, Equipment
-from animations_ab import Stab, Slash, Blast, Smash, SongAnimation, FollowerAttack, MonsterStab, get_animation_speed, StabAngle
+from animations_ab import Stab, Blast, Smash, SongAnimation, FollowerAttack, MonsterStab, get_animation_speed
 from sounds_ab import play_sound_effect
 from data_ab import get_json_data, get_affix
 from items_ab import ItemManager
@@ -31,8 +31,9 @@ class BattleManager(Config):
         self.defeated_heroes = []
         self.combat_hero_sprites = pg.sprite.Group()
         self.combat_mob_sprites = pg.sprite.Group()
-        self.animation_sprites = pg.sprite.Group()
-        self.follower_sprites = pg.sprite.Group()
+        #self.animation_sprites = pg.sprite.Group()
+        self.animation_sprites = pg.sprite.GroupSingle()
+        #self.follower_sprites = pg.sprite.GroupSingle()
         self.exp_reward = 0
         self.combat_delay = 1.1
     
@@ -48,7 +49,7 @@ class BattleManager(Config):
         self.animation_sprites.empty()
         self.combat_hero_sprites.empty()
         self.combat_mob_sprites.empty()
-        self.follower_sprites.empty()
+        #self.follower_sprites.empty()
         self.actions_unordered = []
         Config.room_monsters = []
         Config.combat_log = []
@@ -241,9 +242,6 @@ class BattleManager(Config):
                     else:
                         held_weapon = Config.acting_character.worn_items['hand1'].item_name
                     self.combat_animation = Stab(self.animation_sprites, held_weapon, pos_x, pos_y)
-                    #target_center = self.current_target.rect.center
-                    #hero_center = Config.acting_character.rect.center
-                    #self.combat_animation = StabAngle(self.animation_sprites, held_weapon, pos_x, pos_y, hero_center, target_center)
 
             elif Config.acting_character.is_follower:
                 play_sound_effect(Config.acting_character.type)
@@ -289,7 +287,7 @@ class BattleManager(Config):
                     Config.acting_character.melee_attack(self.current_target)
 
 
-            self.animation_sprites.remove(self.combat_animation)
+            #self.animation_sprites.remove(self.combat_animation)
             self.actions_ordered.append(self.actions_ordered.pop(0))
             
             #if not Config.acting_character.is_monster:
