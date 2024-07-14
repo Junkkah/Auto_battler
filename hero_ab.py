@@ -25,6 +25,7 @@ class Hero(Config, pg.sprite.Sprite):
     """
 
     def __init__(self, groups, pos, name: str, hero_type: str):
+        """Initialize a hero with name, type, position and hero data."""
         super().__init__()
         pg.sprite.Sprite.__init__(self, groups) 
 
@@ -85,7 +86,7 @@ class Hero(Config, pg.sprite.Sprite):
         self.enemy_armor_penalty = 0
 
     def evaluate_spells(self):
-        #select spells which have highest masteries
+        """Select and return the most effective spell based on mastery and target count."""
         max_values = max(self.spell_mastery.values())
         masteries = [key for key, value in self.spell_mastery.items() if value == max_values]
         mastery_spells = [spell for spell in self.spells if spell.get('type') in masteries]
@@ -102,6 +103,7 @@ class Hero(Config, pg.sprite.Sprite):
         return chosen_spell
         
     def evaluate_action(self):
+        """Perform an attack based on the hero's attack type."""
         if attack_type == 'spell':
             self.spell_attack()
         if attack_type == 'song':
@@ -113,6 +115,7 @@ class Hero(Config, pg.sprite.Sprite):
     #if type == 'stat', 'combat', 'instant'
     #need separate activation methods for stat, combat and instant
     def activate_aura(self):
+        """Apply the hero's aura bonus to the global aura configuration."""
         if self.aura:
             aura_stat_name, stat_val_str = self.aura.split()
             aura_stat_val = int(stat_val_str)
@@ -120,6 +123,7 @@ class Hero(Config, pg.sprite.Sprite):
 
     #activated start of combat
     def activate_item_stats(self):
+        """Activate item stats effects of worm items."""
         for item_slot, item in self.worn_items.items():
             if item is not None:
                 item_effect = self.worn_items[item_slot].item_prefix_effect #return (effect, tier, effect_type)
@@ -129,8 +133,8 @@ class Hero(Config, pg.sprite.Sprite):
                 if effect_name is not None and effect_type == 'stat':
                     self.item_stats_dict[effect_name] += effect_tier
 
-
     def activate_item_effects(self):
+        """Activate effects of worn items and handle consumable items."""
         for item_slot, item in self.worn_items.items():
             if item is not None:
                 item_effect = self.worn_items[item_slot].item_suffix_effect #return (effect, tier, effect_type)
@@ -144,7 +148,10 @@ class Hero(Config, pg.sprite.Sprite):
                         activation_method(effect_tier)
                         self.worn_items[item_slot] = None
 
+    #return value will be overwritten if activating multiple items
+    #only revive modifies taken_damage value. Can order of dynamic activations be prioritized?
     def activate_def_item_effects(self, taken_damage: int, damage_type: str, attacker): 
+        """Apply defensive item effects and return modified taken damage."""
         for item_slot, item in self.worn_items.items():
             if item is not None:
                 item_effect = self.worn_items[item_slot].item_suffix_effect #return (effect, tier, effect_type)
@@ -158,6 +165,7 @@ class Hero(Config, pg.sprite.Sprite):
     
     #returns values: can active only single item
     def activate_off_item_effects(self, damage: int, armor_penalty: int, crit_multi: int, target): 
+        """Apply offensive item effects and return modified damage, armor penalty, and critical multiplier."""
         for item_slot, item in self.worn_items.items():
             if item is not None:
                 item_effect = self.worn_items[item_slot].item_suffix_effect #return (effect, tier, effect_type)
@@ -170,6 +178,7 @@ class Hero(Config, pg.sprite.Sprite):
         return damage, armor_penalty, crit_multi
 
     def total_stat(self, stat: str):
+        """Calculate and return the total value of the specified stat."""
         base_value = getattr(self, stat)
         item_value = self.item_stats_dict[stat]
         weapon_value = 0
@@ -183,6 +192,7 @@ class Hero(Config, pg.sprite.Sprite):
         return base_value + item_value + bonus_value + weapon_value + Config.aura_bonus[stat]
 
     def get_target(self):
+        """Select and return a target monster based on menace probability."""
         total_menace = sum(monster.total_stat('menace') for monster in Config.room_monsters)
         prob = [monster.total_stat('menace')/total_menace for monster in Config.room_monsters]
         target = np.random.choice(Config.room_monsters, p=prob)
@@ -191,12 +201,14 @@ class Hero(Config, pg.sprite.Sprite):
     #calling static methods
     #combat -> off/def
     def activate_talent_group(self, group):
+        """Activate talents in the specified group based on their rank."""
         for talent_effect, talent_info in self.talent_groups[group].items():
             activation_method = talent_info['activation_method']
             rank = talent_info['rank']
             activation_method(self, rank)
             
     def critical_hit(self):
+        """Determine if a critical hit occurs based on critical chance."""
         crit_stat = self.total_stat('critical')
         critical_chance = crit_stat * 0.10
         random_number = random.random()
@@ -206,6 +218,7 @@ class Hero(Config, pg.sprite.Sprite):
             return False
     
     def evade_attack(self):
+        """Determine if an attack is evaded based on evasion chance."""
         evade = self.total_stat('evasion')
         evasion_chance = evade * 0.05
         random_number = random.random()
@@ -217,6 +230,7 @@ class Hero(Config, pg.sprite.Sprite):
     #separate melee_hit() that performs hit
     #leave melee_attack() as method that activates item/talents and calls melee_hit
     def melee_attack(self, target):
+        """Perform a melee attack on the target, applying damage and logging the result."""
         self.animation = False
         DAMAGE = self.total_stat('damage')
         critical_multiplier = 2
@@ -233,6 +247,7 @@ class Hero(Config, pg.sprite.Sprite):
         self.enemy_armor_penalty = 0
 
     def spell_attack(self, spell: dict, target):
+        """Cast a spell on the target or all enemies, applying damage and logging the result."""
         damage_type = spell['type']
         self.animation = False
         DAMAGE = spell['damage'] + (self.spell_mastery[damage_type] * ((self.level // 2) + 1)) + self.total_stat('magic_power')
@@ -245,12 +260,12 @@ class Hero(Config, pg.sprite.Sprite):
             for target_mob in Config.room_monsters:
                 target_mob.take_damage(DAMAGE, damage_type, armor_penalty)
         if spell['area'] == 0:
-            #target = self.get_target()
             log_entry = (self.name, DAMAGE, target.name)
             Config.combat_log.append(log_entry)
             target.take_damage(DAMAGE, damage_type, armor_penalty)
 
     def song_attack(self):
+        """Trigger a song attack, applying effects and logging the action."""
         #actual song attack is handled by talent group activation
         #handle song group activation here
         #add magic_power to songs-dome something about healing
@@ -259,6 +274,7 @@ class Hero(Config, pg.sprite.Sprite):
         Config.combat_log.append(log_entry)
 
     def take_damage(self, damage_amount: int, damage_type: str, attacker):
+        """Apply damage to the hero and adjust health."""
         if damage_type == 'physical':   
             armor = self.total_stat('armor')
             taken_damage = max(0, damage_amount - armor)
@@ -278,18 +294,22 @@ class Hero(Config, pg.sprite.Sprite):
         self.health = min(self.health + gained_health, self.max_health)
 
     def equip_starting_weapon(self):
+        """Equip a default weapon if the hero's attack type is not a spell or song."""
         if self.attack_type not in ['spell', 'song']:
             weapon = Equipment(self.attack_type, 'weapon', 'hand1', '', '', None, None, None, None, 0, 0)
             self.worn_items['hand1'] = weapon
 
     def equip_item(self, item: object):
+        """Equip the specified item in the appropriate slot."""
         slot = item.slot_type
         self.worn_items[slot] = item
     
     def drop_item(self, slot: object):
+        """Remove the item from the specified slot."""
         self.worn_items[slot] = None
 
     def add_stat(self, stat_bonus: str):
+        """Add the given stat bonus to the hero's attributes."""
         stat_name, stat_val_str = stat_bonus.split()
         stat_val = int(stat_val_str)
         old_val = getattr(self, stat_name, 0)
@@ -297,6 +317,7 @@ class Hero(Config, pg.sprite.Sprite):
         setattr(self, stat_name, new_val) 
     
     def display_name(self):
+        """Render and display the hero's name on the screen."""
         health_bar_height = 20
         OFFSET = (self.screen_height / self.offset_divisor) + health_bar_height
         COORDS_INFO_X = self.pos_x
@@ -307,6 +328,7 @@ class Hero(Config, pg.sprite.Sprite):
         self.screen.blit(info_text, info_text_rect)
 
     def draw_health_bar(self, width=100, height=10, border_width_factor=0.01):
+        """Display the hero's health bar on the screen."""
         health_ratio = self.health / self.max_health
         bar_width = int(width * health_ratio)
         border_width = int(width * border_width_factor)
@@ -316,9 +338,11 @@ class Hero(Config, pg.sprite.Sprite):
         pg.draw.rect(self.screen, self.red, [bar_x, self.pos_y +self.height + 10, bar_width, height])
 
     def draw_frame(self):
+        """Draw a rectangular frame around the hero."""
         pg.draw.rect(self.screen, self.red, [self.pos_x, self.pos_y, self.width, self.height], self.frame_width)
     
     def fire_spell_activation(self, rank):
+        """Cast a fire spell based on the rank."""
         if rank > 1:
             spell_name = 'fireball'
         else:
@@ -328,6 +352,7 @@ class Hero(Config, pg.sprite.Sprite):
 
     #used for talent and item
     def healing_activation(self, rank):
+        """Heal the hero based on the given rank."""
         total_rank = rank
         healing_per_rank = 3
         total_healing = healing_per_rank * total_rank
