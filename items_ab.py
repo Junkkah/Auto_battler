@@ -21,10 +21,12 @@ class ItemManager(Config):
     """
 
     def __init__(self):
+        """Initialize itemmanager with default settings."""
         super().__init__()
 
     @staticmethod
     def item_to_backpack(item):
+        """Add the item to the first available slot in the party backpack."""
         sorted_keys = sorted(Config.party_backpack.keys(), key=lambda x: int(x.split('slot')[1]))
         for key in sorted_keys:
             if Config.party_backpack[key] is None:
@@ -33,6 +35,7 @@ class ItemManager(Config):
     
     @staticmethod
     def create_magic_item(item_type, subtype, max_power):
+        """Create and return a magic item with random properties based on type and power."""
         min_power = max(1, max_power // 2)
         power = random.randint(min_power, max_power)
         slot_type_mapping = {'weapon': 'hand1', 'armor': subtype}
@@ -131,6 +134,7 @@ class ItemManager(Config):
 
     @staticmethod
     def create_random_item(item_probabilities):
+        """Generate and return a random item based on provided item probabilities."""
         item_type = random.choices(list(item_probabilities.keys()), weights=[40, 45, 15])[0]
         subtype = random.choices(item_probabilities[item_type]['types'], weights=item_probabilities[item_type]['prob'])[0]
         item_power = max(1, Config.current_location.tier // 2)
@@ -139,6 +143,7 @@ class ItemManager(Config):
     
     @staticmethod
     def create_item_loot():
+        """Generate and return a list of looted items based on room monsters and probabilities."""
         looted_items = []
         item_probabilities = get_json_data('item_probabilities')
         drop_chance_bonus = (Config.current_location.tier / 100)
@@ -146,13 +151,13 @@ class ItemManager(Config):
             #number_of_loot_rolls attribute, 1-5. Repeat for each 
             item_drop_chance = monster.loot_roll + drop_chance_bonus + Config.magic_find
             if random.random() <= item_drop_chance:
-                #random_item = self.create_random_item(item_probabilities)
                 random_item = ItemManager.create_random_item(item_probabilities)
                 looted_items.append(random_item)
         return looted_items  
     
     @staticmethod
     def activate_book(hero, book):
+        """Apply the effects of the book to the hero based on its modifier tier."""
         #activate_stat_book
         #spell_books, exp_books, talent_books, trait_books
         tier = book.modifier_tier
@@ -171,33 +176,44 @@ class SuffixActivations(Config):
     """
     
     def __init__(self):
+        """Initialize suffixactivations with default settings."""
         super().__init__()
 
     #only reflect phys damage
     @staticmethod
     def reflect(damage, damage_type, attacker, hero):
+        """Reflect a portion of physical damage back to the attacker."""
+        #can zero damage reflect happend?
         if damage_type == 'physical':
             reflected_damage = max(1, damage // 10)
             armor_penalty = 100
             attacker.take_damage(reflected_damage, 'physical', armor_penalty)
-            #how to stop two reflects looping?
             LOG_DAMAGE = reflected_damage - max(0, attacker.total_stat('armor') - armor_penalty)
             log_entry = (hero.name, LOG_DAMAGE, attacker.name)
             Config.combat_log.append(log_entry)
+        return damage
     
     @staticmethod
     def revive(damage, damage_type, attacker, hero):
+        """15% chance to negate damage if it would be fatal."""
+        revive_chance = 0.15
         if damage >= hero.health:
-            hero.gain_health(damage)
+            if random.random() < revive_chance:
+                damage = 0
+                #hero.gain_health(damage)
+        return damage
 
     @staticmethod
     def regenerate(damage, damage_type, attacker, hero):
+        """Regenerate a small amount of health for the hero."""
         regeneration_rate = 1
         hero.gain_health(regeneration_rate)
+        return damage
     
     #perform additional attack on non-target monster, if one exists
     @staticmethod
     def cleave(damage, armor_penalty, crit_multi, target, hero):
+        """Perform an additional attack on a non-target monster."""
         if len(Config.room_monsters) > 1:
             for monster in Config.room_monsters:
                 if monster is not target:
@@ -212,10 +228,12 @@ class SuffixActivations(Config):
     
     @staticmethod
     def slaughter(damage, armor_penalty, crit_multi, target, hero):
+        """Increase critical multiplier to 3 for critical strikes."""
         crit_multi = 3
         return damage, armor_penalty, crit_multi
 
     @staticmethod
     def crush(damage, armor_penalty, crit_multi, target, hero):
+        """Set armor penalty to 3, ignoring 3 points of the target's armor."""
         armor_penalty = 3
         return damage, armor_penalty, crit_multi

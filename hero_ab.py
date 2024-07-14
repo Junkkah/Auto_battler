@@ -153,7 +153,8 @@ class Hero(Config, pg.sprite.Sprite):
                 if effect_name is not None and effect_type == 'defence':
                     method_name = effect_name
                     activation_method = getattr(SuffixActivations, method_name)
-                    activation_method(taken_damage, damage_type, attacker, self)
+                    taken_damage = activation_method(taken_damage, damage_type, attacker, self)
+        return taken_damage
     
     #returns values: can active only single item
     def activate_off_item_effects(self, damage: int, armor_penalty: int, crit_multi: int, target): 
@@ -263,7 +264,7 @@ class Hero(Config, pg.sprite.Sprite):
             taken_damage = max(0, damage_amount - armor)
         else:
             taken_damage = damage_amount
-        self.activate_def_item_effects(taken_damage, damage_type, attacker)
+        taken_damage = self.activate_def_item_effects(taken_damage, damage_type, attacker)
         if self.evade_attack():
             taken_damage = 0
         self.health -= taken_damage

@@ -81,7 +81,7 @@ class Simulator(Config):
         self.simu_paths = []
         self.names_df = get_data('names')
         self.talent_lists = get_data('talents')
-        self.COUNT = 1
+        self.COUNT = 100
         self.results_list = []
         self.sim_done = False
         self.aura_bonus_speed = 0
@@ -385,13 +385,15 @@ class Simulator(Config):
                 Config.gold_count += self.gold_loot
                 self.gold_loot = 0
 
+                levelup_instance = LevelUp()
+
                 if Config.party_heroes and self.exp_reward + Config.party_heroes[0].exp >= Config.party_heroes[0].next_level:
                     for leveling_hero in Config.party_heroes:
-                        leveling_hero.gain_level()
+                        #leveling_hero.gain_level()
+                        levelup_instance.gain_level(leveling_hero)
 
                     samples = []
                     self.numer_of_heroes = len(Config.party_heroes)
-                    levelup_instance = LevelUp()
                     for sample_hero in Config.party_heroes:
                         sample = levelup_instance.create_talent_sample(sample_hero)
                         samples.append(sample)

@@ -31,9 +31,7 @@ class BattleManager(Config):
         self.defeated_heroes = []
         self.combat_hero_sprites = pg.sprite.Group()
         self.combat_mob_sprites = pg.sprite.Group()
-        #self.animation_sprites = pg.sprite.Group()
         self.animation_sprites = pg.sprite.GroupSingle()
-        #self.follower_sprites = pg.sprite.GroupSingle()
         self.exp_reward = 0
         self.combat_delay = 1.1
     
@@ -49,7 +47,6 @@ class BattleManager(Config):
         self.animation_sprites.empty()
         self.combat_hero_sprites.empty()
         self.combat_mob_sprites.empty()
-        #self.follower_sprites.empty()
         self.actions_unordered = []
         Config.room_monsters = []
         Config.combat_log = []
@@ -286,8 +283,6 @@ class BattleManager(Config):
                 else: #monster attack
                     Config.acting_character.melee_attack(self.current_target)
 
-
-            #self.animation_sprites.remove(self.combat_animation)
             self.actions_ordered.append(self.actions_ordered.pop(0))
             
             #if not Config.acting_character.is_monster:
@@ -325,7 +320,6 @@ class BattleManager(Config):
                             self.lose_lines = [
                             'Your heroes were defeated',
                             'Press any key to continue']
-
         self.draw(screen)
 
     def draw(self, screen):
