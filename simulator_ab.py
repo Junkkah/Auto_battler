@@ -36,10 +36,12 @@ class Simulator(Config):
     """
 
     def __init__(self):
+        """Initialize simulator with default settings and set next state to 'menu'."""
         super().__init__()
         self.next = 'menu'
 
     def cleanup(self):
+        """Reset class-specific and global variables and clear associated sprites."""
         self.party = []
         self.results_list = []
         self.simu_paths = []
@@ -68,8 +70,8 @@ class Simulator(Config):
         self.simulation_sprites.empty()
         self.help_sprites.empty()
         
-
     def startup(self):
+        """Initialize resources and set up the simulator state."""
         self.simulation_hero_sprites = pg.sprite.Group()
         self.simulation_sprites = pg.sprite.Group()
         self.simulation_monster_sprites = pg.sprite.Group()
@@ -103,6 +105,7 @@ class Simulator(Config):
         self.info_text_rect = self.info_text.get_rect(center=COORDS_DONE)
         
     def reset_variables(self):
+        """Reset various variables to their default or empty states between simulation runs."""
         self.party = []
         Config.party_heroes = []
         Config.current_adventure = None
@@ -131,27 +134,25 @@ class Simulator(Config):
         self.gold_loot = 0
     
     def navigate_path(self, start_node):
+        """Return a random route from start_node to 'cave' as a list."""
         random_path = [start_node]
         current_node = start_node
         while current_node != 'cave':
             current_row = self.sim_loc_df[self.sim_loc_df['name'] == current_node].iloc[0]
-            
             has_child1 = current_row['child1'] is not None
             has_child2 = current_row['child2'] is not None
-            
             if has_child1 and has_child2:
                 next_node = random.choice([current_row['child1'], current_row['child2']])
             elif has_child1:
                 next_node = current_row['child1']
             else:
-                break
-            
+                break        
             current_node = next_node
             random_path.append(current_node)
-        
         return random_path
 
     def create_encounter(self, tier) -> list:
+        """Return a list of monsters for an encounter based on the adventure tier."""
         loc_tier = tier
         adv = Config.current_adventure 
         encounters_df = get_monster_encounters(adv, tier)
@@ -161,9 +162,9 @@ class Simulator(Config):
         return encounter
 
     def smallest_mod(self, slot):
+        """Return the hero with the smallest item modifier tier and the tier value."""
         small_tier = 18 #max tier 17
         small_hero = None
-
         for hero in Config.party_heroes:
             if hero.worn_items[slot] is not None:
                 current_modifier_tier = hero.worn_items[slot].modifier_tier
@@ -171,11 +172,10 @@ class Simulator(Config):
                 if current_modifier_tier < small_tier:
                     small_tier = current_modifier_tier
                     small_hero = hero
-
         return small_hero, small_tier
-    
-    #smart equip + buy/sell
+
     def smart_equip_item(self, new_item):
+        """Equip an item to the hero with the smallest modifier tier for the item's slot."""
         for smart_hero in Config.party_heroes:
             for item_slot, item in smart_hero.worn_items.items():
                 if item is None and new_item.slot_type == item_slot:
@@ -188,12 +188,10 @@ class Simulator(Config):
             if equip_hero.worn_items[new_item_slot].modifier_tier < tier:
                 equip_hero.drop_item(slot_to_drop)
                 equip_hero.equip_item(new_item)
-
         #handle book
-        #other consumable items are activated?
-        #are items activated for combat?
 
     def run_simulation(self): 
+        """Run a full game simulation until heroes are defeated or complete all adventures."""
         simulation_results = []
         self.names = [tuple(row) for row in self.names_df[['name', 'type']].values]
         selection = random.sample(self.names, 8)
@@ -205,7 +203,6 @@ class Simulator(Config):
         self.monster_stats = {}
         for data_monster in monster_name_list:
             self.monster_stats[data_monster] = {column: 0 for column in stats_columns}
-        #self.monster_stats = pd.DataFrame(0, index=monster_name_list, columns=['dam_in', 'dam_out', 'count'])
 
         for simulated_hero in range(self.max_party_size):
             SIMU_X = 0
@@ -389,7 +386,6 @@ class Simulator(Config):
 
                 if Config.party_heroes and self.exp_reward + Config.party_heroes[0].exp >= Config.party_heroes[0].next_level:
                     for leveling_hero in Config.party_heroes:
-                        #leveling_hero.gain_level()
                         levelup_instance.gain_level(leveling_hero)
 
                     samples = []
@@ -435,6 +431,7 @@ class Simulator(Config):
         return simulation_results 
 
     def get_event(self, event):
+        """Handle user input events for the simulator state."""
         mouse_pos = pg.mouse.get_pos()
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_ESCAPE:
@@ -465,14 +462,13 @@ class Simulator(Config):
                 self.sim_done = False
 
     def update(self, screen, dt):
+        """Update the simulator state based on game events."""
         self.draw(screen)
 
     def draw(self, screen):
+        """Draw the simulator state to the screen."""
         screen.fill(self.grey)
-        #display simulation results
-
         self.simulation_sprites.draw(self.screen)
-
         if self.sim_done:
             self.help_sprites.draw(self.screen)
 
@@ -482,5 +478,6 @@ class DummyLocation(Config):
     """
     
     def __init__(self, tier):
+        """Initialize dummylocation with default settings."""
         super().__init__()
         self.tier = tier

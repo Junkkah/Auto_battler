@@ -277,13 +277,6 @@ class Hero(Config, pg.sprite.Sprite):
         """Increase hero's health by the given amount, up to hero's maximum health."""
         self.health = min(self.health + gained_health, self.max_health)
 
-    #move to levelup
-    #def gain_level(self):
-    #    self.level += 1
-    #    self.next_level = self.exp_df.loc[self.exp_df['level'] == self.level, 'exp'].iloc[0]
-    #    self.max_health += self.level_health
-    #    self.gain_health(self.level_health)  
-    
     def equip_starting_weapon(self):
         if self.attack_type not in ['spell', 'song']:
             weapon = Equipment(self.attack_type, 'weapon', 'hand1', '', '', None, None, None, None, 0, 0)
