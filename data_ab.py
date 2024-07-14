@@ -11,11 +11,13 @@ import pandas as pd
 import json
 
 def row_to_dict(dataframe, name) -> dict:
+    """Convert and return a row from a DataFrame as a dictionary."""
     name_index_df = dataframe.set_index('name')
     row_dict = name_index_df.loc[name].to_dict()
     return row_dict
 
 def get_data(table: str) -> pd.DataFrame:
+    """Fetch and return all data from the specified table as a DataFrame."""
     db = sqlite3.connect('./ab_data/stats.db')
     db.isolation_level = None
     query = "SELECT * FROM " + table
@@ -24,11 +26,13 @@ def get_data(table: str) -> pd.DataFrame:
     return df
 
 def get_json_data(file_name: str) -> dict:
+    """Retrieve and return data from a JSON file as a dictionary."""
     with open('./ab_data/json_data/' + file_name + '.json') as j:
         json_data = json.load(j)
     return json_data
 
 def get_affix(item_type: str, affix_type: str):
+    """Fetch and return affix data for the specified item type and affix type as a DataFrame."""
     db = sqlite3.connect('./ab_data/stats.db')
     db.isolation_level = None                                   
     affix_query = "SELECT * FROM item_modifiers WHERE mod_affix = ? AND item_type = ?"
@@ -37,11 +41,10 @@ def get_affix(item_type: str, affix_type: str):
     return affix_df
 
 def get_monster_encounters(adventure: str, tier: int) -> pd.DataFrame:
+    """Fetch and return monster encounters for a specific adventure and tier as a DataFrame."""
     db = sqlite3.connect('./ab_data/stats.db')
-
     id_query = "SELECT id FROM adventures WHERE name = ?"
     id = db.execute(id_query, (adventure,)).fetchone()[0]
-    
     mob_group_query = """
         SELECT *
         FROM Location_encounters
@@ -52,6 +55,7 @@ def get_monster_encounters(adventure: str, tier: int) -> pd.DataFrame:
     return mob_group_df
 
 def get_talent_data(hero_class: str) -> pd.DataFrame:
+    """Fetch and return talent data for a specific hero class as a DataFrame."""
     db = sqlite3.connect('./ab_data/stats.db')
 
     talents_query = """SELECT talents.*
@@ -65,6 +69,7 @@ def get_talent_data(hero_class: str) -> pd.DataFrame:
     return talents_df
 
 def get_simulation_results() -> pd.DataFrame:
+    """Fetch and return all simulation results as a DataFrame."""
     db = sqlite3.connect('./ab_data/simulation_results.db')
     db.isolation_level = None
     query = "SELECT * FROM Results"
@@ -73,6 +78,7 @@ def get_simulation_results() -> pd.DataFrame:
     return df
 
 def get_simulation_dataset(set_number: int) -> pd.DataFrame:
+    """Fetch and return a specific simulation dataset based on set number as a DataFrame."""
     num = str(set_number)
     db = sqlite3.connect('./ab_data/simulation_datasets/simulation_results_' + num + '.db')
 
@@ -96,13 +102,13 @@ def get_simulation_dataset(set_number: int) -> pd.DataFrame:
         INNER JOIN 
             talents ON talents.result_id = results.id
         """
-    
     data_df = pd.read_sql_query(sim_query, db)
     db.close()
     return data_df
     
 
 def enter_simulation_result(row):
+    """Insert a simulation result into the database."""
     db = sqlite3.connect('./ab_data/simulation_results.db')
     db.isolation_level = None
     cursor = db.cursor()
@@ -124,12 +130,12 @@ def enter_simulation_result(row):
         INSERT INTO Results (exp, boss, name1, class1, name2, class2, name3, class3, hero1_talents, hero2_talents, hero3_talents) 
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
     cursor.execute(result_query, (exp, boss, *hero_data, hero1_json, hero2_json, hero3_json))
-
     cursor.close()
     db.commit()
     db.close()
 
 def get_monster_sim_stats():
+    """Fetch and return monster simulation statistics as a DataFrame."""
     db = sqlite3.connect('./ab_data/simulation_results.db')
     db.isolation_level = None
 
@@ -139,6 +145,7 @@ def get_monster_sim_stats():
     return existing_stats
 
 def update_monster_sim_stats(updated_stats):
+    """Update monster simulation statistics in the database."""
     db = sqlite3.connect('./ab_data/simulation_results.db')
     db.isolation_level = None
     cursor = db.cursor()
@@ -149,12 +156,12 @@ def update_monster_sim_stats(updated_stats):
         VALUES (?, ?, ?, ?)
         """
         cursor.execute(query, (name, int(row['dam_in']), int(row['dam_out']), int(row['count'])))
-    
     cursor.close()
     db.commit()
     db.close()
 
 def get_data_simulation(table: str, set_number: int):
+    """Fetch and return data from a specific simulation dataset table as a DataFrame."""
     num = str(set_number)
     db = sqlite3.connect('./ab_data/simulation_datasets/simulation_results_' + num + '.db')
     db.isolation_level = None
