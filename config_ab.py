@@ -8,9 +8,7 @@ resources, and provides helper functions for game operations.
 import pygame as pg
 
 class Config(object):
-    """
-    Manages global game settings, resources, and provides helper functions.
-    """
+    """Manages global game settings, resources, and provides helper functions."""
 
     party_heroes = []
     room_monsters = []
@@ -127,7 +125,7 @@ class Config(object):
         return pg.transform.smoothscale(image, (width // size_scalar, height // size_scalar))
     
     def create_text_and_rect(self, font, text, color, coords):
-        """"Render text and create its rectangle, returning both as a tuple."""
+        """Render text and create its rectangle, returning both as a tuple."""
         rendered_text = font.render(text, True, color)
         text_rect = rendered_text.get_rect(topleft=coords)
         return rendered_text, text_rect

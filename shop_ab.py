@@ -1,5 +1,10 @@
 """
-Shop module for managing the shop functionality of the game.
+Shop Module.
+
+This module contains class for managing the shop functionality of the game.
+
+Classes:
+    Shop: Handles the shop screen when entering a shop.
 """
 
 import pygame as pg
@@ -100,7 +105,7 @@ class Shop(Config):
         return item_selection
 
     def position_item_selection(self, item_selection):
-        """Set coordinates for items in item selection"""
+        """Set coordinates for items in item selection."""
         y = 0.40
         item_count = len(item_selection)
         pos_y = self.screen_height * y

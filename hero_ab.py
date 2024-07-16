@@ -20,9 +20,7 @@ exp_data = get_data('experience')
 spells_data = get_data('spells')
 
 class Hero(Config, pg.sprite.Sprite):
-    """
-    Represents a hero character used by the player to battle monsters.
-    """
+    """Represents a hero character used by the player to battle monsters."""
 
     def __init__(self, groups, pos, name: str, hero_type: str):
         """Initialize a hero with name, type, position and hero data."""

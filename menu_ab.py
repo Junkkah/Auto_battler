@@ -1,5 +1,5 @@
 """
-Menu Module
+Menu Module.
 
 This module contains classes for handling the game's main menu and settings menu.
 

@@ -24,8 +24,8 @@ class BattleManager(Config):
     """
 
     def __init__(self):
-        super().__init__()
         """Initialize battlemanager with default settings and set next state to 'path'."""
+        super().__init__()
         self.next = 'path' 
         self.actions_unordered = []
         self.defeated_heroes = []

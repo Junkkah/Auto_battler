@@ -1,5 +1,5 @@
 """
-Main Game Script
+Main Game Script.
 
 This script serves as the entry point for the game and operates the main game loop,
 state management, and screen rendering.

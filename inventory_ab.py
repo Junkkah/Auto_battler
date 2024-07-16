@@ -27,8 +27,8 @@ class Inventory(Config):
     """
 
     def __init__(self):
-        super().__init__()
         """Initialize inventory with default settings and set next state to 'path'."""
+        super().__init__()
         self.next = 'path' 
 
     def cleanup(self):

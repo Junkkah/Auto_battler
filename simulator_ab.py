@@ -1,5 +1,5 @@
 """
-Simulator Module
+Simulator Module.
 
 This module contains the Simulator and DummyLocation classes.
 
@@ -31,9 +31,7 @@ from talents_ab import TalentsManager
 import json
 
 class Simulator(Config):
-    """
-    Runs game simulations with random choices and gathers data for analysis.
-    """
+    """Runs game simulations with random choices and gathers data for analysis."""
 
     def __init__(self):
         """Initialize simulator with default settings and set next state to 'menu'."""
@@ -83,7 +81,7 @@ class Simulator(Config):
         self.simu_paths = []
         self.names_df = get_data('names')
         self.talent_lists = get_data('talents')
-        self.COUNT = 100
+        self.COUNT = 1
         self.results_list = []
         self.sim_done = False
         self.aura_bonus_speed = 0
@@ -320,7 +318,6 @@ class Simulator(Config):
                             json.dump(error_talents, json_file, indent=4)
                         exit()
 
-                    ##
                     Config.acting_character = self.actions_ordered[0] 
                     self.target = Config.acting_character.get_target()
                     start_health = self.target.health
@@ -365,6 +362,7 @@ class Simulator(Config):
                     self.actions_ordered.append(self.actions_ordered.pop(0))
 
                 #encapsulate combat cleanup
+                #disable for hardcore mode
                 if Config.party_heroes:
                     if self.fallen_heroes:
                         for reviving_hero in self.fallen_heroes:
@@ -473,9 +471,7 @@ class Simulator(Config):
             self.help_sprites.draw(self.screen)
 
 class DummyLocation(Config):
-    """
-    Creates dummy objects needed for the simulator's operation.
-    """
+    """Creates dummy objects needed for the simulator's operation."""
     
     def __init__(self, tier):
         """Initialize dummylocation with default settings."""

@@ -1,3 +1,4 @@
+# Database Structure for stats.db
 
 Table: Monsters
 - Attributes for different monsters.

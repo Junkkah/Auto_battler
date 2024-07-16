@@ -25,7 +25,7 @@ class Loading(Config):
         self.next = 'shop'
     
     def cleanup(self):
-        """Reset class-specific variables"""
+        """Reset class-specific variables."""
         self.updated = False
     
     def create_equipment_slots(self, slot_list):

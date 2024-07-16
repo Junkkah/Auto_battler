@@ -26,9 +26,9 @@ class Monster(Config, pg.sprite.Sprite):
     """
 
     def __init__(self, groups, pos, monster_type: str):
+        """Initialize a monster with position, type and monster data."""
         super().__init__()
         pg.sprite.Sprite.__init__(self, groups) 
-
         mob = pg.image.load('./ab_images/monster/' + monster_type + '.png').convert_alpha()
         HEIGHT = mob.get_height()
         WIDTH = mob.get_width()
@@ -53,7 +53,6 @@ class Monster(Config, pg.sprite.Sprite):
         self.width = self.image.get_width()
         self.height = self.image.get_height()
         self.rect = self.image.get_rect(topleft = (self.pos_x, self.pos_y))
-        
         self.attack_type = 'claw'
 
         self.debuff_dict = {'speed': 0, 'damage': 0, 'menace': 0, 'armor': 0}
@@ -62,24 +61,28 @@ class Monster(Config, pg.sprite.Sprite):
         #adjust value -= 1 after executing special attack
 
     def take_debuff(self, stat: str, debuff: int):
+        """Apply a debuff to a specific stat."""
         if stat == 'menace':
             self.debuff_dict[stat] += debuff
         else:
             self.debuff_dict[stat] -= debuff
 
     def total_stat(self, stat):
+        """Calculate the total value of a stat, accounting for debuffs."""
         base_value = getattr(self, stat)
         debuff_value = self.debuff_dict[stat]
         total_value = max(0, base_value + debuff_value)
         return total_value
     
     def get_target(self):
+        """Determine and return a target based on menace probabilities."""
         total_menace = sum(hero.total_stat('menace') for hero in Config.party_heroes)
         prob = [hero.total_stat('menace')/total_menace for hero in Config.party_heroes]
         target = np.random.choice(Config.party_heroes, p=prob)
         return target
 
     def melee_attack(self, target):
+        """Perform a melee attack on the target."""
         self.animation = False
         DAMAGE = self.total_stat('damage')
         LOG_DAMAGE = max(0, DAMAGE - target.total_stat('armor'))
@@ -88,6 +91,7 @@ class Monster(Config, pg.sprite.Sprite):
         target.take_damage(DAMAGE, 'physical', self)
     
     def monster_action(self, target):
+        """Execute an action based on the monster's type."""
         pass
         #if special action != 0:
         #special action -=1, execute special
@@ -102,6 +106,7 @@ class Monster(Config, pg.sprite.Sprite):
         #troll berserk: melee_attack, rend, attack, regenerate
 
     def take_damage(self, damage_amount, damage_type, armor_penalty):
+        """Reduce health based on damage taken."""
         ARMOR = max(0, self.total_stat('armor') - armor_penalty)
         if damage_type == 'physical':
             taken_damage = max(0, damage_amount - ARMOR)
@@ -110,17 +115,14 @@ class Monster(Config, pg.sprite.Sprite):
         self.health -= taken_damage
 
     def draw_health_bar(self, width=100, height=10, border_width_factor=0.01):
+        """Draw the health bar for the monster."""
         health_ratio = self.health / self.max_health
         bar_width = int(width * health_ratio)
         border_width = int(width * border_width_factor)
-
         bar_x = self.pos_x - (width / 2) + (self.width / 2)
         pg.draw.rect(self.screen, self.black, [bar_x - border_width, self.pos_y - 10 - border_width, width + 2 * border_width, height + 2 * border_width])
         pg.draw.rect(self.screen, self.red, [bar_x, self.pos_y - 10, bar_width, height])
     
-    def special_attack(self, name):
-        pass
-
 class Adventure(pg.sprite.Sprite):
     """
     Class for handling adventure sprites used in the WorldMap class.
@@ -129,6 +131,7 @@ class Adventure(pg.sprite.Sprite):
     """
 
     def __init__(self, pos, groups, desc: str, name: str, child):
+        """Initialize an adventure sprite with its attributes."""
         super().__init__(groups)
         scenery = pg.image.load('./ab_images/map/' + name + '.png').convert_alpha()
         height = scenery.get_height()
@@ -139,14 +142,12 @@ class Adventure(pg.sprite.Sprite):
         self.pos_x = Config.width * float(pos[0])
         self.pos_y = Config.height * float(pos[1])
         self.pos = (self.pos_x, self.pos_y)
-
         self.image = pg.transform.smoothscale(scenery, (self.width, self.height))
         self.rect = self.image.get_rect(center = (self.pos_x, self.pos_y))
         self.desc = desc
         self.name = name
         self.child = child
         
-
 class Location(pg.sprite.Sprite):
     """
     Class for handling location sprites used in the Path class.
@@ -155,6 +156,7 @@ class Location(pg.sprite.Sprite):
     """
 
     def __init__(self, groups, df, width_gap):
+        """Initialize a location sprite with its attributes."""
         super().__init__(groups)
         # Assign id, name, type, y_coord, size_scalar, tier, depth, desc, image_name, parent1, parent2, child1, child2
         for stat_name in df.index:
@@ -163,16 +165,12 @@ class Location(pg.sprite.Sprite):
         scenery = pg.image.load('./ab_images/location/' + self.image_name + '.png').convert_alpha()
         self.height = scenery.get_height()
         self.width = scenery.get_width()
-
         self.width_gap = width_gap
         self.pos_x = Config.width * (self.width_gap * self.depth)
         self.pos_y = Config.height * float(self.y_coord)
         self.pos = (self.pos_x, self.pos_y)
-    
         self.image = pg.transform.smoothscale(scenery, ((self.width / self.size_scalar), (self.height / self.size_scalar)))
         self.rect = self.image.get_rect(center = (self.pos_x, self.pos_y))
-
-        #self.treasure = []
 
 class Button(Config, pg.sprite.Sprite):
     """
@@ -182,6 +180,7 @@ class Button(Config, pg.sprite.Sprite):
     """
 
     def __init__(self, groups, text, font_name, font_size, text_color, center):
+        """Initialize a button with its properties and render its text."""
         super().__init__() 
         pg.sprite.Sprite.__init__(self, groups) 
 
@@ -205,8 +204,8 @@ class Button(Config, pg.sprite.Sprite):
         self.draw_border()
 
     def draw_border(self):
+        """Draw the border of the button."""
         pg.draw.rect(self.image, self.border_color, self.image.get_rect(), self.border_width)
-
 
 class Follower(Config, pg.sprite.Sprite):
     """
@@ -216,8 +215,8 @@ class Follower(Config, pg.sprite.Sprite):
     """
 
     def __init__(self, follower_name: str, follower_type: str, master):
+        """Initialize a follower with its properties and master."""
         super().__init__()
-
         self.following = master
         self.type = follower_type 
         self.name = follower_name
@@ -234,19 +233,20 @@ class Follower(Config, pg.sprite.Sprite):
             setattr(self, stat_name, int(self.df.at[0, stat_name]) if str(self.df.at[0, stat_name]).isdigit() else self.df.at[0, stat_name])
  
     def total_stat(self, stat: str):
+        """Return the total value of the specified stat."""
         base_value = getattr(self, stat)
         total_value = max(0, base_value)
         return total_value
 
     def get_target(self):
+        """Determine and return a target based on menace probabilities."""
         total_menace = sum(monster.total_stat('menace') for monster in Config.room_monsters)
         prob = [monster.total_stat('menace')/total_menace for monster in Config.room_monsters]
         target = np.random.choice(Config.room_monsters, p=prob)
         return target
 
-    #def melee_attack(self):
     def melee_attack(self, target):
-        #target = self.get_target()
+        """Perform a melee attack on the target."""
         self.animation = False
         DAMAGE = self.total_stat('damage')
         armor_penalty = 0
@@ -256,8 +256,8 @@ class Follower(Config, pg.sprite.Sprite):
         target.take_damage(DAMAGE, 'physical', armor_penalty)
     
     def activate_talent_group(self, group):
+        """Do nothing."""
         pass
-
 
 class TalentCard(Config, pg.sprite.Sprite):
     """
@@ -267,33 +267,31 @@ class TalentCard(Config, pg.sprite.Sprite):
     """
 
     def __init__(self, groups, df, pos_x, pos_y, hero, font):
+        """Initialize a talent card with its properties and position."""
         super().__init__() 
         pg.sprite.Sprite.__init__(self, groups) 
-
         self.name = df.at[0, 'name']
         self.type = df.at[0, 'type']
         self.desc = df.at[0, 'desc']
-
         self.selected = False
         self.font = font
         self.hero = hero
         self.pos_x = pos_x
         self.pos_y = pos_y
         self.pos = (self.pos_x, self.pos_y)
-
         self.image = self.render_texts()
-        self.rect = self.image.get_rect(topleft=self.pos) #position
+        self.rect = self.image.get_rect(topleft=self.pos)
         self.height = self.image.get_height()
-        #inflate rect
-        #draw border
         self.border_width = 2
         self.border_color = (self.black)
         self.draw_border()
 
     def draw_border(self):
+        """Draw the border around the talent card."""
         pg.draw.rect(self.image, self.border_color, self.image.get_rect(), self.border_width)
 
     def render_texts(self):
+        """Render and return the combined text surface for the talent card."""
         name_surface = self.font.render(self.name + ':', True, self.black)
         desc_surface = self.font.render(self.desc, True, self.black)
         #add padding to width and heights
@@ -314,6 +312,7 @@ class EquipmentSlot(Config):
     """
 
     def __init__(self, name, pos_x, pos_y, width: int, height: int, slot_type: str, spot_number: int):
+        """Initialize an equipment slot with its properties and position."""
         super().__init__()
         self.name = name
         self.pos_x = pos_x
@@ -329,6 +328,7 @@ class EquipmentSlot(Config):
         self.draw_border()
 
     def draw_border(self):
+        """Draw the border of the equipment slot on the screen."""
         pg.draw.rect(self.screen, self.border_color, self.rect, self.border_width)
 
 class Equipment(Config, pg.sprite.Sprite): 
@@ -339,6 +339,7 @@ class Equipment(Config, pg.sprite.Sprite):
     """
     
     def __init__(self, name: str, item_type: str, slot_type: str, prefix: str, suffix: str, prefix_effect_type, prefix_effect, suffix_effect_type, suffix_effect, prefix_tier: int, suffix_tier: int):
+        """Initialize an equipment object with attributes and image."""
         super().__init__()
         pg.sprite.Sprite.__init__(self)
         self.item_name = name #subtype
@@ -375,6 +376,7 @@ class Equipment(Config, pg.sprite.Sprite):
 
     @property
     def desc(self):
+        """Return a formatted description of the equipment."""
         prefix_cap = self.prefix.capitalize()
         name_cap = self.item_name.capitalize()
         if self.suffix:
@@ -387,11 +389,10 @@ class Equipment(Config, pg.sprite.Sprite):
 
     @property
     def item_prefix_effect(self):
+        """Return the prefix effect details as a tuple."""
         return (self.prefix_effect, self.prefix_tier, self.prefix_effect_type)
     
     @property
     def item_suffix_effect(self):
+        """Return the suffix effect details as a tuple."""
         return (self.suffix_effect, self.suffix_tier, self.suffix_effect_type)
-
-    def activate_effect(self, rank):
-        pass
