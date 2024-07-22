@@ -137,7 +137,7 @@ class WorldMap(Config):
             node_dicts[layer] = layer_data
         return node_dicts
     
-    def edge_count(self, num_nodes_current: int, num_nodes_next: int):
+    def edge_count(self, num_nodes_current: int, num_nodes_next: int) -> int:
         """Generate and return the number of edges between current and next layer nodes."""
         min_edges = max(num_nodes_current, num_nodes_next)
         max_edges = 2 * (min(num_nodes_current, num_nodes_next))
@@ -148,14 +148,20 @@ class WorldMap(Config):
             num_edges = num_nodes_current
         else:
             num_edges = random.randint(min_edges, max_edges)
-
         return num_edges
     
-    def check_parent(self, layer, index):
+    def check_parent(self, layer: int, index: int) -> str:
         """Check and return whether parent1 or parent2 should be assigned for a node."""
         if self.node_dicts[layer][index]['parent1'] == None:
             return 'parent1'
         return 'parent2'
+
+    def set_nodes(self, layer: int, node_idx: int, child: str, child_offset: int, parent_idx: int):
+        """Store assigned child and parent nodes in dictionary."""
+        self.node_dicts[layer][node_idx][child] = f'node{layer + 1}_{node_idx + child_offset}'
+        parent_layer = layer + 1
+        parent = self.check_parent(parent_layer, parent_idx)
+        self.node_dicts[layer + 1][parent_idx][parent] = f'node{layer}_{node_idx + 1}'
 
     def assign_child_nodes(self, coords_dict: dict, num_layers: int):
         """Assign child nodes for each adventure node based on input parameters."""
@@ -174,9 +180,8 @@ class WorldMap(Config):
                 #possible at layer 11 where node number is restricted
                 if current_layer_nodes == next_layer_nodes:
                     for node_idx in range(current_layer_nodes):
-                        self.node_dicts[layer][node_idx]['child1'] = f'node{layer + 1}_{node_idx + 1}'
-                        self.node_dicts[layer + 1][node_idx]['parent1'] = f'node{layer}_{node_idx + 1}'
-                
+                        self.set_nodes(layer, node_idx, 'child1', 1, node_idx)
+
                 elif next_layer_nodes == 1:
                     for node_idx in range(current_layer_nodes):
                         self.node_dicts[layer][node_idx]['child1'] = f'node{layer + 1}_{1}'
@@ -188,15 +193,11 @@ class WorldMap(Config):
                     #at extra idx and after assign child name at node_idx
                     for node_idx in range(current_layer_nodes):
                         if node_idx >= extra_idx:
-                            self.node_dicts[layer][node_idx]['child1'] = f'node{layer + 1}_{node_idx}'
-                            parent = self.check_parent(layer + 1, node_idx - 1)
-                            self.node_dicts[layer + 1][node_idx - 1][parent] = f'node{layer}_{node_idx + 1}'
+                            self.set_nodes(layer, node_idx, 'child1', 0, node_idx - 1)
                         #before extra idx assign child name at node_idx + 1
                         else:
-                            self.node_dicts[layer][node_idx]['child1'] = f'node{layer + 1}_{node_idx + 1}'
-                            parent = self.check_parent(layer + 1, node_idx)
-                            self.node_dicts[layer + 1][node_idx]['parent1'] = f'node{layer}_{node_idx + 1}'
-                    
+                            self.set_nodes(layer, node_idx, 'child1', 1, node_idx)
+
             if current_layer_nodes < num_edges: #/ else:
                 if current_layer_nodes > next_layer_nodes:
                     extra_child_count = num_edges - current_layer_nodes
@@ -207,23 +208,14 @@ class WorldMap(Config):
                         extra_count = 0
                         if node_idx == extra_idx[extra_count]:
                             extra_count += 1
-                            self.node_dicts[layer][node_idx]['child1'] = f'node{layer + 1}_{node_idx}'
-                            parent = self.check_parent(layer + 1, node_idx - 1)
-                            self.node_dicts[layer + 1][node_idx - 1][parent] = f'node{layer}_{node_idx + 1}'
+                            self.set_nodes(layer, node_idx, 'child1', 0, node_idx - 1)
+                            self.set_nodes(layer, node_idx, 'child2', 1, node_idx)
 
-                            self.node_dicts[layer][node_idx]['child2'] = f'node{layer + 1}_{node_idx + 1}'
-                            parent = self.check_parent(layer + 1, node_idx)
-                            self.node_dicts[layer + 1][node_idx][parent] = f'node{layer}_{node_idx + 1}'
-                        
                         elif node_idx == (current_layer_nodes - 1):
-                            self.node_dicts[layer][node_idx]['child1'] = f'node{layer + 1}_{node_idx}'
-                            parent = self.check_parent(layer + 1, node_idx - 1)
-                            self.node_dicts[layer + 1][node_idx - 1][parent] = f'node{layer}_{node_idx + 1}'
-                        
+                            self.set_nodes(layer, node_idx, 'child1', 0, node_idx - 1)
+  
                         else:
-                            self.node_dicts[layer][node_idx]['child1'] = f'node{layer + 1}_{node_idx + 1}'
-                            parent = self.check_parent(layer + 1, node_idx)
-                            self.node_dicts[layer + 1][node_idx][parent] = f'node{layer}_{node_idx + 1}'
+                            self.set_nodes(layer, node_idx, 'child1', 1, node_idx)
 
                 if current_layer_nodes < next_layer_nodes: 
                     extra_child_count = num_edges - current_layer_nodes
@@ -233,24 +225,15 @@ class WorldMap(Config):
                         extra_count = 0
                         if node_idx == extra_idx[extra_count]:
                             extra_count += 1
-                            self.node_dicts[layer][node_idx]['child1'] = f'node{layer + 1}_{node_idx + 1}'
-                            parent = self.check_parent(layer + 1, node_idx)
-                            self.node_dicts[layer + 1][node_idx][parent] = f'node{layer}_{node_idx + 1}'
-
-                            self.node_dicts[layer][node_idx]['child2'] = f'node{layer + 1}_{node_idx + 2}'
-                            parent = self.check_parent(layer + 1, node_idx + 1)
-                            self.node_dicts[layer + 1][node_idx + 1][parent] = f'node{layer}_{node_idx + 1}'
+                            self.set_nodes(layer, node_idx, 'child1', 1, node_idx)
+                            self.set_nodes(layer, node_idx, 'child2', 2, node_idx + 1)
 
                         else:
-                            self.node_dicts[layer][node_idx]['child1'] = f'node{layer + 1}_{node_idx + 1}'
-                            parent = self.check_parent(layer + 1, node_idx)
-                            self.node_dicts[layer + 1][node_idx][parent] = f'node{layer}_{node_idx + 1}'
+                            self.set_nodes(layer, node_idx, 'child1', 1, node_idx)
 
                             if node_idx == (current_layer_nodes - 1):
-                                self.node_dicts[layer][node_idx]['child2'] = f'node{layer + 1}_{node_idx + 2}'
-                                parent = self.check_parent(layer + 1, node_idx + 1)
-                                self.node_dicts[layer + 1][node_idx + 1][parent] = f'node{layer}_{node_idx + 1}'
-                
+                                self.set_nodes(layer, node_idx, 'child2', 2, node_idx + 1)
+
                 if current_layer_nodes == next_layer_nodes:
                     extra_child_count = num_edges - current_layer_nodes
                     extra_idx = random.sample(range(0, next_layer_nodes - 1), extra_child_count)
@@ -258,18 +241,11 @@ class WorldMap(Config):
                         extra_count = 0
                         if node_idx == extra_idx[extra_count]:
                             extra_count += 1
-                            self.node_dicts[layer][node_idx]['child1'] = f'node{layer + 1}_{node_idx + 1}'
-                            parent = self.check_parent(layer + 1, node_idx)
-                            self.node_dicts[layer + 1][node_idx][parent] = f'node{layer}_{node_idx + 1}'
-
-                            self.node_dicts[layer][node_idx]['child2'] = f'node{layer + 1}_{node_idx + 2}'
-                            parent = self.check_parent(layer + 1, node_idx + 1)
-                            self.node_dicts[layer + 1][node_idx + 1][parent] = f'node{layer}_{node_idx + 1}'
+                            self.set_nodes(layer, node_idx, 'child1', 1, node_idx)
+                            self.set_nodes(layer, node_idx, 'child2', 2, node_idx + 1)
 
                         else:
-                            self.node_dicts[layer][node_idx]['child1'] = f'node{layer + 1}_{node_idx + 1}'
-                            parent = self.check_parent(layer + 1, node_idx)
-                            self.node_dicts[layer + 1][node_idx][parent] = f'node{layer}_{node_idx + 1}'
+                            self.set_nodes(layer, node_idx, 'child1', 1, node_idx)
 
     def write_path_df(self, num_layers: int):
         """Convert node dictionaries into a DataFrame and return it."""
