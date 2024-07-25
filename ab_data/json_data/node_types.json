@@ -10,7 +10,7 @@
       "tough": "question"
     },
     "swamp": {
-      "fight": "swamp",
+      "fight": ["swamp", "swamp"],
       "shop": "swamp",
       "tough": "question"
     },
@@ -25,7 +25,7 @@
     "tough": "question"
     },
     "rift": {
-    "fight": "blaze",
+    "fight": ["blaze", "blaze"],
     "shop": "blaze",
     "tough": "question"
     }

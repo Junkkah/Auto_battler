@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.3.2] - 2024-07-25
+### Added
+- Comprehensive docstring documentation throughout the codebase for better understanding and maintenance.
+- Map key added to the path screen, providing descriptions of location icons for improved user navigation.
+- Integration of item usage into the simulator for more realistic gameplay simulations.
+
+### Changed
+- Refactored the algorithm for random map generation, improving readability and maintainability.
+- Minor adjustments to monster stats across all adventures to improve gameplay balance.  
+
+### Fixed
+- Corrected an issue where certain talent effects were improperly stacking.
+
 ## [1.3.1] - 2024-05-18
 ### Added
 - Info screen for hero attributes and talents.

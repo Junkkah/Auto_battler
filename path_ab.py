@@ -70,11 +70,12 @@ class Path(Config):
         shop = node_type_data['shop']
         tough = node_type_data['tough']
         fight_options = node_type_data['fight']
-        if isinstance(fight_options, list):
-            fight1 = fight_options[0]
-            fight2 = fight_options[1]
-        else:
-            fight1, fight2 = fight_options
+        #if isinstance(fight_options, list):
+        fight1 = fight_options[0]
+        fight2 = fight_options[1]
+        #else:
+        #    fight1 = fight_options
+        #    fight2 = fight_options
 
         map_key_image_data = {
             'fight1': (f'./ab_images/location/{fight1}.png', (self.screen_width * 0.20, self.screen_height * 0.92)),
@@ -222,7 +223,7 @@ class Path(Config):
                 if locs_draw.parent1 is None:
                     self.draw_circle(self.white, locs_draw.pos, int(radius), 2)
         
-        #don't draw lines further than next layer at swamp
+        #draw lines only to current location children in swamp, unless scout
         if Config.current_adventure != 'swamp' or Config.scout_active:
             for node in self.loc_objects:
                 if node.child1:
