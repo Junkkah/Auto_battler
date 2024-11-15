@@ -59,10 +59,13 @@ class Hero(Config, pg.sprite.Sprite):
         #"hand2": [[0.37, 0.27], [0.57, 0.27], [0.77, 0.27]],
 
         self.df = hero_data[hero_data['type'] == self.type].reset_index(drop=True)
-        # Assign stats type, health, max_health, damage, speed, exp, menace, armor, attack_type
+        #create damage, exp and armor attributes with values 0 and remove from database
+        # Assign stats type, health, max_health, damage, speed, exp, menace, armor, attack_type, level_health, reroll_cost
         for stat_name in self.df.columns:
             setattr(self, stat_name, int(self.df.at[0, stat_name]) if str(self.df.at[0, stat_name]).isdigit() else self.df.at[0, stat_name])
 
+        self.reroll_count = 1
+        #rename reroll_multi to reroll_cost
         self.unarmed_damage = 1
         self.magic_power = 0
         self.songmaster_rank = 0

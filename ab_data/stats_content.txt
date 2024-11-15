@@ -33,6 +33,7 @@ Columns:
 - armor: Armor value, reducing incoming damage.
 - attack_type: What type of attacks the hero uses.
 - level_health: How much the heros maximum health is increased when gaining a level. 
+- reroll_cost: Cost of rerolling talents is reroll_cost times the number of rerolls.
 
 Table: Names
 Columns:
