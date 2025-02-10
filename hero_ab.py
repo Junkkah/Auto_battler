@@ -55,7 +55,6 @@ class Hero(Config, pg.sprite.Sprite):
         self.exp_df = exp_data
         self.next_level = self.exp_df.at[0, 'exp']
         self.worn_items = {'head': None, 'body': None, 'hand1': None, 'consumable': None}
-        #self.worn_items = {'head': None, 'body': None, 'hand1': None, 'hand2': None, 'consumable': None}
         #"hand2": [[0.37, 0.27], [0.57, 0.27], [0.77, 0.27]],
 
         self.df = hero_data[hero_data['type'] == self.type].reset_index(drop=True)
@@ -65,7 +64,6 @@ class Hero(Config, pg.sprite.Sprite):
             setattr(self, stat_name, int(self.df.at[0, stat_name]) if str(self.df.at[0, stat_name]).isdigit() else self.df.at[0, stat_name])
 
         self.reroll_count = 1
-        #rename reroll_multi to reroll_cost
         self.unarmed_damage = 1
         self.magic_power = 0
         self.songmaster_rank = 0
@@ -81,8 +79,6 @@ class Hero(Config, pg.sprite.Sprite):
         self.item_stats_dict = {'speed': 0, 'damage': 0, 'menace': 0, 'armor': 0, 'magic_power': 0, 'critical': 0, 'evasion': 0}
 
         self.talent_activations = {}
-        #single activation talent: 'stone_skin': 1
-        #single activation melee_attack, spell_attack, take_damage
         self.aura = None
         self.enemy_armor_penalty = 0
 
@@ -351,7 +347,7 @@ class Hero(Config, pg.sprite.Sprite):
         fire_spell = row_to_dict(spells_data, spell_name)
         self.spell_attack(fire_spell)
 
-    #used for talent and item
+    #used for both talent and item
     def healing_activation(self, rank):
         """Heal the hero based on the given rank."""
         total_rank = rank

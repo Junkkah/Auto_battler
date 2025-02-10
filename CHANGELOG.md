@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.3] - 2025-02-10
+### Added
+- Added a reroll button to the level-up screen, allowing players to reroll a hero’s talent selection.
+
+### Changed
+- Increased starting hitpoints for Bards, Thieves, and Wizards to improve early-game survivability.
+
 ## [1.3.2] - 2024-07-25
 ### Added
 - Comprehensive docstring documentation throughout the codebase for better understanding and maintenance.
